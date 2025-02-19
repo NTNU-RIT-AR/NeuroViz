@@ -10,7 +10,6 @@ use lazy_static::lazy_static;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
-    println!("Hii");
     format!("Hi, {}! You've been greeted from Rust!", name)
 }
 
@@ -31,9 +30,9 @@ pub fn run() {
 lazy_static! {
     static ref PARAMS: Arc<Mutex<Parameters>> = Arc::new(Mutex::new(Parameters {
         slider1: 1.0,
-        slider2: 2.5,
-        slider3: 3.75,
-        slider4: 4.9,
+        slider2: 1.0,
+        slider3: 1.0,
+        slider4: 1.0,
     }));
 }
 
@@ -65,8 +64,12 @@ async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::So
     loop {
         let params = PARAMS.lock().unwrap().clone();
         let json_string = serde_json::to_string(&params).unwrap();
-        // stream.send(json_string.into()).await.expect("Failed to send");  
-        stream.write_all(json_string.as_bytes()).await;
+        
+        // Breaks out of the loop when the Tcp client has disconnected and can not recieve more writes
+        if let Err(_) = stream.write_all(json_string.as_bytes()).await {
+            println!("Client disconnected: {}", addr);
+            break;
+        }
         tokio::time::sleep(Duration::from_millis(1)).await;
     }
 
@@ -76,16 +79,10 @@ async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::So
 #[tauri::command]
 fn update_slider(new_slider1: f32, new_slider2: f32, new_slider3: f32, new_slider4: f32) {
     let mut params = PARAMS.lock().unwrap();
-    dbg!("hallaaaaaa");
     params.slider1 = new_slider1;
     params.slider2 = new_slider2;
     params.slider3 = new_slider3;
     params.slider4 = new_slider4;
     println!("Updated slider values {:?}", params);
 
-    // let json_string = serde_json::to_string(&*params).unwrap();
-    // match tx.send(json_string) {
-    //     Ok(_) => true,
-    //     Err(_) => false
-    // }
 }
