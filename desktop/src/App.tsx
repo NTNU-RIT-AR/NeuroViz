@@ -1,67 +1,27 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
+import { updateParameterValues } from "./commands";
+
+import QRcode from "./components/QRcode";
 import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  // const [greetMsg, setGreetMsg] = useState("");
+  // const [name, setName] = useState("");
   const [slider1, setSlider1] = useState<Number>(1.0);
   const [slider2, setSlider2] = useState<Number>(1.0);
   const [slider3, setSlider3] = useState<Number>(1.0);
   const [slider4, setSlider4] = useState<Number>(1.0);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
-  async function updateParameterValues(
-    s1: Number,
-    s2: Number,
-    s3: Number,
-    s4: Number
-  ) {
-    await invoke("update_slider", {
-      newSlider1: s1,
-      newSlider2: s2,
-      newSlider3: s3,
-      newSlider4: s4,
-    });
-  }
+  // async function greet() {
+  //   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+  //   setGreetMsg(await invoke("greet", { name }));
+  // }
 
   return (
     <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
+      <h1>Connect on the app</h1>
+      <QRcode />
 
       <form className="parameters">
         <label htmlFor="slider1">Slider 1</label>
@@ -118,6 +78,7 @@ function App() {
             setSlider3(parseFloat(e.currentTarget.value));
           }}
         ></input>
+
         <label htmlFor="slider4">Slider 4</label>
         <input
           name="slider4"
@@ -137,6 +98,22 @@ function App() {
           }}
         ></input>
       </form>
+
+      {/* <form
+        className="row"
+        onSubmit={(e) => {
+          e.preventDefault();
+          greet();
+        }}
+      >
+        <input
+          id="greet-input"
+          onChange={(e) => setName(e.currentTarget.value)}
+          placeholder="Enter a name..."
+        />
+        <button type="submit">Greet</button>
+      </form>
+      <p>{greetMsg}</p> */}
     </main>
   );
 }
