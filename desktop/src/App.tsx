@@ -6,10 +6,10 @@ import "./App.css";
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
-  const [slider1, setSlider1] = useState<Number>(0.0);
-  const [slider2, setSlider2] = useState<Number>(0.0);
-  const [slider3, setSlider3] = useState<Number>(0.0);
-  const [slider4, setSlider4] = useState<Number>(0.0);
+  const [slider1, setSlider1] = useState<Number>(1.0);
+  const [slider2, setSlider2] = useState<Number>(1.0);
+  const [slider3, setSlider3] = useState<Number>(1.0);
+  const [slider4, setSlider4] = useState<Number>(1.0);
 
   async function greet() {
     // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -63,7 +63,7 @@ function App() {
       </form>
       <p>{greetMsg}</p>
 
-      <form>
+      <form className="parameters">
         <label htmlFor="slider1">Slider 1</label>
         <input
           name="slider1"

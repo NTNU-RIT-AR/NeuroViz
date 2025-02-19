@@ -30,6 +30,12 @@
   text-align: center;
 }
 
+form.parameters {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
