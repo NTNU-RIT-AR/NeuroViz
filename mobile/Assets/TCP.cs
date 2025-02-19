@@ -39,13 +39,21 @@ public class TCP : MonoBehaviour
             Debug.Log("On client connect exception " + e); 		
         } 	
     }
-    
+
+
+    private void OnDestroy()
+    {
+        tcpThread.Abort();
+        client.Close();
+    }
     // TODO: Destroy the thread when the game is closed
+    
     
     private void ListenForData() { 		
         try {
             client = new TcpClient(ip, port);
             var buffer = new byte[1024];       
+            var stringBuilder = new StringBuilder(); // Accumulate data until we find a newline
             
             while (true)
             {
@@ -53,22 +61,40 @@ public class TCP : MonoBehaviour
                 using NetworkStream stream = client.GetStream();
                 int length; 					
                 
-                // Read incoming stream into byte array. 					
                 while ((length = stream.Read(buffer, 0, buffer.Length)) != 0) {
                     try
                     {
-                        var incomingData = new byte[length]; 						
-                        Array.Copy(buffer, 0, incomingData, 0, length); 						
+                        // var incomingData = new byte[length]; 	
+                        // Array.Copy(buffer, 0, incomingData, 0, length); 						
                         // Convert byte array to string message. 						
-                        var serverMessage = Encoding.ASCII.GetString(incomingData); 						
-                        Debug.Log("server message received as: " + serverMessage); 	
+                        var incomingData = Encoding.ASCII.GetString(buffer, 0, length); 				
+                        Debug.Log("incomingData: " + incomingData);
+                        stringBuilder.Append(incomingData);
+                        // Debug.Log("server message received as: " + serverMessage); 	
                     
-                        var jsonData = JsonUtility.FromJson<JsonData>(serverMessage);
+                        string accumulatedData = stringBuilder.ToString();
+                        string[] messages = accumulatedData.Split(new[] { "\n" }, StringSplitOptions.None);
 
-                        lock (_lockObject)
-                        {
-                            data = jsonData;
+                        for (int i = 0; i < messages.Length - 1; i++) {
+                            // Each complete message (excluding the last, which might be incomplete)
+                            string serverMessage = messages[i].Trim();
+                        
+                            Debug.Log("server message received as: " + serverMessage);
+                            var jsonData = JsonUtility.FromJson<JsonData>(serverMessage);
+
+                            lock (_lockObject) {
+                                data = jsonData;
+                            }
                         }
+                        
+                        stringBuilder.Clear();
+                        stringBuilder.Append(messages[^1]); // The last element
+                        // var jsonData = JsonUtility.FromJson<JsonData>(serverMessage);
+                        //
+                        // lock (_lockObject)
+                        // {
+                        //     data = jsonData;
+                        // }
                     }
                     catch (Exception e)
                     {
@@ -91,19 +117,27 @@ public class TCP : MonoBehaviour
     {
         lock (_lockObject)
         {
-            var sliders = new List<float>() {
-                data.slider1,
-                data.slider2,
-                data.slider3,
-                data.slider4
-            };
+            // var sliders = new List<float>() {
+            //     data.slider1,
+            //     data.slider2,
+            //     data.slider3,
+            //     data.slider4
+            // };
 
-            foreach (var (slider, mesh) in sliders.Zip(objects, (slider, renderObject) => (slider,renderObject)))
+            foreach (var mesh in objects)
             {
-                Debug.Log(slider);
-                var oldColor = mesh.material.color;
-                mesh.material.color = new Color(oldColor.r, oldColor.g, oldColor.b, slider);
+                mesh.material.SetFloat("_Hue", data.slider1);
+                mesh.material.SetFloat("_Smoothness", data.slider2);
+                mesh.material.SetFloat("_Metallic", data.slider3);
+                mesh.material.SetFloat("_Emission", data.slider4);
             }
+
+            // foreach (var (slider, mesh) in sliders.Zip(objects, (slider, renderObject) => (slider,renderObject)))
+            // {
+            //     Debug.Log(slider);
+            //     var oldColor = mesh.material.color;
+            //     mesh.material.color = new Color(oldColor.r, oldColor.g, oldColor.b, slider);
+            // }
         }
     }
 }
