@@ -124,8 +124,7 @@ public class TCP : MonoBehaviour
             //     data.slider4
             // };
 
-            foreach (var mesh in objects)
-            {
+            foreach (var mesh in objects) {
                 mesh.material.SetFloat("_Hue", data.slider1);
                 mesh.material.SetFloat("_Smoothness", data.slider2);
                 mesh.material.SetFloat("_Metallic", data.slider3);
