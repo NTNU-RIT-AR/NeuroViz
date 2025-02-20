@@ -66,7 +66,7 @@ async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::So
         let json_string = serde_json::to_string(&params).unwrap();
         
         // Breaks out of the loop when the Tcp client has disconnected and can not recieve more writes
-        if let Err(_) = stream.write_all(json_string.as_bytes()).await {
+        if let Err(_) = stream.write_all((json_string + "\n").as_bytes()).await {
             println!("Client disconnected: {}", addr);
             break;
         }
