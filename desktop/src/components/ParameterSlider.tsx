@@ -1,13 +1,15 @@
 import { updateParameterValues } from "../commands";
+import { useState } from "react";
 
 interface ComponentProps {
-  setSlider: (n: Number) => void;
-  slider: Number;
+  slider: String;
 }
-export default function ParameterSlider({ setSlider, slider }: ComponentProps) {
+export default function ParameterSlider({ slider }: ComponentProps) {
+  const [_slider, setSlider] = useState<Number>(1.0);
+
   return (
     <>
-      <label htmlFor={"slider" + slider}>Slider {slider.toString()}</label>
+      <label htmlFor={"slider" + slider}>Slider {slider}</label>
       <input
         name={"slider" + slider}
         type="range"
