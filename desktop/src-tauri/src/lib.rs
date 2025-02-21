@@ -77,12 +77,14 @@ async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::So
 
 /// Function called by Tauri UI when a slider value changes
 #[tauri::command]
-fn update_slider(new_slider1: f32, new_slider2: f32, new_slider3: f32, new_slider4: f32) {
+fn update_slider(slider_number: &str, slider_value: f32) {
     let mut params = PARAMS.lock().unwrap();
-    params.slider1 = new_slider1;
-    params.slider2 = new_slider2;
-    params.slider3 = new_slider3;
-    params.slider4 = new_slider4;
+    match slider_number {
+        "1" => params.slider1 = slider_value,
+        "2" => params.slider2 = slider_value,
+        "3" => params.slider3 = slider_value,
+        "4" => params.slider4 = slider_value,
+        _ => {},
+    }
     println!("Updated slider values {:?}", params);
-
 }
