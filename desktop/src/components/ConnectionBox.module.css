@@ -1,0 +1,35 @@
+
+.box {
+  width: 200px;
+  height: 190px;
+
+  border-radius: 10px;
+}
+
+.connected {
+  color: var(--green-hl);
+  border: 1px solid var(--green-hl);
+  background: var(--green-bg); 
+
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  flex-direction: column;
+  
+}
+
+.disconnected {
+  color: var(--red-bg);
+  border: 1px solid var(--red-hl);
+  background: var(--red-bg); 
+}
+
+img {
+  width: 170px;
+  margin-top: 30px;
+
+}
+
+
+
+

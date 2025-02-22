@@ -1,21 +1,39 @@
-import ParameterSlider from "./components/ParameterSlider";
-
-import QRcode from "./components/QRcode";
 import "./App.css";
+import Sidebar from "./components/Sidebar";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import LiveViewPage from "./pages/LiveView";
+import PresetsPage from "./pages/Presets";
+import QuestionairesPage from "./pages/Questionaires";
+import ResultsPage from "./pages/Results";
+import { useEffect } from "react";
 
-function App() {
+function AutoNavigate() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Navigate to the desired page on component mount
+    navigate('/live-view');
+  }, [navigate]);
+
+  return null; // No UI for the redirect component
+}
+
+export default function App() {
   return (
-    <main className="container">
-      <h1>Connect on the app</h1>
-      <QRcode />
-      <form className="parameters">
-        <ParameterSlider slider={"1"} />
-        <ParameterSlider slider={"2"} />
-        <ParameterSlider slider={"3"} />
-        <ParameterSlider slider={"4"} />
-      </form>
-    </main>
+    <BrowserRouter>
+      <div className="MainLayout">
+        <Sidebar />
+        <main className="container">
+          <AutoNavigate />
+          <Routes>
+            <Route path="/live-view" element={<LiveViewPage />} />
+            <Route path="/presets" element={<PresetsPage />} />
+            <Route path="/questionaires" element={<QuestionairesPage />} />
+            <Route path="/results" element={<ResultsPage />} />
+          </Routes>
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 
-export default App;
