@@ -1,9 +1,10 @@
 
 .box {
   width: 200px;
-  height: 190px;
+  height: 180px;
 
   border-radius: 10px;
+  transition-duration: .5s;
 }
 
 .connected {
@@ -22,6 +23,7 @@
   color: var(--red-bg);
   border: 1px solid var(--red-hl);
   background: var(--red-bg); 
+  height: 200px;
 }
 
 img {

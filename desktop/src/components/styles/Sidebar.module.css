@@ -1,0 +1,40 @@
+
+.Sidebar{
+
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+
+  border-right: 1px solid var(--line);
+  
+  padding: 20px
+
+}
+
+nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 12vh;
+}
+
+
+nav > .Link {
+  color: var(--text);
+  font-size: 1.2rem;
+
+  padding: 10px;
+  padding-top: 13px;
+  border-radius: 10px;
+  margin-top: 20px;
+
+  outline: none;
+  vertical-align: middle;
+  transition-duration: .1s;
+}
+
+.active{
+  background-color: var(--primary-bg);
+  border: solid 1.5px var(--primary-hl);
+}
+
