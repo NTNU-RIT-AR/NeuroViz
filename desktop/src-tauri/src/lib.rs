@@ -1,24 +1,20 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-use tokio::{io::AsyncWriteExt, net::TcpListener};
 use serde::Serialize;
 use serde_json;
+use tokio::{io::AsyncWriteExt, net::TcpListener};
 
-use std::{sync::{Arc, Mutex}, time::Duration};
-use serde::Deserialize;
 use lazy_static::lazy_static;
-
-
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hi, {}! You've been greeted from Rust!", name)
-}
+use serde::Deserialize;
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, update_slider])
+        .invoke_handler(tauri::generate_handler![update_slider])
         .setup(|_app| {
             tauri::async_runtime::spawn(thingy());
             Ok(())
@@ -53,18 +49,16 @@ async fn thingy() {
     // let (tx, _) = broadcast::channel::<String>(10); // Message broadcaster
 
     while let Ok((stream, addr)) = listener.accept().await {
-        
+        println!("New connection: {}", addr);
         tokio::spawn(handle_connection(stream, addr));
     }
 }
 
 async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::SocketAddr) {
-    println!("New connection: {}", addr);
-
     loop {
         let params = PARAMS.lock().unwrap().clone();
         let json_string = serde_json::to_string(&params).unwrap();
-        
+
         // Breaks out of the loop when the Tcp client has disconnected and can not recieve more writes
         if let Err(_) = stream.write_all((json_string + "\n").as_bytes()).await {
             println!("Client disconnected: {}", addr);
@@ -72,7 +66,6 @@ async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::So
         }
         tokio::time::sleep(Duration::from_millis(1)).await;
     }
-
 }
 
 /// Function called by Tauri UI when a slider value changes
@@ -84,7 +77,7 @@ fn update_slider(slider_number: &str, slider_value: f32) {
         "2" => params.slider2 = slider_value,
         "3" => params.slider3 = slider_value,
         "4" => params.slider4 = slider_value,
-        _ => {},
+        _ => {}
     }
     println!("Updated slider values {:?}", params);
 }
