@@ -1,5 +1,5 @@
 import { QRCodeCanvas } from "qrcode.react";
-import styles from "./ConnectionBox.module.css"
+import styles from "./styles/ConnectionBox.module.css"
 
 interface ConnectionBoxProps {
   url: string,

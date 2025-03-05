@@ -1,6 +1,9 @@
 import { updateParameterValues } from "../commands";
 import { useState } from "react";
 
+
+import styles from "./styles/ParameterSlider.module.css";
+
 interface ComponentProps {
   slider: String;
 }
@@ -8,10 +11,11 @@ export default function ParameterSlider({ slider }: ComponentProps) {
   const [_slider, setSlider] = useState<Number>(1.0);
 
   return (
-    <>
+    <div className={styles.container}>
       <label htmlFor={"slider" + slider}>Slider {slider}</label>
       <input
         name={"slider" + slider}
+        className={styles.slider}
         type="range"
         min="0"
         step={0.01}
@@ -21,7 +25,7 @@ export default function ParameterSlider({ slider }: ComponentProps) {
           updateParameterValues(slider, Number(e.currentTarget.value));
           setSlider(parseFloat(e.currentTarget.value));
         }}
-      ></input>
-    </>
+      ></input >
+    </div>
   );
 }

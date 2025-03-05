@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import ParameterSlider from "../components/ParameterSlider";
 
 export default function LiveViewPage() {

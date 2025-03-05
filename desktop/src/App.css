@@ -12,6 +12,10 @@
 
   --line: #554C66;
 
+  --primary-hl: #8d4aff;
+  --primary-bg: #4926794c;
+
+  --white: #f9f9f9;
 
   color: #eeeeee;
   text: #f9f9f9;
@@ -74,6 +78,7 @@ a:hover {
 
 h1 {
   text-align: center;
+  color: var(--primary);
 }
 
 input,
@@ -92,14 +97,6 @@ button {
 
 button {
   cursor: pointer;
-}
-
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
 }
 
 input,
