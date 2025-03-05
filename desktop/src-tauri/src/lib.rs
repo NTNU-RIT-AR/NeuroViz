@@ -10,16 +10,17 @@ use std::{
     sync::{Arc, Mutex},
     time::Duration,
 };
+use local_ip_address::local_ip;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![update_slider])
+        .invoke_handler(tauri::generate_handler![update_slider, get_ip_address])
         .setup(|app| {
 
             let app_handle = app.app_handle().clone();
-            tauri::async_runtime::spawn(thingy(app_handle));
+            tauri::async_runtime::spawn(tcp_listener(app_handle));
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -43,7 +44,7 @@ struct Parameters {
     slider4: f32,
 }
 
-async fn thingy(app_handle: AppHandle) {
+async fn tcp_listener(app_handle: AppHandle) {
     let addr = "0.0.0.0:9001"; // Listen on all interfaces
     let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
 
@@ -89,6 +90,20 @@ fn update_slider(slider_number: &str, slider_value: f32) {
         _ => {}
     }
     println!("Updated slider values {:?}", params);
+}
+
+#[tauri::command]
+fn get_ip_address() -> String {
+    match local_ip() {
+        Ok(ip) => {
+            println!("Local IP address: {}", ip);
+            return format!("{}", ip);
+        },
+        Err(e) => {
+            eprintln!("Error retrieving local IP: {}", e);
+            return String::from("");
+        },
+    }
 }
 
 // #[tauri::command]

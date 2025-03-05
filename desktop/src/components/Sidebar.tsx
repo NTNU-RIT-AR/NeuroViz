@@ -1,12 +1,16 @@
 import { NavLink } from "react-router-dom";
-import ConnectionBox from "./ConnectionBox.tsx";
 import { listen } from "@tauri-apps/api/event";
-
-import styles from "./styles/Sidebar.module.css";
 import { useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
+
+import { DEEPLINK } from "../const.ts";
+import ConnectionBox from "./ConnectionBox.tsx";
+import styles from "./styles/Sidebar.module.css";
+import { getIpAddress } from "../commands.ts";
 
 export default function Sidebar() {
   const [deviceConnected, setDeviceConnected] = useState<boolean>(false);
+  const [ipAddress, setIpAddress] = useState<string>("");
 
   useEffect(() => {
     const connectionEventListener = listen<string>("connection", (event) => {
@@ -22,6 +26,16 @@ export default function Sidebar() {
       }
     );
 
+    async function getIp() {
+      const ipAddress = await getIpAddress();
+      console.log("ip address is ", ipAddress);
+
+      if (ipAddress !== "") {
+        setIpAddress(ipAddress);
+      }
+    }
+    getIp();
+
     return () => {
       //Remove event listeners
       connectionEventListener.then((unlisten) => unlisten());
@@ -31,10 +45,13 @@ export default function Sidebar() {
 
   return (
     <div className={styles.Sidebar}>
-      <ConnectionBox
-        url={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
-        isConnected={deviceConnected}
-      />
+      {ipAddress !== "" && (
+        <ConnectionBox
+          // url={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
+          url={DEEPLINK + ipAddress}
+          isConnected={deviceConnected}
+        />
+      )}
       <nav>
         <NavLink
           className={({ isActive }) =>
