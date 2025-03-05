@@ -2,6 +2,7 @@
 use serde::Serialize;
 use serde_json;
 use tokio::{io::AsyncWriteExt, net::TcpListener};
+use tauri::{Emitter, Manager, AppHandle};
 
 use lazy_static::lazy_static;
 use serde::Deserialize;
@@ -15,8 +16,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![update_slider])
-        .setup(|_app| {
-            tauri::async_runtime::spawn(thingy());
+        .setup(|app| {
+
+            let app_handle = app.app_handle().clone();
+            tauri::async_runtime::spawn(thingy(app_handle));
             Ok(())
         })
         .run(tauri::generate_context!())
@@ -40,7 +43,7 @@ struct Parameters {
     slider4: f32,
 }
 
-async fn thingy() {
+async fn thingy(app_handle: AppHandle) {
     let addr = "0.0.0.0:9001"; // Listen on all interfaces
     let listener = TcpListener::bind(&addr).await.expect("Failed to bind");
 
@@ -50,11 +53,16 @@ async fn thingy() {
 
     while let Ok((stream, addr)) = listener.accept().await {
         println!("New connection: {}", addr);
-        tokio::spawn(handle_connection(stream, addr));
+        let app_handle_clone = app_handle.clone();
+        tokio::spawn(handle_connection(stream, addr, app_handle_clone));
     }
 }
 
-async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::SocketAddr) {
+async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::SocketAddr, app_handle: AppHandle) {
+    
+    //Emit to frontend that device has connected
+    emit_connection_event(&app_handle);
+
     loop {
         let params = PARAMS.lock().unwrap().clone();
         let json_string = serde_json::to_string(&params).unwrap();
@@ -62,6 +70,7 @@ async fn handle_connection(mut stream: tokio::net::TcpStream, addr: std::net::So
         // Breaks out of the loop when the Tcp client has disconnected and can not recieve more writes
         if let Err(_) = stream.write_all((json_string + "\n").as_bytes()).await {
             println!("Client disconnected: {}", addr);
+            emit_disconnection_event(app_handle);
             break;
         }
         tokio::time::sleep(Duration::from_millis(1)).await;
@@ -80,4 +89,14 @@ fn update_slider(slider_number: &str, slider_value: f32) {
         _ => {}
     }
     println!("Updated slider values {:?}", params);
+}
+
+// #[tauri::command]
+fn emit_connection_event(app_handle: &AppHandle) {
+    app_handle.emit("connection", "A device has connected").unwrap();
+}
+
+// #[tauri::command]
+fn emit_disconnection_event(app_handle: AppHandle) {
+    app_handle.emit("disconnection", "A device has disconnected").unwrap();
 }
