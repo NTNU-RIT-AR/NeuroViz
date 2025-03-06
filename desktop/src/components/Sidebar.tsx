@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 
 import { DEEPLINK } from "../const.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
