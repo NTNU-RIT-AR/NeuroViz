@@ -9,7 +9,7 @@
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="ardemoapp" android:host="deviceconnection" />
+        <data android:scheme="unitydl" android:host="ardemoappdeviceconnection" />
       </intent-filter>
     </activity>
     <meta-data android:name="nreal_sdk" android:value="true" />

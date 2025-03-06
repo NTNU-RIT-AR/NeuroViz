@@ -1,2 +1,2 @@
-const DEEPLINK = "ardemoapp://deviceconnection?ipaddress=";
+const DEEPLINK = "unitydl://ardemoappdeviceconnection?";
 export { DEEPLINK };
