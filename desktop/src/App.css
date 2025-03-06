@@ -29,18 +29,20 @@
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  margin: 0;
-  height: 100%;
-}
-html {
-  height: 100%;
+
+html, body, * {
+  user-select: none; !important
+  user-drag: none; !important
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+
 }
 
-div#root {
+html, body, div#root {
+  margin: 0px;
   height: 100%;
 }
-
 
 .MainLayout {
   display: flex;
