@@ -7,4 +7,8 @@ async function updateParameterValues(slider: String, value: Number) {
   });
 }
 
-export { updateParameterValues };
+async function getIpAddress(): Promise<string> {
+  return await invoke("get_ip_address");
+}
+
+export { updateParameterValues, getIpAddress };
