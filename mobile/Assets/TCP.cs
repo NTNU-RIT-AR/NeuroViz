@@ -27,27 +27,27 @@ public class TCP : MonoBehaviour
     private Thread tcpThread;
     private TcpClient client;
 
-    public static TCP Instance { get; private set; }
+    //public static TCP Instance { get; private set; }
 
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            Application.deepLinkActivated += onDeepLinkActivated;
-            if (!string.IsNullOrEmpty(Application.absoluteURL))
-            {
-                // Cold start and Application.absoluteURL not null so process Deep Link.
-                onDeepLinkActivated(Application.absoluteURL);
-            }
-            // Initialize DeepLink Manager global variable
-            else DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
+    //private void Awake()
+    //{
+    //    if (Instance == null)
+    //    {
+    //        Instance = this;
+    //        Application.deepLinkActivated += onDeepLinkActivated;
+    //        if (!string.IsNullOrEmpty(Application.absoluteURL))
+    //        {
+    //            // Cold start and Application.absoluteURL not null so process Deep Link.
+    //            onDeepLinkActivated(Application.absoluteURL);
+    //        }
+    //        // Initialize DeepLink Manager global variable
+    //        else DontDestroyOnLoad(gameObject);
+    //    }
+    //    else
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //}
     
     void Start() {
 
