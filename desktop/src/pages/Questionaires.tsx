@@ -1,6 +1,3 @@
-
-export default function QuestionairesPage() {
-  return (
-    <p>questionaires page text</p>
-  )
+export default function ExperimentsPage() {
+  return <p>questionaires page text</p>;
 }
