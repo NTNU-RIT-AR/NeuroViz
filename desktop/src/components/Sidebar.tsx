@@ -2,20 +2,30 @@ import { NavLink } from "react-router-dom";
 import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 
-import { DEEPLINK } from "../const.ts";
+import {
+  DEEPLINK,
+  ROUTE_EXPERIMENTS,
+  ROUTE_LIVE_VIEW,
+  ROUTE_PRESETS,
+  ROUTE_RESULTS,
+} from "../const.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
 import "../App.css"
 import styles from "./styles/Sidebar.module.css";
 import { getIpAddress } from "../commands.ts";
+import { useAppNavigate } from "./../NavigationProvider.tsx";
 
 export default function Sidebar() {
   const [deviceConnected, setDeviceConnected] = useState<boolean>(false);
   const [ipAddress, setIpAddress] = useState<string>("");
 
+  const navigate = useAppNavigate();
+
   useEffect(() => {
     const connectionEventListener = listen<string>("connection", (event) => {
       console.log("Device connected", event.payload);
       setDeviceConnected(true);
+      navigate(ROUTE_LIVE_VIEW);
     });
 
     const disconnectionEventListener = listen<string>(
@@ -57,7 +67,7 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${styles.Link} ${isActive ? styles.active : ""}`
           }
-          to="/live-view"
+          to={ROUTE_LIVE_VIEW}
         >
           Live View
         </NavLink>
@@ -65,7 +75,7 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${styles.Link} ${isActive ? styles.active : ""}`
           }
-          to="/presets"
+          to={ROUTE_PRESETS}
         >
           Presets
         </NavLink>
@@ -73,15 +83,15 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `${styles.Link} ${isActive ? styles.active : ""}`
           }
-          to="/questionaires"
+          to={ROUTE_EXPERIMENTS}
         >
-          Questionaires
+          Experiments
         </NavLink>
         <NavLink
           className={({ isActive }) =>
             `${styles.Link} ${isActive ? styles.active : ""}`
           }
-          to="/results"
+          to={ROUTE_RESULTS}
         >
           Results
         </NavLink>

@@ -69,18 +69,6 @@ public class TCP : MonoBehaviour
         ip = ipAddress;
     }
 
-    //private void ProcessDeepLink(string url)
-    //{
-    //    Uri uri = new Uri(url);
-    //    Console.Write(url);
-    //    var ipAddress= System.Web.HttpUtility.ParseQueryString(uri.Query).Get("ipaddress");
-
-    //    if (!string.IsNullOrEmpty(ipAddress))  // Safely check for null or empty values
-    //    {
-    //        ip = ipAddress;
-    //    }
-    //}
-
 
     private void OnDestroy()
     {
