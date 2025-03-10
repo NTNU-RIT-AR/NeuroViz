@@ -1,13 +1,17 @@
 // Load files from the folder
 
-import { BaseDirectory } from "@tauri-apps/api/path";
 import { useEffect, useState } from "react";
 import { invoke } from '@tauri-apps/api/core';
 
 
 
-async function fetchFiles(): Promise<string[]> {
-  return await invoke('list_files');
+async function fetchFiles(folder: String): Promise<string[]> {
+  try {
+    return await invoke('list_files', { folder: folder });
+  } catch (error) {
+    console.log("error")
+  }
+
 }
 
 export default function PresetsPage() {
@@ -20,7 +24,17 @@ export default function PresetsPage() {
   // }
 
   useEffect(() => {
-    fetchFiles().then(setFiles);
+    let folder = "/presets";
+    try {
+      fetchFiles(folder)
+      console.log("success")
+    } catch (error) {
+      console.log("error")
+    }
+
+    fetchFiles(folder)
+
+    fetchFiles(folder).then(setFiles);
   }, [])
 
   return (

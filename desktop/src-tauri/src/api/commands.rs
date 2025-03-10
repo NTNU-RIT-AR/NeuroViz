@@ -1,13 +1,10 @@
 pub mod commands {
-    use serde::{Deserialize, Serialize};
-    use std::{fs, path::Path};
+    use std::fs;
+    use std::io;
+    use std::path;
 
     use super::super::super::PARAMS;
     use local_ip_address::local_ip;
-    use tauri::{
-        path::{BaseDirectory, PathResolver},
-        Manager,
-    };
 
     #[tauri::command]
     pub fn get_ip_address() -> String {
@@ -36,19 +33,28 @@ pub mod commands {
         println!("Updated slider values {:?}", params);
     }
 
-    fn get_data_directory_path(app: tauri::AppHandle) -> String {
-        // Accessing the AppHandle here
-        //
-        //let path: &std::path::Path = Manager::state::<Path>(&app);
-        //path.to_str().unwrap_or("").to_string()
-        String::new()
+    fn get_data_dir() -> Option<path::PathBuf> {
+        if let Some(mut path) = dirs::data_dir() {
+            path.push("/xreal_control");
+            Some(path)
+        } else {
+            None
+        }
+
+        // This only works given that we have the app handle, using dirs is simpler
+        // get_data_dir(app: tauri::AppHandle)
+        //match app.path().data_dir() {
+        //    Ok(mut base_path) => {
+        //        //TODO: Secure with pathbuf to stop traversal attacks
+        //        base_path.push("/xreal_control");
+        //        Ok(base_path)
+        //    }
+        //    Err(_) => Err("Could not get data dir".to_string()),
+        //}
     }
 
-    //#[tauri::command]
-    pub fn list_files(folder: String) -> Result<Vec<String>, String> {
-        //let path = PathResolver.data_dir();
-        let path = "path";
-        let path = format!("{}{}{}", "path", "/", &folder);
+    fn make_file_list(path: path::PathBuf) -> Result<Vec<String>, String> {
+        //TODO: probably can simplify
         let files: Vec<String> = fs::read_dir(path)
             .map_err(|e| e.to_string())?
             .filter_map(|entry| {
@@ -64,6 +70,24 @@ pub mod commands {
             .collect();
 
         Ok(files)
+    }
+
+    #[tauri::command]
+    pub fn list_files(folder: String) -> Vec<String> {
+        let path = match get_data_dir() {
+            Some(mut path) => {
+                path.push(folder);
+                path
+            }
+            None => return vec![format!("could not get data dir path")],
+        };
+
+        println!("{}", path.display());
+
+        match make_file_list(path) {
+            Ok(file) => file,
+            Err(e) => vec![format!("could not generate file list: {}", e)],
+        }
     }
 
     //fn delete_file(file_name: String) -> Result<(), String> {
