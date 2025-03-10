@@ -4,7 +4,7 @@ use api::commands::commands;
 use api::tcpservice::tcpservice;
 
 use serde::Serialize;
-use tauri::Manager;
+use tauri::{path::BaseDirectory, Manager};
 
 use lazy_static::lazy_static;
 use serde::Deserialize;
