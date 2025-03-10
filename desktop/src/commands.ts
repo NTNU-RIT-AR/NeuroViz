@@ -1,9 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 
-async function updateParameterValues(slider: String, value: Number) {
+async function updateParameterValues(parameterName: string, value: Number) {
   await invoke("update_slider", {
-    sliderNumber: slider,
-    sliderValue: value,
+    parameterName: parameterName,
+    value: value,
   });
 }
 

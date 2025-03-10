@@ -9,10 +9,10 @@ using UnityEngine;
 [System.Serializable]
 struct JsonData
 {
-    public float slider1;
-    public float slider2;
-    public float slider3;
-    public float slider4;
+    public float hue;
+    public float smoothness;
+    public float metallic;
+    public float emission;
 }
 
 public class TCP : MonoBehaviour
@@ -130,10 +130,10 @@ public class TCP : MonoBehaviour
                         Console.WriteLine(e);
                     }
                     
-                    // Debug.Log("slider1: " + jsonData.slider1);
-                    // Debug.Log("slider2: " + jsonData.slider2);
-                    // Debug.Log("slider3: " + jsonData.slider3);
-                    // Debug.Log("slider4: " + jsonData.slider4);
+                    // Debug.Log("hue: " + jsonData.hue);
+                    // Debug.Log("smoothness: " + jsonData.smoothness);
+                    // Debug.Log("metallic: " + jsonData.metallic);
+                    // Debug.Log("emission: " + jsonData.emission);
                 }
             }         
         }         
@@ -147,17 +147,17 @@ public class TCP : MonoBehaviour
         lock (_lockObject)
         {
             // var sliders = new List<float>() {
-            //     data.slider1,
-            //     data.slider2,
-            //     data.slider3,
-            //     data.slider4
+            //     data.hue,
+            //     data.smoothness,
+            //     data.metallic,
+            //     data.emission
             // };
 
             foreach (var mesh in objects) {
-                mesh.material.SetFloat("_Hue", data.slider1);
-                mesh.material.SetFloat("_Smoothness", data.slider2);
-                mesh.material.SetFloat("_Metallic", data.slider3);
-                mesh.material.SetFloat("_Emission", data.slider4);
+                mesh.material.SetFloat("_Hue", data.hue);
+                mesh.material.SetFloat("_Smoothness", data.smoothness);
+                mesh.material.SetFloat("_Metallic", data.metallic);
+                mesh.material.SetFloat("_Emission", data.emission);
             }
 
             // foreach (var (slider, mesh) in sliders.Zip(objects, (slider, renderObject) => (slider,renderObject)))
