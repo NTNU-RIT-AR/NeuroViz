@@ -1,0 +1,1 @@
+pub const FOLDER_PRESETS : &str = "/presets";

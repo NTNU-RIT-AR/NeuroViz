@@ -1,10 +1,12 @@
 pub mod commands {
-    use std::fs;
-    use std::io;
+    use std::{fs, io};
+    use std::fs::File;
+    use std::io::Write;
     use std::path;
 
     use super::super::super::PARAMS;
     use local_ip_address::local_ip;
+    use super::super::super::consts::FOLDER_PRESETS;
 
     #[tauri::command]
     pub fn get_ip_address() -> String {
@@ -99,4 +101,33 @@ pub mod commands {
     //    //fs::remove_file(file_path).map_err(|e| e.to_string())?;
     //    Ok(())
     //}
+
+    #[tauri::command]
+    pub fn save_preset(preset_name: String) -> Result<(), String> {
+        // Parse PARAMS to JSON
+        let params = PARAMS.lock().unwrap().clone();
+        let json_string = serde_json::to_string(&params).unwrap();
+
+        create_and_write_to_json_file(json_string, FOLDER_PRESETS.to_string(), preset_name)
+    }
+
+    fn create_and_write_to_json_file(contents: String, folder_path: String, filename: String) -> Result<(), String> {
+        let mut path = get_data_dir().unwrap();
+        path.push(folder_path);
+        path.push(format!("{}.json", filename));
+        
+        // TODO: Se om vi kan fikse bedre error handling
+        let mut file = File::create_new(path).map_err(|err|format!("Preset with this name exist already (?)\n {}", err.to_string()) )?;
+        
+        // {
+        //     Ok(f) => f,
+        //     Err(err ) => match err.kind() {
+        //         Errorkind::AlreadyExists => return Err(String::from("Preset with this name already exists.")),
+        //         _ => return return Err(String::from("Unknown error.")),
+        //     }
+        // };
+        
+        file.write_all(contents.as_bytes()).map_err(|err| format!("Could not write to file\n {}", err.to_string()))
+
+    }
 }
