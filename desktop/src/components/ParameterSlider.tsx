@@ -1,31 +1,50 @@
 import { updateParameterValues } from "../commands";
-import { useState } from "react";
-
 
 import styles from "./styles/ParameterSlider.module.css";
 
 interface ComponentProps {
-  slider: String;
+  number: String;
+  min: number;
+  max: number;
+  slider: number;
+  setSlider: (number: number) => void;
 }
-export default function ParameterSlider({ slider }: ComponentProps) {
-  const [_slider, setSlider] = useState<Number>(1.0);
-
+export default function ParameterSlider({
+  number,
+  min,
+  max,
+  slider,
+  setSlider,
+}: ComponentProps) {
   return (
     <div className={styles.container}>
-      <label htmlFor={"slider" + slider}>Slider {slider}</label>
+      <div className={styles.subcontainer}>
+        <label htmlFor={"slider" + number}>Slider {number}</label>
+        <input
+          type="number"
+          step={(max - min) / 100}
+          min={min}
+          max={max}
+          value={slider}
+          onChange={(event) => {
+            setSlider(parseFloat(event.currentTarget.value));
+          }}
+        ></input>
+      </div>
       <input
-        name={"slider" + slider}
+        value={slider}
+        name={"slider" + number}
         className={styles.slider}
         type="range"
-        min="0"
-        step={0.01}
-        max="1"
+        step={(max - min) / 100}
+        min={min}
+        max={max}
         onChange={(e) => {
           e.preventDefault();
-          updateParameterValues(slider, Number(e.currentTarget.value));
+          updateParameterValues(number, Number(e.currentTarget.value));
           setSlider(parseFloat(e.currentTarget.value));
         }}
-      ></input >
+      ></input>
     </div>
   );
 }
