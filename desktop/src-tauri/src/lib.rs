@@ -1,22 +1,28 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod api;
+mod structs;
+use crate::structs::Parameters;
 use api::commands::commands;
 use api::tcpservice::tcpservice;
 
-use serde::Serialize;
-use tauri::Manager;
+use tauri::{path::BaseDirectory, Manager};
 
 use lazy_static::lazy_static;
-use serde::Deserialize;
 use std::sync::{Arc, Mutex};
-
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![commands::update_slider, commands::get_ip_address])
+        .invoke_handler(tauri::generate_handler![
+            commands::update_slider,
+            commands::get_ip_address,
+            commands::list_files
+        ])
         .setup(|app| {
+            // generate the data directory path and pass to manager
+            let path = app.path().resolve("ar-renderer", BaseDirectory::Data)?;
+            app.manage(path);
 
             let app_handle = app.app_handle().clone();
             tauri::async_runtime::spawn(tcpservice::tcp_listener(app_handle));
@@ -33,12 +39,4 @@ lazy_static! {
         slider3: 1.0,
         slider4: 1.0,
     }));
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Parameters {
-    slider1: f32,
-    slider2: f32,
-    slider3: f32,
-    slider4: f32,
 }
