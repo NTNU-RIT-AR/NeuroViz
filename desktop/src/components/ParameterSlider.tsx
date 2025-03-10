@@ -14,9 +14,19 @@ export default function ParameterSlider({
 }: ComponentProps) {
   return (
     <div className={styles.container}>
-      <label htmlFor={"slider" + number}>
-        Slider {number} {slider.toString()}
-      </label>
+      <div className={styles.subcontainer}>
+        <label htmlFor={"slider" + number}>Slider {number}</label>
+        <input
+          type="number"
+          step={0.01}
+          min="0"
+          max="1"
+          value={slider}
+          onChange={(event) => {
+            setSlider(parseFloat(event.currentTarget.value));
+          }}
+        ></input>
+      </div>
       <input
         value={slider}
         name={"slider" + number}
