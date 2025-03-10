@@ -26,8 +26,31 @@ public class TCP : MonoBehaviour
     
     private Thread tcpThread;
     private TcpClient client;
+
+    //public static TCP Instance { get; private set; }
+
+    //private void Awake()
+    //{
+    //    if (Instance == null)
+    //    {
+    //        Instance = this;
+    //        Application.deepLinkActivated += onDeepLinkActivated;
+    //        if (!string.IsNullOrEmpty(Application.absoluteURL))
+    //        {
+    //            // Cold start and Application.absoluteURL not null so process Deep Link.
+    //            onDeepLinkActivated(Application.absoluteURL);
+    //        }
+    //        // Initialize DeepLink Manager global variable
+    //        else DontDestroyOnLoad(gameObject);
+    //    }
+    //    else
+    //    {
+    //        Destroy(gameObject);
+    //    }
+    //}
     
     void Start() {
+
         try {  			
             tcpThread = new Thread (ListenForData) {
                 IsBackground = true
@@ -39,6 +62,24 @@ public class TCP : MonoBehaviour
             Debug.Log("On client connect exception " + e); 		
         } 	
     }
+
+    private void onDeepLinkActivated(string url)
+    {
+        string ipAddress = url.Split('?')[1];
+        ip = ipAddress;
+    }
+
+    //private void ProcessDeepLink(string url)
+    //{
+    //    Uri uri = new Uri(url);
+    //    Console.Write(url);
+    //    var ipAddress= System.Web.HttpUtility.ParseQueryString(uri.Query).Get("ipaddress");
+
+    //    if (!string.IsNullOrEmpty(ipAddress))  // Safely check for null or empty values
+    //    {
+    //        ip = ipAddress;
+    //    }
+    //}
 
 
     private void OnDestroy()

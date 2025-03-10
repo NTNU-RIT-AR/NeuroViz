@@ -6,7 +6,6 @@ import PresetsPage from "./pages/Presets";
 import QuestionairesPage from "./pages/Questionaires";
 import ResultsPage from "./pages/Results";
 
-
 export default function App() {
   return (
     <>
@@ -15,6 +14,7 @@ export default function App() {
           <Sidebar />
           <main className="container">
             <Routes>
+              <Route path="/" element={<></>} />
               <Route path="/live-view" element={<LiveViewPage />} />
               <Route path="/presets" element={<PresetsPage />} />
               <Route path="/questionaires" element={<QuestionairesPage />} />

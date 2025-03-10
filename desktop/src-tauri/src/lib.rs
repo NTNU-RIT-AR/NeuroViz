@@ -1,7 +1,10 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+mod api;
+use api::commands::commands;
+use api::tcpservice::tcpservice;
+
 use serde::Serialize;
-use serde_json;
-use tokio::{io::AsyncWriteExt, net::TcpListener};
+use tauri::Manager;
 
 use lazy_static::lazy_static;
 use serde::Deserialize;
@@ -33,7 +36,7 @@ pub fn run() {
 }
 
 lazy_static! {
-    static ref PARAMS: Arc<Mutex<Parameters>> = Arc::new(Mutex::new(Parameters {
+    pub static ref PARAMS: Arc<Mutex<Parameters>> = Arc::new(Mutex::new(Parameters {
         slider1: 1.0,
         slider2: 1.0,
         slider3: 1.0,
