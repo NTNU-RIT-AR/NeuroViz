@@ -1,3 +1,3 @@
 export default function ExperimentsPage() {
-  return <p>questionaires page text</p>;
+  return <p>experiments page text</p>;
 }

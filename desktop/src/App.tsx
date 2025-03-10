@@ -3,7 +3,7 @@ import Sidebar from "./components/Sidebar";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LiveViewPage from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
-import ExperimentsPage from "./pages/Questionaires";
+import ExperimentsPage from "./pages/Experiments";
 import ResultsPage from "./pages/Results";
 import { NavigationProvider } from "./NavigationProvider";
 import { SliderProvider } from "./SliderProviders";

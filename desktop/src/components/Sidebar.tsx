@@ -84,7 +84,7 @@ export default function Sidebar() {
           }
           to={ROUTE_EXPERIMENTS}
         >
-          Questionaires
+          Experiments
         </NavLink>
         <NavLink
           className={({ isActive }) =>
