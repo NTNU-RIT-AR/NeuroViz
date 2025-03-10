@@ -3,14 +3,14 @@ import { useSliders } from "../SliderProviders";
 
 export default function LiveViewPage() {
   const {
-    slider1,
-    slider2,
-    slider3,
-    slider4,
-    setSlider1,
-    setSlider2,
-    setSlider3,
-    setSlider4,
+    hue,
+    smoothness,
+    metallic,
+    emission,
+    setHue,
+    setSmoothness,
+    setMetallic,
+    setEmission,
   } = useSliders();
 
   return (
@@ -18,32 +18,32 @@ export default function LiveViewPage() {
       <h1>Live View</h1>
       <form className="parameters">
         <ParameterSlider
-          number={"1"}
+          name={"Hue"}
           min={0}
           max={1}
-          slider={slider1}
-          setSlider={setSlider1}
+          slider={hue}
+          setSlider={setHue}
         />
         <ParameterSlider
-          number={"2"}
+          name={"Smoothness"}
           min={0}
           max={1}
-          slider={slider2}
-          setSlider={setSlider2}
+          slider={smoothness}
+          setSlider={setSmoothness}
         />
         <ParameterSlider
-          number={"3"}
+          name={"Metallic"}
           min={0}
           max={1}
-          slider={slider3}
-          setSlider={setSlider3}
+          slider={metallic}
+          setSlider={setMetallic}
         />
         <ParameterSlider
-          number={"4"}
+          name={"Emission"}
           min={0}
           max={1}
-          slider={slider4}
-          setSlider={setSlider4}
+          slider={emission}
+          setSlider={setEmission}
         />
       </form>
     </>

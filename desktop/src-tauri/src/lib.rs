@@ -34,9 +34,9 @@ pub fn run() {
 
 lazy_static! {
     pub static ref PARAMS: Arc<Mutex<Parameters>> = Arc::new(Mutex::new(Parameters {
-        slider1: 1.0,
-        slider2: 1.0,
-        slider3: 1.0,
-        slider4: 1.0,
+        hue: 1.0,
+        smoothness: 1.0,
+        metallic: 1.0,
+        emission: 1.0,
     }));
 }

@@ -2,14 +2,14 @@ import { createContext, useContext, useState, ReactNode } from "react";
 
 // Define context type
 interface SliderContextType {
-  slider1: number;
-  slider2: number;
-  slider3: number;
-  slider4: number;
-  setSlider1: (value: number) => void;
-  setSlider2: (value: number) => void;
-  setSlider3: (value: number) => void;
-  setSlider4: (value: number) => void;
+  hue: number;
+  smoothness: number;
+  metallic: number;
+  emission: number;
+  setHue: (value: number) => void;
+  setSmoothness: (value: number) => void;
+  setMetallic: (value: number) => void;
+  setEmission: (value: number) => void;
 }
 
 // Create Context with default undefined value to enforce provider usage
@@ -22,22 +22,22 @@ interface SliderProviderProps {
 
 // Provider Component
 export const SliderProvider: React.FC<SliderProviderProps> = ({ children }) => {
-  const [slider1, setSlider1] = useState<number>(1.0);
-  const [slider2, setSlider2] = useState<number>(1.0);
-  const [slider3, setSlider3] = useState<number>(1.0);
-  const [slider4, setSlider4] = useState<number>(1.0);
+  const [hue, setHue] = useState<number>(1.0);
+  const [smoothness, setSmoothness] = useState<number>(1.0);
+  const [metallic, setMetallic] = useState<number>(1.0);
+  const [emission, setEmission] = useState<number>(1.0);
 
   return (
     <SliderContext.Provider
       value={{
-        slider1,
-        setSlider1,
-        slider2,
-        setSlider2,
-        slider3,
-        setSlider3,
-        slider4,
-        setSlider4,
+        hue,
+        setHue,
+        smoothness,
+        setSmoothness,
+        metallic,
+        setMetallic,
+        emission,
+        setEmission,
       }}
     >
       {children}

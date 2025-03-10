@@ -3,14 +3,14 @@ import { updateParameterValues } from "../commands";
 import styles from "./styles/ParameterSlider.module.css";
 
 interface ComponentProps {
-  number: String;
+  name: string;
   min: number;
   max: number;
   slider: number;
   setSlider: (number: number) => void;
 }
 export default function ParameterSlider({
-  number,
+  name,
   min,
   max,
   slider,
@@ -19,7 +19,7 @@ export default function ParameterSlider({
   return (
     <div className={styles.container}>
       <div className={styles.subcontainer}>
-        <label htmlFor={"slider" + number}>Slider {number}</label>
+        <label htmlFor={name}>{name}</label>
         <input
           type="number"
           step={(max - min) / 100}
@@ -33,7 +33,7 @@ export default function ParameterSlider({
       </div>
       <input
         value={slider}
-        name={"slider" + number}
+        name={name}
         className={styles.slider}
         type="range"
         step={(max - min) / 100}
@@ -41,7 +41,7 @@ export default function ParameterSlider({
         max={max}
         onChange={(e) => {
           e.preventDefault();
-          updateParameterValues(number, Number(e.currentTarget.value));
+          updateParameterValues(name, Number(e.currentTarget.value));
           setSlider(parseFloat(e.currentTarget.value));
         }}
       ></input>

@@ -21,13 +21,13 @@ pub mod commands {
     }
 
     #[tauri::command]
-    pub fn update_slider(slider_number: &str, slider_value: f32) {
+    pub fn update_slider(parameter_name: &str, value: f32) {
         let mut params = PARAMS.lock().unwrap();
-        match slider_number {
-            "1" => params.slider1 = slider_value,
-            "2" => params.slider2 = slider_value,
-            "3" => params.slider3 = slider_value,
-            "4" => params.slider4 = slider_value,
+        match parameter_name {
+            "Hue" => params.hue = value,
+            "Smoothness" => params.smoothness = value,
+            "Metallic" => params.metallic = value,
+            "Emission" => params.emission = value,
             _ => {}
         }
         println!("Updated slider values {:?}", params);
