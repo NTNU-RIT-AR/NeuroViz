@@ -4,13 +4,19 @@
   line-height: 24px;
   font-weight: 400;
 
+  --bg0: #0b0b15;
+  --bg2: #0d0d19;
+  --bg3: #0f0f1b;
+  --line: #272a3a;
+
+  --bg3-hl: #141623;
+
   --green-hl: #34FF82;
   --green-bg: #4CED8A40;
   
   --red-hl: #E43333;
   --red-bg: #B5565640;
 
-  --line: #554C66;
 
   --primary-hl: #8d4aff;
   --primary-bg: #4926794c;
@@ -19,7 +25,7 @@
 
   color: #eeeeee;
   text: #f9f9f9;
-  background-color: #17171E;
+  background-color: var(--bg0);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

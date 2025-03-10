@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { DEEPLINK } from "../const.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
+import "../App.css"
 import styles from "./styles/Sidebar.module.css";
 import { getIpAddress } from "../commands.ts";
 
