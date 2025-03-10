@@ -17,10 +17,34 @@ export default function LiveViewPage() {
     <>
       <h1>Live View</h1>
       <form className="parameters">
-        <ParameterSlider number={"1"} slider={slider1} setSlider={setSlider1} />
-        <ParameterSlider number={"2"} slider={slider2} setSlider={setSlider2} />
-        <ParameterSlider number={"3"} slider={slider3} setSlider={setSlider3} />
-        <ParameterSlider number={"4"} slider={slider4} setSlider={setSlider4} />
+        <ParameterSlider
+          number={"1"}
+          min={0}
+          max={1}
+          slider={slider1}
+          setSlider={setSlider1}
+        />
+        <ParameterSlider
+          number={"2"}
+          min={0}
+          max={1}
+          slider={slider2}
+          setSlider={setSlider2}
+        />
+        <ParameterSlider
+          number={"3"}
+          min={0}
+          max={1}
+          slider={slider3}
+          setSlider={setSlider3}
+        />
+        <ParameterSlider
+          number={"4"}
+          min={0}
+          max={1}
+          slider={slider4}
+          setSlider={setSlider4}
+        />
       </form>
     </>
   );

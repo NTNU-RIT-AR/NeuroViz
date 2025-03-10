@@ -4,11 +4,15 @@ import styles from "./styles/ParameterSlider.module.css";
 
 interface ComponentProps {
   number: String;
+  min: number;
+  max: number;
   slider: number;
   setSlider: (number: number) => void;
 }
 export default function ParameterSlider({
   number,
+  min,
+  max,
   slider,
   setSlider,
 }: ComponentProps) {
@@ -18,9 +22,9 @@ export default function ParameterSlider({
         <label htmlFor={"slider" + number}>Slider {number}</label>
         <input
           type="number"
-          step={0.01}
-          min="0"
-          max="1"
+          step={(max - min) / 100}
+          min={min}
+          max={max}
           value={slider}
           onChange={(event) => {
             setSlider(parseFloat(event.currentTarget.value));
@@ -32,9 +36,9 @@ export default function ParameterSlider({
         name={"slider" + number}
         className={styles.slider}
         type="range"
-        min="0"
-        step={0.01}
-        max="1"
+        step={(max - min) / 100}
+        min={min}
+        max={max}
         onChange={(e) => {
           e.preventDefault();
           updateParameterValues(number, Number(e.currentTarget.value));
