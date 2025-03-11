@@ -3,38 +3,25 @@
 import { useEffect, useState } from "react";
 import { invoke } from '@tauri-apps/api/core';
 
-
-
-async function fetchFiles(folder: String): Promise<string[]> {
+async function fetchFiles(): Promise<string[]> {
   try {
-    return await invoke('list_files', { folder: folder });
-  } catch (error) {
-    console.log("error")
+    return await invoke('list_presets');
+  } catch (e) {
+    console.log("could not fetch files: ", e)
+    return Promise.resolve([]);
   }
-
 }
+
+// Delete a file
+// async function deleteFile(fileName: string) {
+//   await invoke('delete_file')
+// }
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
 
-
-  // Delete a file
-  // async function deleteFile(fileName: string) {
-  //   await invoke('delete_file')
-  // }
-
   useEffect(() => {
-    let folder = "/presets";
-    try {
-      fetchFiles(folder)
-      console.log("success")
-    } catch (error) {
-      console.log("error")
-    }
-
-    fetchFiles(folder)
-
-    fetchFiles(folder).then(setFiles);
+    fetchFiles().then(setFiles);
   }, [])
 
   return (
