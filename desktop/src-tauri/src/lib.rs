@@ -13,14 +13,15 @@ use std::sync::{Arc, Mutex};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-
+    // println!("{:?}", commands::retrieve_preset(String::from("testpreset")));
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             commands::update_slider,
             commands::get_ip_address,
             commands::list_files,
-            commands::save_preset
+            commands::save_preset,
+            commands::retrieve_preset
         ])
         .setup(|app| {
             // generate the data directory path and pass to manager
