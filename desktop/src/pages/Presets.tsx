@@ -1,22 +1,21 @@
 // Load files from the folder
 
 import { useEffect, useState } from "react";
-import { invoke } from '@tauri-apps/api/core';
-
-
+import { invoke } from "@tauri-apps/api/core";
+import { type Parameters } from "../interfaces";
+import { retrievePreset } from "../commands";
 
 async function fetchFiles(folder: String): Promise<string[]> {
   try {
-    return await invoke('list_files', { folder: folder });
+    return await invoke("list_files", { folder: folder });
   } catch (error) {
-    console.log("error")
+    console.log("error");
   }
-
 }
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
-
+  const [selectedPreset, setSelectedPreset] = useState<Parameters | undefined>(undefined);
 
   // Delete a file
   // async function deleteFile(fileName: string) {
@@ -26,26 +25,37 @@ export default function PresetsPage() {
   useEffect(() => {
     let folder = "/presets";
     try {
-      fetchFiles(folder)
-      console.log("success")
+      fetchFiles(folder);
+      console.log("success");
     } catch (error) {
-      console.log("error")
+      console.log("error");
     }
 
-    fetchFiles(folder)
+    fetchFiles(folder);
 
     fetchFiles(folder).then(setFiles);
-  }, [])
+
+    async function getPresets() {
+      setSelectedPreset(await retrievePreset("testpreset"));
+    }
+    getPresets();
+
+  }, []);
 
   return (
     <>
       <p>presets page text</p>
+      {selectedPreset && <>
+        <p>Hue: {selectedPreset.hue}</p>
+        <p>Smoothness: {selectedPreset.smoothness}</p>
+        <p>Metallic: {selectedPreset.metallic}</p>
+        <p>Emission: {selectedPreset.emission}</p>
+      </>}
       <ul>
         {files.map((file) => (
           <li key={file}>{file}</li>
         ))}
       </ul>
     </>
-
-  )
+  );
 }
