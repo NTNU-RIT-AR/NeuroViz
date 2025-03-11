@@ -23,6 +23,7 @@ export default function LiveViewPage() {
           max={1}
           slider={hue}
           setSlider={setHue}
+          readOnly={false}
         />
         <ParameterSlider
           name={"Smoothness"}
@@ -30,6 +31,7 @@ export default function LiveViewPage() {
           max={1}
           slider={smoothness}
           setSlider={setSmoothness}
+          readOnly={false}
         />
         <ParameterSlider
           name={"Metallic"}
@@ -37,6 +39,7 @@ export default function LiveViewPage() {
           max={1}
           slider={metallic}
           setSlider={setMetallic}
+          readOnly={false}
         />
         <ParameterSlider
           name={"Emission"}
@@ -44,6 +47,7 @@ export default function LiveViewPage() {
           max={1}
           slider={emission}
           setSlider={setEmission}
+          readOnly={false}
         />
       </form>
     </>

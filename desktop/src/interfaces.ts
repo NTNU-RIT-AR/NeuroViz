@@ -4,4 +4,6 @@ interface Parameters {
   metallic: number;
   emission: number;
 }
+
+// enum Parameter = 
 export { type Parameters };

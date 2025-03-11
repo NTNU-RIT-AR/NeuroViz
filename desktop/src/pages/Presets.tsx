@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { type Parameters } from "../interfaces";
 import { retrievePreset } from "../commands";
+import ParametersPreset from "../components/ParametersPreset";
 
 async function fetchFiles(folder: String): Promise<string[]> {
   try {
@@ -45,12 +46,7 @@ export default function PresetsPage() {
   return (
     <>
       <p>presets page text</p>
-      {selectedPreset && <>
-        <p>Hue: {selectedPreset.hue}</p>
-        <p>Smoothness: {selectedPreset.smoothness}</p>
-        <p>Metallic: {selectedPreset.metallic}</p>
-        <p>Emission: {selectedPreset.emission}</p>
-      </>}
+      {selectedPreset && <ParametersPreset parameters={selectedPreset}/>}
       <ul>
         {files.map((file) => (
           <li key={file}>{file}</li>
