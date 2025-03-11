@@ -2,11 +2,13 @@ import { Parameters } from "../interfaces";
 import ParameterSlider from "./ParameterSlider"
 
 interface ParameterPresetProps {
-    parameters: Parameters
+    parameters: Parameters,
+    presetName: string
 }
-export default function ParametersPreset({parameters}: ParameterPresetProps){
+export default function ParametersPreset({parameters, presetName}: ParameterPresetProps){
     return (
         <>
+        <h2>{presetName}</h2>
         <form className="parameters">
                 <ParameterSlider
                   name={"Hue"}
