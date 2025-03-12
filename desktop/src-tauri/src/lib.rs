@@ -2,14 +2,14 @@
 mod api;
 mod consts;
 mod structs;
-use crate::structs::Parameters;
+
 use api::commands::commands;
 use api::tcpservice::tcpservice;
 
-use tauri::{path::BaseDirectory, Manager};
+use crate::structs::RenderParams;
 
-use lazy_static::lazy_static;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -23,9 +23,7 @@ pub fn run() {
             commands::save_preset
         ])
         .setup(|app| {
-            // generate the data directory path and pass to manager
-            let path = app.path().resolve("ar-renderer", BaseDirectory::Data)?;
-            app.manage(path);
+            app.manage(Mutex::new(RenderParams::default()));
 
             let app_handle = app.app_handle().clone();
             tauri::async_runtime::spawn(tcpservice::tcp_listener(app_handle));
@@ -33,13 +31,4 @@ pub fn run() {
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
-
-lazy_static! {
-    pub static ref PARAMS: Arc<Mutex<Parameters>> = Arc::new(Mutex::new(Parameters {
-        hue: 1.0,
-        smoothness: 1.0,
-        metallic: 1.0,
-        emission: 1.0,
-    }));
 }

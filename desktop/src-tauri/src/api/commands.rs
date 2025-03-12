@@ -4,9 +4,11 @@ pub mod commands {
     use std::path;
     use std::{fs, io};
 
+    use crate::structs::RenderParams;
+
     use super::super::super::consts::FOLDER_PRESETS;
-    use super::super::super::PARAMS;
     use local_ip_address::local_ip;
+    use tauri::Manager;
 
     #[tauri::command]
     pub fn get_ip_address() -> String {
@@ -23,8 +25,9 @@ pub mod commands {
     }
 
     #[tauri::command]
-    pub fn update_slider(parameter_name: &str, value: f32) {
-        let mut params = PARAMS.lock().unwrap();
+    pub fn update_slider(app: tauri::AppHandle, parameter_name: &str, value: f32) {
+        let state = app.state::<RenderParams>();
+        let mut params = state.lock().unwrap();
         match parameter_name {
             "Hue" => params.hue = value,
             "Smoothness" => params.smoothness = value,
@@ -95,9 +98,10 @@ pub mod commands {
     //}
 
     #[tauri::command]
-    pub fn save_preset(preset_name: String) -> Result<(), String> {
+    pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
         // Parse PARAMS to JSON
-        let params = PARAMS.lock().unwrap().clone();
+        let state = app.state::<RenderParams>();
+        let params = state.lock().unwrap().clone();
         let json_string = serde_json::to_string(&params).unwrap();
 
         create_and_write_to_json_file(json_string, FOLDER_PRESETS.to_string(), preset_name)
