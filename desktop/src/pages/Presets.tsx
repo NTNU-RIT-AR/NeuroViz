@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { type Parameters } from "../interfaces";
 import { retrievePreset } from "../commands";
-import ParametersPreset from "../components/ParametersPreset";
+import ParameterControl from "../components/ParametersControl";
 import { invoke } from '@tauri-apps/api/core';
 
 async function fetchFiles(): Promise<string[]> {
@@ -13,6 +13,24 @@ async function fetchFiles(): Promise<string[]> {
     console.log("could not fetch files: ", e)
     return Promise.resolve([]);
   }
+}
+type PresetProps = { name: string }
+
+function Preset({ name }: PresetProps) {
+
+  return (
+    <div>
+      <p>{name} </p>
+      <button className="delete">
+        delete
+      </button>
+
+      <button className="test">
+        test
+      </button>
+
+    </div>
+  )
 }
 
 // Delete a file
@@ -29,19 +47,30 @@ export default function PresetsPage() {
 
   return (
     <>
-      <p>presets page text</p>
+      <h1>Presets page</h1>
 
-      <div className="row">
-        <ul className="column">
+
+      <div className="two-column-layout">
+        <div className="container">
           {files.map((file) => (
-            <button className={selectedPresetName == file.split(".")[0] ? "preset-button active-preset-button" : "preset-button"} onClick={() => {
-              getPreset(file.split(".")[0]);
-              setSelectedPresetName(file.split(".")[0]);
-            }} key={file}>{file.split(".")[0]}</button>
+            <Preset name={file}></Preset>
           ))}
-        </ul>
-        {selectedPreset && <ParametersPreset presetName={selectedPresetName} parameters={selectedPreset} />}
-      </div>
+        </div>
+        <div className="container">
+
+        </div>
+      </div >
+
+      {/* <div className="row"> */}
+      {/*   <ul className="column"> */}
+      {/*     <button className={selectedPresetName == file.split(".")[0] ? "preset-button active-preset-button" : "preset-button"} onClick={() => { */}
+      {/*       getPreset(file.split(".")[0]); */}
+      {/*       setSelectedPresetName(file.split(".")[0]); */}
+      {/*     }} key={file}>{file.split(".")[0]}</button> */}
+      {/*     ))} */}
+      {/*   </ul> */}
+      {/*   {selectedPreset && <ParameterControl presetName={selectedPresetName} parameters={selectedPreset} />} */}
+      {/* </div> */}
     </>
   );
 }

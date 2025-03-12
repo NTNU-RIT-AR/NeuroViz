@@ -1,4 +1,5 @@
 import ParameterSlider from "../components/ParameterSlider";
+import ParameterControl from "../components/ParametersControl";
 import { useSliders } from "../SliderProviders";
 
 export default function LiveViewPage() {
@@ -16,6 +17,9 @@ export default function LiveViewPage() {
   return (
     <>
       <h1>Live View</h1>
+      <ParameterControl></ParameterControl>
+
+
       <form className="parameters">
         <ParameterSlider
           name={"Hue"}
