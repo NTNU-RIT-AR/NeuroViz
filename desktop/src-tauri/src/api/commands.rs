@@ -25,17 +25,31 @@ pub mod commands {
     }
 
     #[tauri::command]
-    pub fn update_slider(app: tauri::AppHandle, parameter_name: &str, value: f32) {
+    pub fn set_param(app: tauri::AppHandle, param_name: &str, value: f64) {
         let state = app.state::<RenderParams>();
         let mut params = state.lock().unwrap();
-        match parameter_name {
+        let value = value as f32;
+        println!("Updated slider values {:?}", params);
+        match param_name {
             "Hue" => params.hue = value,
             "Smoothness" => params.smoothness = value,
             "Metallic" => params.metallic = value,
             "Emission" => params.emission = value,
             _ => {}
         }
-        println!("Updated slider values {:?}", params);
+    }
+    #[tauri::command]
+    pub fn get_param(app: tauri::AppHandle, param_name: &str) -> f64 {
+        let state = app.state::<RenderParams>();
+        let params = state.lock().unwrap();
+        println!("Returned param:  {:?}", params);
+        return match param_name {
+            "Hue" => params.hue,
+            "Smoothness" => params.smoothness,
+            "Metallic" => params.metallic,
+            "Emission" => params.emission,
+            _ => panic!("param mismatch"),
+        } as f64;
     }
 
     fn get_data_dir() -> Option<path::PathBuf> {
