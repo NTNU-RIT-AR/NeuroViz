@@ -16,7 +16,8 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            commands::update_slider,
+            commands::set_param,
+            commands::get_param,
             commands::get_ip_address,
             commands::list_files,
             commands::list_presets,
