@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { emit } from "@tauri-apps/api/event";
 
 
 type SliderProps = {
@@ -13,12 +12,21 @@ export default function Slider({ name, min, max }: SliderProps) {
   const [value, setValue] = useState(0.0);
 
   useEffect(() => {
-    invoke<number>("get_param", { param_name: name }).then(setValue);
+    try {
+      invoke<number>("get_param", { paramName: name }).then(setValue);
+    } catch (e) {
+      console.log("get_param error: ", e);
+    }
   }, []);
 
   const handleChange = (newValue: number) => {
     setValue(newValue);
-    invoke("set_param", { param_name: name, value: newValue });
+    try {
+      invoke("set_param", { paramName: name, value: newValue });
+    } catch (e) {
+      console.log("set_param error: ", e);
+    }
+
   };
 
   return (
