@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import ParameterSlider from "../components/ParameterSlider";
 import Slider from "../components/Slider";
 import { useSliders } from "../SliderProviders";
@@ -14,8 +15,18 @@ export default function LiveViewPage() {
     setEmission,
   } = useSliders();
 
+  const [preset, setPreset] = useState("");
+
+  useEffect(() => {
+
+    return () => {
+
+    };
+  }, [preset]);
+
   return (
     <>
+      <button onClick={() => setPreset("test1")}>SetPreset</button>
       <Slider
         name={"Hue"}
         min={0}
