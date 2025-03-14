@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
+import styles from "./styles/ParameterSlider.module.css";
+
 
 type SliderProps = {
   name: string,
@@ -41,6 +43,7 @@ export default function Slider({ name, min, max }: SliderProps) {
       />
       <input
         type="range"
+        className={styles.slider}
         min={min}
         max={max}
         step={(max - min) / 100}
