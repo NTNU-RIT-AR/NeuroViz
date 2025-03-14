@@ -32,25 +32,33 @@ export default function Slider({ name, min, max }: SliderProps) {
   };
 
   return (
-    <div>
-      <input
-        type="number"
-        min={min}
-        max={max}
-        step={(max - min) / 100}
-        value={value}
-        onChange={(e) => handleChange(parseFloat(e.target.value))}
-      />
-      <input
-        type="range"
-        className={styles.slider}
-        min={min}
-        max={max}
-        step={(max - min) / 100}
-        value={value}
-        onChange={(e) => handleChange(parseFloat(e.target.value))}
-      />
-      <p>Value: {value}</p>
+    <div className={styles.mainContainer}>
+      <div className={styles.numberNameContainer}>
+        <p>{name}</p>
+        <input
+          type="number"
+          min={min}
+          max={max}
+          step={(max - min) / 100}
+          value={value}
+          onChange={(e) => handleChange(parseFloat(e.target.value))}
+        />
+      </div>
+      <div>
+        <input
+          type="range"
+          className={styles.slider}
+          min={min}
+          max={max}
+          step={(max - min) / 100}
+          value={value}
+          onChange={(e) => handleChange(parseFloat(e.target.value))}
+        />
+      </div>
+      <div className={styles.minMaxContainer}>
+        <p>{min}</p>
+        <p>{max}</p>
+      </div>
     </div>
   );
 }

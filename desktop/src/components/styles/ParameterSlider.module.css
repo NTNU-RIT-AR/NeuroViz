@@ -38,19 +38,32 @@ input[type="range"]::-moz-range-thumb {
   margin-top: -5px;
   border-radius: 50%;
 }
+input {
+  padding: 0;
+  margin: 0;
+}
 
-.container {
+
+.mainContainer {
   display: flex;
   flex-direction: column;
 }
 
-.subcontainer {
+.numberNameContainer {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+}
+.numberNameContainer > input[type="number"] {
+  background: none;
+  color: white;
+  padding: 0;
+}
+.minMaxContainer {
+  display: flex;
+  justify-content: space-between;
 }
 
-.subcontainer input {
-  width: 3rem;
+.minMaxContainer > p {
+  margin: 0;
 }
+
