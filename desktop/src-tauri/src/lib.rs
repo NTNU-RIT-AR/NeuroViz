@@ -24,7 +24,7 @@ pub fn run() {
             commands::save_preset
         ])
         .setup(|app| {
-            app.manage(Mutex::new(RenderParams::default()));
+            app.manage(RenderParams::default());
 
             let app_handle = app.app_handle().clone();
             tauri::async_runtime::spawn(tcpservice::tcp_listener(app_handle));
