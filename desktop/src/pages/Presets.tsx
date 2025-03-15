@@ -54,7 +54,7 @@ export default function PresetsPage() {
 
   return (
     <>
-      <h1>presets page text</h1>
+      <h1>Presets page text</h1>
       <div className="layoutContainer">
 
         <div className={`${styles.presetsContainer} contentBox`}>
