@@ -6,7 +6,7 @@
 
   --green-hl: #34FF82;
   --green-bg: #4CED8A40;
-  
+
   --red-hl: #E43333;
   --red-bg: #B5565640;
 
@@ -18,54 +18,111 @@
   --white: #f9f9f9;
 
   color: #eeeeee;
-  text: #f9f9f9;
+  /*text: #f9f9f9;*/
   background-color: #17171E;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  --spacing: 20px;
 }
 
+/* (Reset) Setting sensible defaults */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-html, body, * {
-  user-select: none; !important
-  user-drag: none; !important
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+* {
+  user-select: none !important;
+
+  -webkit-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -ms-user-drag: none !important;
+
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-
 }
 
-html, body, div#root {
+html,
+body,
+div#root {
   margin: 0px;
   height: 100%;
 }
 
-.MainLayout {
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* (Reset) end */
+
+main.container {
+  margin: 0;
+  width: 100%;
+}
+
+.mainLayout {
   display: flex;
   width: 100%;
   height: 100%;
 }
 
-.container {
-  margin: 20px;
+.pageContainer {
+  width: 100%;
+  margin: var(--spacing);
   display: flex;
   flex-direction: column;
   align-items: start;
 }
 
-form.parameters {
+.layoutContainer {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  width: 100%;
+  height: 100%;
+  gap: var(--spacing);
 }
 
-.row {
+.contentBox {
+  padding: 20px;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+
+  background: #00000026;
+  border: solid 1px var(--line);
+  border-radius: 10px;
 }
 
 a {
@@ -92,7 +149,8 @@ button {
   font-weight: 500;
   font-family: inherit;
   color: #0f0f0f;
-  background-color: #ffffff;
+  background-color: #00000026;
+  border: solid 2px var(--line);
   transition: border-color 0.25s;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
@@ -105,4 +163,3 @@ input,
 button {
   outline: none;
 }
-

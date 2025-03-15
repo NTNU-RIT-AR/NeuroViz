@@ -20,9 +20,9 @@ export default function App() {
       <BrowserRouter>
         <SliderProvider>
           <NavigationProvider>
-            <div className="MainLayout">
+            <div className="mainLayout">
               <Sidebar />
-              <main className="container">
+              <main className="pageContainer">
                 <Routes>
                   <Route path="/" element={<></>} />
                   <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
