@@ -40,6 +40,12 @@ function Preset({ name }: PresetProps) {
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
+  const [selectedPreset, setSelectedPreset] = useState<Parameters | undefined>(undefined);
+  const [selectedPresetName, setSelectedPresetName] = useState<string>("");
+
+  async function getPreset(presetName: string) {
+    setSelectedPreset(await retrievePreset(presetName));
+  }
 
   useEffect(() => {
     fetchFiles().then(setFiles);
