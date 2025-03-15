@@ -19,7 +19,7 @@ pub fn run() {
             commands::update_slider,
             commands::get_ip_address,
             commands::list_files,
-            commands::retrieve_preset
+            commands::retrieve_preset,
             commands::list_presets,
             commands::save_preset
         ])
