@@ -3,20 +3,14 @@ import SliderCollection from "../components/SliderCollection";
 
 export default function LiveViewPage() {
 
-  const [preset, setPreset] = useState("");
 
-  useEffect(() => {
-
-    return () => {
-
-    };
-  }, [preset]);
 
   return (
     <>
-      <button onClick={() => setPreset("test1")}>SetPreset</button>
       <h1>Live View</h1>
-      <SliderCollection />
+      <div className="contentBox">
+        <SliderCollection />
+      </div>
     </>
   );
 }
