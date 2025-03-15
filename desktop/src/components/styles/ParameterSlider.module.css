@@ -38,32 +38,49 @@ input[type="range"]::-moz-range-thumb {
   margin-top: -5px;
   border-radius: 50%;
 }
+
+input[type="number"] {
+  appearance: textfield;
+}
+
 input {
   padding: 0;
   margin: 0;
+  border: none;
 }
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; may crash chrome, webkit version does not, but is probably older */
+  display: none;
+  /*-webkit-appearance: none;*/
+}
 
 .mainContainer {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .numberNameContainer {
   display: flex;
   justify-content: space-between;
 }
-.numberNameContainer > input[type="number"] {
+
+.numberNameContainer>input[type="number"] {
   background: none;
   color: white;
   padding: 0;
 }
+
 .minMaxContainer {
   display: flex;
   justify-content: space-between;
+  color: var(--line);
 }
 
-.minMaxContainer > p {
+
+.minMaxContainer>p {
   margin: 0;
+  line-height: 0.5;
 }
-
