@@ -1,5 +1,4 @@
 pub mod commands {
-    use std::fs;
     use std::fs::File;
     use std::io::Write;
     use std::path;
@@ -145,11 +144,16 @@ pub mod commands {
                 path.push(filename);
                 path
             }
-            None => return Err(String::from("Could not get data dir path"))
+            None => return Err(String::from("Could not get data dir path")),
         };
-        let contents = match fs::read_to_string(path){
+        let contents = match fs::read_to_string(path) {
             Ok(content) => content,
-            Err(err) => return Err(format!("Could not read from file with given path {}", err.to_string()))
+            Err(err) => {
+                return Err(format!(
+                    "Could not read from file with given path {}",
+                    err.to_string()
+                ))
+            }
         };
         Ok(contents)
     }
