@@ -39,18 +39,48 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 50%;
 }
 
-.container {
+input[type="number"] {
+  appearance: textfield;
+}
+
+input {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; may crash chrome, webkit version does not, but is probably older */
+  display: none;
+  /*-webkit-appearance: none;*/
+}
+
+.mainContainer {
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
-.subcontainer {
+.numberNameContainer {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
 }
 
-.subcontainer input {
-  width: 3rem;
+.numberNameContainer>input[type="number"] {
+  background: none;
+  color: white;
+  padding: 0;
+}
+
+.minMaxContainer {
+  display: flex;
+  justify-content: space-between;
+  color: var(--line);
+}
+
+
+.minMaxContainer>p {
+  margin: 0;
+  line-height: 0.5;
 }

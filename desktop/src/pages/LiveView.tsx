@@ -1,59 +1,14 @@
-import ParameterSlider from "../components/ParameterSlider";
-import ParameterControl from "../components/ParametersControl";
-import { useSliders } from "../SliderProviders";
+import { ContentBox } from "../components/ContentBox";
+import SliderCollection from "../components/SliderCollection";
 
 export default function LiveViewPage() {
-  const {
-    hue,
-    smoothness,
-    metallic,
-    emission,
-    setHue,
-    setSmoothness,
-    setMetallic,
-    setEmission,
-  } = useSliders();
-
   return (
     <>
       <h1>Live View</h1>
-      <ParameterControl></ParameterControl>
 
-
-      <form className="parameters">
-        <ParameterSlider
-          name={"Hue"}
-          min={0}
-          max={1}
-          slider={hue}
-          setSlider={setHue}
-          readOnly={false}
-        />
-        <ParameterSlider
-          name={"Smoothness"}
-          min={0}
-          max={1}
-          slider={smoothness}
-          setSlider={setSmoothness}
-          readOnly={false}
-        />
-        <ParameterSlider
-          name={"Metallic"}
-          min={0}
-          max={1}
-          slider={metallic}
-          setSlider={setMetallic}
-          readOnly={false}
-        />
-        <ParameterSlider
-          name={"Emission"}
-          min={0}
-          max={1}
-          slider={emission}
-          setSlider={setEmission}
-          readOnly={false}
-        />
-      </form>
+      <ContentBox>
+        <SliderCollection />
+      </ContentBox>
     </>
   );
 }
