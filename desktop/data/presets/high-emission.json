@@ -1,0 +1,9 @@
+{
+    "name": "high-emission",
+    "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.2,
+        "metallic": 0.5,
+        "emission": 1.0
+    }
+}
