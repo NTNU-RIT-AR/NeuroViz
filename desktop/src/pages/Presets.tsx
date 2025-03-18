@@ -84,8 +84,10 @@ export default function PresetsPage() {
               name={file}
               onSelect={async () => {
                 console.log("selected preset: ", file);
-                setSelectedPresetName(file);
-                await getPreset(file);
+                // TODO: Hack for å fjerne .json
+                const fileName = file.slice(0, -5);
+                setSelectedPresetName(fileName);
+                await getPreset(fileName);
               }}
             />
           ))}
