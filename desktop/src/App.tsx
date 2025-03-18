@@ -22,7 +22,7 @@ export default function App() {
           <NavigationProvider>
             <div className="MainLayout">
               <Sidebar />
-              <main className="container">
+              <main className="mainContainer">
                 <Routes>
                   <Route path="/" element={<></>} />
                   <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />

@@ -31,8 +31,8 @@
 
 
 html, body, * {
-  user-select: none; !important
-  user-drag: none; !important
+  user-select: none !important; 
+  user-drag: none !important; 
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -50,22 +50,11 @@ html, body, div#root {
   height: 100%;
 }
 
-.container {
+.mainContainer {
   margin: 20px;
   display: flex;
   flex-direction: column;
   align-items: start;
-}
-
-form.parameters {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.row {
-  display: flex;
-  justify-content: center;
 }
 
 a {

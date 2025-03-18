@@ -19,14 +19,11 @@ pub fn run() {
             commands::update_slider,
             commands::get_ip_address,
             commands::list_files,
+            commands::retrieve_preset,
             commands::list_presets,
             commands::save_preset
         ])
         .setup(|app| {
-            // generate the data directory path and pass to manager
-            let path = app.path().resolve("ar-renderer", BaseDirectory::Data)?;
-            app.manage(path);
-
             let app_handle = app.app_handle().clone();
             tauri::async_runtime::spawn(tcpservice::tcp_listener(app_handle));
             Ok(())

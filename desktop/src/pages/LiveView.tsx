@@ -1,4 +1,5 @@
 import ParameterSlider from "../components/ParameterSlider";
+import ParameterControl from "../components/ParametersControl";
 import { useSliders } from "../SliderProviders";
 
 export default function LiveViewPage() {
@@ -16,6 +17,9 @@ export default function LiveViewPage() {
   return (
     <>
       <h1>Live View</h1>
+      <ParameterControl></ParameterControl>
+
+
       <form className="parameters">
         <ParameterSlider
           name={"Hue"}
@@ -23,6 +27,7 @@ export default function LiveViewPage() {
           max={1}
           slider={hue}
           setSlider={setHue}
+          readOnly={false}
         />
         <ParameterSlider
           name={"Smoothness"}
@@ -30,6 +35,7 @@ export default function LiveViewPage() {
           max={1}
           slider={smoothness}
           setSlider={setSmoothness}
+          readOnly={false}
         />
         <ParameterSlider
           name={"Metallic"}
@@ -37,6 +43,7 @@ export default function LiveViewPage() {
           max={1}
           slider={metallic}
           setSlider={setMetallic}
+          readOnly={false}
         />
         <ParameterSlider
           name={"Emission"}
@@ -44,6 +51,7 @@ export default function LiveViewPage() {
           max={1}
           slider={emission}
           setSlider={setEmission}
+          readOnly={false}
         />
       </form>
     </>
