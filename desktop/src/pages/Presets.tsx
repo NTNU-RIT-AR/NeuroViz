@@ -7,7 +7,6 @@ import { type Parameters } from "../interfaces";
 
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
-import SliderCollection from "../components/SliderCollection";
 import styles from "./styles/Presets.module.css";
 
 async function fetchFiles(): Promise<string[]> {
@@ -38,14 +37,15 @@ function Preset({ name }: PresetProps) {
 
 type presetElementProps = {
   name: string;
+  onSelect: () => void;
 };
 
-function PresetElement({ name }: presetElementProps) {
+function PresetElement({ name, onSelect }: presetElementProps) {
   return (
     <div className={styles.presetElement}>
       <p>{name}</p>
       <div className={styles.buttonsContainer}>
-        <button></button>
+        <button onClick={onSelect}>Select</button>
         <button></button>
       </div>
     </div>
@@ -80,13 +80,21 @@ export default function PresetsPage() {
       <Layout>
         <ContentBox className={styles.presetsContainer}>
           {files.map((file) => (
-            <PresetElement name={file} />
+            <PresetElement
+              name={file}
+              onSelect={async () => {
+                console.log("selected preset: ", file);
+                // TODO: Hack for å fjerne .json
+                const fileName = file.slice(0, -5);
+                setSelectedPresetName(fileName);
+                await getPreset(fileName);
+              }}
+            />
           ))}
         </ContentBox>
 
-        <ContentBox>
-          <SliderCollection />
-        </ContentBox>
+        {/* TODO: Show as sliders */}
+        <ContentBox>{JSON.stringify(selectedPreset)}</ContentBox>
       </Layout>
     </>
   );
