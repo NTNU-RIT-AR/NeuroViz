@@ -1,6 +1,8 @@
 {
     "type": "choice",
     "name": "Example experiment 1",
+    "subject": "ulrik",
+    "note": "lorem ipsum...",
     "presets": [
         {
             "name": "smoothish",
