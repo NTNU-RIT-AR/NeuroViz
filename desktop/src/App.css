@@ -4,13 +4,13 @@
   line-height: 24px;
   font-weight: 400;
 
-  --green-hl: #34FF82;
-  --green-bg: #4CED8A40;
+  --green-hl: #34ff82;
+  --green-bg: #4ced8a40;
 
-  --red-hl: #E43333;
-  --red-bg: #B5565640;
+  --red-hl: #e43333;
+  --red-bg: #b5565640;
 
-  --line: #554C66;
+  --line: #554c66;
 
   --primary-hl: #8d4aff;
   --primary-bg: #4926794c;
@@ -19,7 +19,7 @@
 
   color: #eeeeee;
   /*text: #f9f9f9;*/
-  background-color: #17171E;
+  background-color: #17171e;
 
   --spacing: 20px;
 }
@@ -49,15 +49,11 @@ body {
 html,
 body,
 * {
-  user-select: none !important;
+  user-select: none;
 
-  -webkit-user-drag: none !important;
-  -moz-user-drag: none !important;
-  -ms-user-drag: none !important;
-
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-drag: none;
+  -ms-user-drag: none;
 }
 
 html,
@@ -84,46 +80,6 @@ select {
 }
 
 /* (Reset) end */
-
-main.container {
-  margin: 0;
-  width: 100%;
-}
-
-.mainLayout {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
-
-.pageContainer {
-  width: 100%;
-  margin: var(--spacing);
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-}
-
-.layoutContainer {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  gap: var(--spacing);
-}
-
-.contentBox {
-  padding: 20px;
-  margin: 0;
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  background: #00000026;
-  border: solid 1px var(--line);
-  border-radius: 10px;
-}
 
 a {
   font-weight: 500;

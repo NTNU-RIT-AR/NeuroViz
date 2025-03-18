@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState } from "react";
 
 import styles from "./styles/ParameterSlider.module.css";
 
-
 type SliderProps = {
-  name: string,
-  min: number,
-  max: number
-}
+  name: string;
+  min: number;
+  max: number;
+};
 
+// TODO make Slider dummy component?
 export default function Slider({ name, min, max }: SliderProps) {
   const [value, setValue] = useState(0.0);
 
@@ -28,7 +28,6 @@ export default function Slider({ name, min, max }: SliderProps) {
     } catch (e) {
       console.log("set_param error: ", e);
     }
-
   };
 
   return (

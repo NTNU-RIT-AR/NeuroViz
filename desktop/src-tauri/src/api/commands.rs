@@ -149,4 +149,30 @@ pub mod commands {
         file.write_all(contents.as_bytes())
             .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
     }
+
+    #[tauri::command]
+    pub fn retrieve_preset(preset_name: String) -> Result<String, String> {
+        read_from_json_file(FOLDER_PRESETS, format!("{}.json", preset_name))
+    }
+
+    fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, String> {
+        let path = match get_data_dir() {
+            Some(mut path) => {
+                path.push(folder_path);
+                path.push(filename);
+                path
+            }
+            None => return Err(String::from("Could not get data dir path")),
+        };
+        let contents = match fs::read_to_string(path) {
+            Ok(content) => content,
+            Err(err) => {
+                return Err(format!(
+                    "Could not read from file with given path {}",
+                    err.to_string()
+                ))
+            }
+        };
+        Ok(contents)
+    }
 }

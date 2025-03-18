@@ -1,18 +1,34 @@
 // Load files from the folder
 
+import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { invoke } from '@tauri-apps/api/core';
+import { retrievePreset } from "../commands";
+import { type Parameters } from "../interfaces";
 
-import styles from "./styles/Presets.module.css";
+import { ContentBox } from "../components/ContentBox";
+import { Layout } from "../components/Layout";
 import SliderCollection from "../components/SliderCollection";
+import styles from "./styles/Presets.module.css";
 
 async function fetchFiles(): Promise<string[]> {
   try {
-    return await invoke('list_presets');
+    return await invoke("list_presets");
   } catch (e) {
-    console.log("could not fetch files: ", e)
+    console.log("could not fetch files: ", e);
     return Promise.resolve([]);
   }
+}
+type PresetProps = { name: string };
+
+function Preset({ name }: PresetProps) {
+  return (
+    <div>
+      <p>{name} </p>
+      <button className="delete">delete</button>
+
+      <button className="test">test</button>
+    </div>
+  );
 }
 
 // Delete a file
@@ -21,8 +37,8 @@ async function fetchFiles(): Promise<string[]> {
 // }
 
 type presetElementProps = {
-  name: string
-}
+  name: string;
+};
 
 function PresetElement({ name }: presetElementProps) {
   return (
@@ -33,41 +49,45 @@ function PresetElement({ name }: presetElementProps) {
         <button></button>
       </div>
     </div>
-  )
+  );
 }
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
+  const [selectedPreset, setSelectedPreset] = useState<Parameters | undefined>(
+    undefined
+  );
+  const [selectedPresetName, setSelectedPresetName] = useState<string>("");
+
+  async function getPreset(presetName: string) {
+    setSelectedPreset(await retrievePreset(presetName));
+  }
 
   const [preset, setPreset] = useState("");
 
   useEffect(() => {
     fetchFiles().then(setFiles);
-  }, [])
+  }, []);
 
   useEffect(() => {
-
-    return () => {
-
-    };
+    return () => {};
   }, [preset]);
 
   return (
     <>
       <h1>Presets page text</h1>
-      <div className="layoutContainer">
 
-        <div className={`${styles.presetsContainer} contentBox`}>
+      <Layout>
+        <ContentBox className={styles.presetsContainer}>
           {files.map((file) => (
             <PresetElement name={file} />
           ))}
-        </div>
+        </ContentBox>
 
-        <div className="contentBox">
+        <ContentBox>
           <SliderCollection />
-        </div>
-      </div>
+        </ContentBox>
+      </Layout>
     </>
-
-  )
+  );
 }

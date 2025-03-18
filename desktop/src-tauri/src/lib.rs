@@ -20,6 +20,7 @@ pub fn run() {
             commands::get_param,
             commands::get_ip_address,
             commands::list_files,
+            commands::retrieve_preset,
             commands::list_presets,
             commands::save_preset
         ])

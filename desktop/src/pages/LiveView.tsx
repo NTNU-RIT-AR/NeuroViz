@@ -1,16 +1,14 @@
-import { useEffect, useState } from "react";
+import { ContentBox } from "../components/ContentBox";
 import SliderCollection from "../components/SliderCollection";
 
 export default function LiveViewPage() {
-
-
-
   return (
     <>
       <h1>Live View</h1>
-      <div className="contentBox">
+
+      <ContentBox>
         <SliderCollection />
-      </div>
+      </ContentBox>
     </>
   );
 }
