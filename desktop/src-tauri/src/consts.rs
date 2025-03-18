@@ -1,1 +1,1 @@
-pub const FOLDER_PRESETS : &str = "/presets";
+pub const FOLDER_PRESETS: &str = "presets";

@@ -152,7 +152,7 @@ pub mod commands {
 
     #[tauri::command]
     pub fn retrieve_preset(preset_name: String) -> Result<String, String> {
-        read_from_json_file(FOLDER_PRESETS, format!("{}.json", preset_name))
+        read_from_json_file(FOLDER_PRESETS, format!("{}", preset_name))
     }
 
     fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, String> {
