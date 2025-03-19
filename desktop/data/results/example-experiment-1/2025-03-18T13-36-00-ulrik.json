@@ -1,7 +1,8 @@
 {
   "type": "choice",
   "name": "Example experiment 1",
-  "subject": "ulrik",
+  "time": "2025-03-18T13:36:00",
+  "observer_id": 1,
   "note": "lorem ipsum...",
   "presets": {
     "smoothish": {
@@ -45,17 +46,29 @@
     {
       "a": "smoothish",
       "b": "high-emission",
-      "selected": "high-emission"
+      "selected": "high-emission",
+      "time": "2025-03-18T13:37:00",
+      "duration-on-a": 1.2,
+      "duration-on-b": 3.8,
+      "duration": 5
     },
     {
       "a": "very-hue",
       "b": "metal-looking",
-      "selected": "very-hue"
+      "selected": "very-hue",
+      "time": "2025-03-18T13:38:00",
+      "duration-on-a": 2.3,
+      "duration-on-b": 7.8,
+      "duration": 11.1
     },
     {
       "a": "high-emission",
       "b": "very-hue",
-      "selected": "high-emission"
+      "selected": "high-emission",
+      "time": "2025-03-18T13:39:00",
+      "duration-on-a": 1.2,
+      "duration-on-b": 20.2,
+      "duration": 21.4
     }
   ]
 }
