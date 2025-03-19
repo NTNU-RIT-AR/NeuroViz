@@ -3,9 +3,9 @@
   "name": "Example experiment 1",
   "subject": "ulrik",
   "note": "lorem ipsum...",
-  "presets": [
-    {
-      "name": "smoothish",
+  "presets": {
+    "smoothish": {
+      "name": "Smoothish",
       "parameters": {
         "hue": 0.0,
         "smoothness": 1.0,
@@ -13,8 +13,8 @@
         "emission": 0.1
       }
     },
-    {
-      "name": "high-emission",
+    "high-emission": {
+      "name": "High emission",
       "parameters": {
         "hue": 0.2,
         "smoothness": 0.2,
@@ -22,8 +22,8 @@
         "emission": 1.0
       }
     },
-    {
-      "name": "metal-looking",
+    "metal-looking": {
+      "name": "Metal looking",
       "parameters": {
         "hue": 0.2,
         "smoothness": 0.4,
@@ -31,8 +31,8 @@
         "emission": 0.95
       }
     },
-    {
-      "name": "very-hue",
+    "very-hue": {
+      "name": "Very hue",
       "parameters": {
         "hue": 1.0,
         "smoothness": 1.0,
@@ -40,7 +40,7 @@
         "emission": 0.1
       }
     }
-  ],
+  },
   "choices": [
     {
       "a": "smoothish",
