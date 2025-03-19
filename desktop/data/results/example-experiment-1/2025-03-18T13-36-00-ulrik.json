@@ -1,61 +1,61 @@
 {
-    "type": "choice",
-    "name": "Example experiment 1",
-    "subject": "ulrik",
-    "note": "lorem ipsum...",
-    "presets": [
-        {
-            "name": "smoothish",
-            "parameters": {
-                "hue": 0.0,
-                "smoothness": 1.0,
-                "metallic": 0.0,
-                "emission": 0.1
-            }
-        },
-        {
-            "name": "high-emission",
-            "parameters": {
-                "hue": 0.2,
-                "smoothness": 0.2,
-                "metallic": 0.5,
-                "emission": 1.0
-            }
-        },
-        {
-            "name": "metal-looking",
-            "parameters": {
-                "hue": 0.2,
-                "smoothness": 0.4,
-                "metallic": 1.0,
-                "emission": 0.95
-            }
-        },
-        {
-            "name": "very-hue",
-            "parameters": {
-                "hue": 1.0,
-                "smoothness": 1.0,
-                "metallic": 0.0,
-                "emission": 0.1
-            }
-        }
-    ],
-    "choices": [
-        {
-            "a": "smoothish",
-            "b": "high-emission",
-            "selected": "high-emission"
-        },
-        {
-            "a": "very-hue",
-            "b": "metal-looking",
-            "selected": "very-hue"
-        },
-        {
-            "a": "high-emission",
-            "b": "very-hue",
-            "selected": "high-emission"
-        }
-    ]
+  "type": "choice",
+  "name": "Example experiment 1",
+  "subject": "ulrik",
+  "note": "lorem ipsum...",
+  "presets": [
+    {
+      "name": "smoothish",
+      "parameters": {
+        "hue": 0.0,
+        "smoothness": 1.0,
+        "metallic": 0.0,
+        "emission": 0.1
+      }
+    },
+    {
+      "name": "high-emission",
+      "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.2,
+        "metallic": 0.5,
+        "emission": 1.0
+      }
+    },
+    {
+      "name": "metal-looking",
+      "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.4,
+        "metallic": 1.0,
+        "emission": 0.95
+      }
+    },
+    {
+      "name": "very-hue",
+      "parameters": {
+        "hue": 1.0,
+        "smoothness": 1.0,
+        "metallic": 0.0,
+        "emission": 0.1
+      }
+    }
+  ],
+  "choices": [
+    {
+      "a": "smoothish",
+      "b": "high-emission",
+      "selected": "high-emission"
+    },
+    {
+      "a": "very-hue",
+      "b": "metal-looking",
+      "selected": "very-hue"
+    },
+    {
+      "a": "high-emission",
+      "b": "very-hue",
+      "selected": "high-emission"
+    }
+  ]
 }
