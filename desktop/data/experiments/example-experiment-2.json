@@ -1,5 +1,5 @@
 {
-  "type": "stars",
+  "type": "rating",
   "name": "Example experiment 2",
   "presets": {
     "smoothish": {
