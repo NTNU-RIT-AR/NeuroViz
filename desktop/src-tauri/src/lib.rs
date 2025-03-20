@@ -3,12 +3,10 @@ mod api;
 mod consts;
 mod structs;
 
-use api::commands::commands;
-use api::tcpservice::tcpservice;
+use api::{commands, tcpservice};
 
 use crate::structs::RenderParams;
 
-use std::sync::Mutex;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
