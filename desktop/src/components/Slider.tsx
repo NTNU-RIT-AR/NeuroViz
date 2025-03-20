@@ -40,7 +40,12 @@ export default function Slider({ name, min, max }: SliderProps) {
           max={max}
           step={(max - min) / 100}
           value={value}
-          onChange={(e) => handleChange(parseFloat(e.target.value))}
+          onChange={(e) => {
+            let inputValue = parseFloat(e.target.value);
+            if (inputValue >= min && inputValue <= max) {
+              handleChange(parseFloat(e.target.value));
+            }
+          }}
         />
       </div>
       <div>
