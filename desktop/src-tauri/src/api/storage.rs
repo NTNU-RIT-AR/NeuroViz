@@ -81,4 +81,19 @@ pub mod storage {
         };
         Ok(contents)
     }
+
+    pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
+        let path = match get_data_dir() {
+            Some(mut path) => {
+                path.push(folder);
+                path
+            }
+            None => return Err(format!("could not get data dir path")),
+        };
+
+        match make_file_list(path) {
+            Ok(files) => Ok(files),
+            Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
+        }
+    }
 }

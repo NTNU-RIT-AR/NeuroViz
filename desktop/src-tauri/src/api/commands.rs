@@ -4,6 +4,8 @@ pub mod commands {
     use crate::api::storage::storage;
 
     use super::super::super::consts::FOLDER_PRESETS;
+    use super::super::super::consts::FOLDER_EXPERIMENTS;
+    use super::super::super::consts::FOLDER_RESULTS;
     use local_ip_address::local_ip;
     use tauri::Manager;
 
@@ -50,24 +52,14 @@ pub mod commands {
     }
 
     #[tauri::command]
-    pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
-        let path = match storage::get_data_dir() {
-            Some(mut path) => {
-                path.push(folder);
-                path
-            }
-            None => return Err(format!("could not get data dir path")),
-        };
-
-        match storage::make_file_list(path) {
-            Ok(files) => Ok(files),
-            Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
-        }
+    pub fn list_presets() -> Result<Vec<String>, String> {
+        return storage::list_files(FOLDER_PRESETS);
     }
 
+    
     #[tauri::command]
-    pub fn list_presets() -> Result<Vec<String>, String> {
-        return list_files("presets");
+    pub fn list_experiments() -> Result<Vec<String>, String> {
+        return storage::list_files(FOLDER_EXPERIMENTS);
     }
 
     //fn delete_file(file_name: String) -> Result<(), String> {
@@ -94,4 +86,5 @@ pub mod commands {
     pub fn retrieve_preset(preset_name: String) -> Result<String, String> {
         storage::read_from_json_file(FOLDER_PRESETS, format!("{}.json", preset_name))
     }
+
 }

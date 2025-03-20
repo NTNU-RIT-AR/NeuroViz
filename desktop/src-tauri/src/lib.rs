@@ -19,10 +19,10 @@ pub fn run() {
             commands::set_param,
             commands::get_param,
             commands::get_ip_address,
-            commands::list_files,
             commands::retrieve_preset,
             commands::list_presets,
-            commands::save_preset
+            commands::save_preset,
+            commands::list_experiments
         ])
         .setup(|app| {
             app.manage(RenderParams::default());

@@ -12,13 +12,26 @@ async function getIpAddress(): Promise<string> {
   return await invoke("get_ip_address");
 }
 
-async function retrievePreset(presetName: string) : Promise<Parameters | undefined> {
-  
+async function retrievePreset(
+  presetName: string
+): Promise<Parameters | undefined> {
   return await invoke("retrieve_preset", {
     presetName: presetName,
   })
     .then((result) => parsePreset(String(result)))
-    .catch((err) => {alert(err); return undefined});
+    .catch((err) => {
+      alert(err);
+      return undefined;
+    });
+}
+
+async function fetchExperiments(): Promise<string[]> {
+  try {
+    return await invoke("list_experiments");
+  } catch (e) {
+    console.log(e);
+    return Promise.resolve([]);
+  }
 }
 
 function parsePreset(preset: string): Parameters | undefined {
@@ -38,4 +51,9 @@ function parsePreset(preset: string): Parameters | undefined {
   }
 }
 
-export { updateParameterValues, getIpAddress, retrievePreset };
+export {
+  updateParameterValues,
+  getIpAddress,
+  retrievePreset,
+  fetchExperiments,
+};
