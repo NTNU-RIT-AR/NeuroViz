@@ -1,8 +1,6 @@
-use std::sync::{Mutex, MutexGuard};
+use std::sync::Mutex;
 
 use serde::Serialize;
-
-use tauri::{AppHandle, Manager};
 
 #[derive(Serialize, Clone, Debug, Default)]
 pub struct RenderParamsInner {
