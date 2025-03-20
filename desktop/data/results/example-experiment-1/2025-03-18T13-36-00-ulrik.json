@@ -1,5 +1,5 @@
 {
-  "type": "choice",
+  "experiment_type": "choice",
   "name": "Example experiment 1",
   "subject": "ulrik",
   "note": "lorem ipsum...",
