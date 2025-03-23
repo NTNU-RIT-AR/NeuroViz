@@ -3,25 +3,29 @@ pub mod storage {
     use std::io::Write;
     use std::path;
     use std::{fs, io};
-    use serde_json::json;
     use slug::slugify;
 
     use crate::consts::Folder;
-    use crate::structs::Preset;
+    use crate::structs::{Experiment, Preset};
 
-    pub fn get_preset_from_preset_name(preset_name: String) -> Result<Preset, String> {
+    use serde::de::DeserializeOwned;
 
-        let preset_file_content = match read_from_json_file(Folder::Presets, format!("{}.json", slugify(preset_name))) {
+    pub fn parse_from_json_file<T>(slugged_name: String, folder: Folder) -> Result<T, String>
+    where
+        T: DeserializeOwned,
+    {
+
+        let file_content = match read_from_json_file(folder, format!("{}.json", slugged_name)) {
             Ok(content) => content,
-            Err(e) => return Err(e)
+            Err(e) => return Err(e),
         };
-        
-        let preset : Preset = match serde_json::from_str(&preset_file_content){
+
+        let parsed: T = match serde_json::from_str(&file_content) {
             Ok(p) => p,
-            Err(e) => return Err(String::from(format!("Could not parse preset json files: {}", e.to_string()))),
+            Err(e) => return Err(format!("Could not parse JSON file: {}", e)),
         };
-        
-        Ok(preset)  
+
+        Ok(parsed)
     }
 
     pub fn get_data_dir() -> Option<path::PathBuf> {

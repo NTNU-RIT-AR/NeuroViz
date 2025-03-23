@@ -1,6 +1,5 @@
 pub mod commands {
 
-    use crate::api::storage::storage::get_preset_from_preset_name;
     use crate::structs::Experiment;
     use crate::structs::CreateExperiment;
     use crate::structs::Preset;
@@ -89,8 +88,8 @@ pub mod commands {
     }
 
     #[tauri::command]
-    pub fn retrieve_preset(preset_name: String) -> Result<String, String> {
-        storage::read_from_json_file(Folder::Presets, format!("{}.json", preset_name))
+    pub fn retrieve_preset(slugged_preset_name: String) -> Result<Preset, String> {
+        storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
     }
 
     #[tauri::command]
@@ -100,7 +99,7 @@ pub mod commands {
         let mut experiment_presets : HashMap<String, Preset> = HashMap::with_capacity(experiment_init_data.presets.len());
 
         for preset_name in experiment_init_data.presets {
-            experiment_presets.insert(slugify(preset_name.clone()), storage::get_preset_from_preset_name(preset_name)?);
+            experiment_presets.insert(slugify(preset_name.clone()), storage::parse_from_json_file::<Preset>(preset_name, Folder::Presets)?);
         }
 
         let experiment : Experiment = Experiment { 
@@ -121,7 +120,13 @@ pub mod commands {
 
         //Create and write to JSON file 
         storage::create_and_write_to_json_file(experiment_as_json, Folder::Experiments, file_name)?;
+        //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
         Ok(String::from("Experiment created successfully"))
+    }
+
+    #[tauri::command]
+    pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
+        storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
     }
 
 }

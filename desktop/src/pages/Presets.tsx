@@ -3,7 +3,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { retrievePreset } from "../commands";
-import { type Parameters } from "../interfaces";
+import { type Parameters, type Preset } from "../interfaces";
 
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
@@ -54,14 +54,10 @@ function PresetElement({ name, onSelect }: presetElementProps) {
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
-  const [selectedPreset, setSelectedPreset] = useState<Parameters | undefined>(
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
     undefined
   );
   const [selectedPresetName, setSelectedPresetName] = useState<string>("");
-
-  async function getPreset(presetName: string) {
-    setSelectedPreset(await retrievePreset(presetName));
-  }
 
   const [preset, setPreset] = useState("");
 
@@ -82,19 +78,17 @@ export default function PresetsPage() {
           {files.map((file) => (
             <PresetElement
               name={file}
-              onSelect={async () => {
-                console.log("selected preset: ", file);
-                // TODO: Hack for å fjerne .json
-                const fileName = file.slice(0, -5);
-                setSelectedPresetName(fileName);
-                await getPreset(fileName);
+              onSelect={() => {
+                retrievePreset(file.split(".")[0]).then((result) =>
+                  setSelectedPreset(result)
+                );
               }}
             />
           ))}
         </ContentBox>
 
         {/* TODO: Show as sliders */}
-        <ContentBox>{JSON.stringify(selectedPreset)}</ContentBox>
+        <ContentBox>{selectedPreset}</ContentBox>
       </Layout>
     </>
   );

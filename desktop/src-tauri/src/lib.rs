@@ -28,10 +28,11 @@ pub fn run() {
             commands::set_param,
             commands::get_param,
             commands::get_ip_address,
-            commands::retrieve_preset,
             commands::list_presets,
+            commands::retrieve_preset,
             commands::create_preset,
             commands::list_experiments,
+            commands::retrieve_experiment,
             commands::create_experiment
         ])
         .setup(|app| {
