@@ -1,0 +1,9 @@
+.listButton {
+  padding: 0.5rem;
+  color: var(--primary-hl);
+  background-color: var(--primary-bg);
+}
+
+.listButton:hover {
+  background-color: var(--primary-hl-hover);
+}

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { fetchExperiments, retrieveExperiment } from "../commands";
+import ListButton from "../components/ListButton";
+import { Layout } from "../components/Layout";
+import { ContentBox } from "../components/ContentBox";
 
 export default function ExperimentsPage() {
   const [experiments, setExperiments] = useState<string[]>([""]);
@@ -13,19 +16,24 @@ export default function ExperimentsPage() {
 
   return (
     <>
-      {experiments.length > 0 &&
-        experiments.map((experiment_name) => (
-          <button
-            onClick={() => {
-              retrieveExperiment(experiment_name.split(".")[0]).then((result) =>
-                setSelectedExperiment(result)
-              );
-            }}
-          >
-            {experiment_name}
-          </button>
-        ))}
-      <p>{selectedExperiment && selectedExperiment}</p>
+      <h1>Experiments</h1>
+      <Layout>
+        <ContentBox>
+          {experiments.length > 0 &&
+            experiments.map((experiment_name) => (
+              <ListButton
+                textContent={experiment_name}
+                onClick={() => {
+                  retrieveExperiment(experiment_name.split(".")[0]).then(
+                    (result) => setSelectedExperiment(result)
+                  );
+                }}
+              />
+            ))}
+        </ContentBox>
+
+        <ContentBox>{selectedExperiment && selectedExperiment}</ContentBox>
+      </Layout>
     </>
   );
 }
