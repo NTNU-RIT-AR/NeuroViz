@@ -3,10 +3,8 @@ pub mod storage {
     use std::io::Write;
     use std::path;
     use std::{fs, io};
-    use slug::slugify;
 
     use crate::consts::Folder;
-    use crate::structs::{Experiment, Preset};
 
     use serde::de::DeserializeOwned;
 

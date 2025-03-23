@@ -43,7 +43,7 @@ pub struct Experiment {
     pub experiment_type: String,
     pub name: String,
     pub presets: HashMap<String, Preset>,
-    pub choices: Vec<Choice>
+    pub choices: Option<Vec<Choice>>
 }
 
 #[derive(Deserialize)]
@@ -51,7 +51,7 @@ pub struct CreateExperiment {
     pub experiment_type: String, 
     pub name: String,
     pub presets: Vec<String>,
-    pub choices: Vec<Choice>
+    pub choices: Option<Vec<Choice>>
 }
 
 #[derive(Deserialize, Serialize)]

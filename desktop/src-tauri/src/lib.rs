@@ -7,8 +7,6 @@ use api::commands::commands;
 use api::tcpservice::tcpservice;
 
 use crate::structs::RenderParams;
-use crate::structs::CreateExperiment;
-use crate::structs::Choice;
 
 use tauri::Manager;
 
