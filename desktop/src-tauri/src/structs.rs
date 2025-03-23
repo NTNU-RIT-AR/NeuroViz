@@ -1,9 +1,7 @@
-use std::sync::{Mutex, MutexGuard};
+use std::sync::Mutex;
 use std::collections::HashMap;
 
 use serde::{Serialize, Deserialize};
-
-use tauri::{AppHandle, Manager};
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct RenderParamsInner {
@@ -45,6 +43,14 @@ pub struct Experiment {
     pub experiment_type: String,
     pub name: String,
     pub presets: HashMap<String, Preset>,
+    pub choices: Vec<Choice>
+}
+
+#[derive(Deserialize)]
+pub struct CreateExperiment {
+    pub experiment_type: String, 
+    pub name: String,
+    pub presets: Vec<String>,
     pub choices: Vec<Choice>
 }
 

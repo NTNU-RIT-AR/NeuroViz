@@ -7,12 +7,21 @@ use api::commands::commands;
 use api::tcpservice::tcpservice;
 
 use crate::structs::RenderParams;
+use crate::structs::CreateExperiment;
+use crate::structs::Choice;
 
-use std::sync::Mutex;
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+
+    // println!("{:?}", commands::create_experiment(CreateExperiment {
+    //     experiment_type: String::from("choice"),
+    //     name: String::from("My test experiment"),
+    //     presets: Vec::from([String::from("High emission"), String::from("Metal looking"), String::from("Very hue")]),
+    //     choices: Vec::from([Choice {a: String::from("high-emission"), b: String::from("metal-looking")}, Choice {a: String::from("very-hue"), b: String::from("metal-looking")}])
+    // }));
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
@@ -21,8 +30,9 @@ pub fn run() {
             commands::get_ip_address,
             commands::retrieve_preset,
             commands::list_presets,
-            commands::save_preset,
-            commands::list_experiments
+            commands::create_preset,
+            commands::list_experiments,
+            commands::create_experiment
         ])
         .setup(|app| {
             app.manage(RenderParams::default());

@@ -3,6 +3,26 @@ pub mod storage {
     use std::io::Write;
     use std::path;
     use std::{fs, io};
+    use serde_json::json;
+    use slug::slugify;
+
+    use crate::consts::Folder;
+    use crate::structs::Preset;
+
+    pub fn get_preset_from_preset_name(preset_name: String) -> Result<Preset, String> {
+
+        let preset_file_content = match read_from_json_file(Folder::Presets, format!("{}.json", slugify(preset_name))) {
+            Ok(content) => content,
+            Err(e) => return Err(e)
+        };
+        
+        let preset : Preset = match serde_json::from_str(&preset_file_content){
+            Ok(p) => p,
+            Err(e) => return Err(String::from(format!("Could not parse preset json files: {}", e.to_string()))),
+        };
+        
+        Ok(preset)  
+    }
 
     pub fn get_data_dir() -> Option<path::PathBuf> {
         //let mut path = env::current_exe().ok()?;
@@ -34,11 +54,11 @@ pub mod storage {
 
     pub fn create_and_write_to_json_file(
         contents: String,
-        folder_path: String,
+        folder: Folder,
         filename: String,
     ) -> Result<(), String> {
         let mut path = get_data_dir().unwrap();
-        path.push(folder_path);
+        path.push(folder.as_str());
         path.push(format!("{}.json", filename));
 
         // TODO: Se om vi kan fikse bedre error handling
@@ -61,10 +81,10 @@ pub mod storage {
             .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
     }
 
-    pub fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, String> {
+    pub fn read_from_json_file(folder: Folder, filename: String) -> Result<String, String> {
         let path = match get_data_dir() {
             Some(mut path) => {
-                path.push(folder_path);
+                path.push(folder.as_str());
                 path.push(filename);
                 path
             }
@@ -82,10 +102,10 @@ pub mod storage {
         Ok(contents)
     }
 
-    pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
+    pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
         let path = match get_data_dir() {
             Some(mut path) => {
-                path.push(folder);
+                path.push(folder.as_str());
                 path
             }
             None => return Err(format!("could not get data dir path")),
