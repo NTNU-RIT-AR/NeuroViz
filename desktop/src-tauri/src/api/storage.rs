@@ -42,15 +42,16 @@ pub mod storage {
 
     pub fn make_file_list(path: path::PathBuf) -> io::Result<Vec<String>> {
         let mut list: Vec<String> = vec![];
+        
         if path.is_dir() {
             for entry in fs::read_dir(path)? {
-                let file_name = entry?
-                    .file_name()
-                    .into_string()
-                    .map_err(|_| io::ErrorKind::InvalidData)?;
-                list.push(file_name);
+                let entry = entry?;
+                if let Some(file_stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
+                    list.push(file_stem.to_string());
+                }
             }
         }
+    
         Ok(list)
     }
 

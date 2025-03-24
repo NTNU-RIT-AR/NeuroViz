@@ -79,7 +79,7 @@ export default function PresetsPage() {
             <PresetElement
               name={file}
               onSelect={() => {
-                retrievePreset(file.split(".")[0]).then((result) =>
+                retrievePreset(file).then((result) =>
                   setSelectedPreset(result)
                 );
               }}

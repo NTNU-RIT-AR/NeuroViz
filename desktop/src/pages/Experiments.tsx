@@ -32,8 +32,8 @@ export default function ExperimentsPage() {
               <ListButton
                 textContent={experiment_name}
                 onClick={() => {
-                  retrieveExperiment(experiment_name.split(".")[0]).then(
-                    (result) => setSelectedExperiment(result)
+                  retrieveExperiment(experiment_name).then((result) =>
+                    setSelectedExperiment(result)
                   );
                 }}
               />
