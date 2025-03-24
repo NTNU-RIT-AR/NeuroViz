@@ -69,9 +69,11 @@ interface StateRoutes {
 interface ExperimentRoutes {
   @route("/answer")
   @summary("Answer the current experiment prompt")
-  @post op answerExperiment(): void | InternalServerError;
+  @post op answerExperiment(
+    @body answer: ExperimentAnswer
+  ): void | InternalServerError;
 
   @route("/swap")
-  @summary("Swap the current experiment prompt")
+  @summary("Swap between the two choices in the current experiment")
   @post op swapExperiment(): void | InternalServerError;
 }
