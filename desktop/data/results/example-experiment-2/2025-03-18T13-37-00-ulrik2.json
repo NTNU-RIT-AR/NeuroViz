@@ -1,7 +1,8 @@
 {
-  "experiment_type": "choice",
-  "name": "Example experiment 1",
-  "subject": "ulrik",
+  "type": "rating",
+  "name": "Example experiment 2",
+  "time": "2025-03-18T13:36:00",
+  "observer_id": 1,
   "note": "lorem ipsum...",
   "presets": {
     "smoothish": {
@@ -41,21 +42,30 @@
       }
     }
   },
-  "choices": [
+  "ratings": [
     {
-      "a": "smoothish",
-      "b": "high-emission",
-      "selected": "smoothish"
+      "preset": "smoothish",
+      "rank": 1,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
     },
     {
-      "a": "very-hue",
-      "b": "metal-looking",
-      "selected": "very-hue"
+      "preset": "high-emission",
+      "rank": 3,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
     },
     {
-      "a": "high-emission",
-      "b": "very-hue",
-      "selected": "high-emission"
+      "preset": "metal-looking",
+      "rank": 2,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
+    },
+    {
+      "preset": "very-hue",
+      "rank": 5,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
     }
   ]
 }
