@@ -7,6 +7,9 @@ use api::commands::commands;
 use api::tcpservice::tcpservice;
 
 use crate::structs::RenderParams;
+use crate::structs::CreateExperiment;
+use crate::structs::Choice;
+use crate::structs::ExperimentType;
 
 use tauri::Manager;
 
@@ -14,10 +17,9 @@ use tauri::Manager;
 pub fn run() {
 
     // println!("{:?}", commands::create_experiment(CreateExperiment {
-    //     experiment_type: String::from("choice"),
+    //     experiment_type: ExperimentType::Choice { choices: Vec::from([Choice {a: String::from("high-emission"), b: String::from("metal-looking")}, Choice {a: String::from("very-hue"), b: String::from("metal-looking")}]) },
     //     name: String::from("My test experiment"),
-    //     presets: Vec::from([String::from("High emission"), String::from("Metal looking"), String::from("Very hue")]),
-    //     choices: Vec::from([Choice {a: String::from("high-emission"), b: String::from("metal-looking")}, Choice {a: String::from("very-hue"), b: String::from("metal-looking")}])
+    //     presets: Vec::from([String::from("High emission"), String::from("Metal looking"), String::from("Very hue")])
     // }));
 
     tauri::Builder::default()

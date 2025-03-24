@@ -38,20 +38,32 @@ pub struct Preset {
     pub parameters: RenderParamsInner,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "experiment_type")]
+pub enum ExperimentType {
+    /// Rating between 1-5
+    #[serde(rename = "rating")]
+    Rating,
+
+    /// Choose between two options
+    #[serde(rename = "choice")]
+    Choice { choices: Vec<Choice> },
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Experiment {
-    pub experiment_type: String,
+    #[serde(flatten)]
+    pub experiment_type: ExperimentType,
     pub name: String,
     pub presets: HashMap<String, Preset>,
-    pub choices: Option<Vec<Choice>>
 }
 
 #[derive(Deserialize)]
 pub struct CreateExperiment {
-    pub experiment_type: String, 
+    #[serde(flatten)]
+    pub experiment_type: ExperimentType, 
     pub name: String,
-    pub presets: Vec<String>,
-    pub choices: Option<Vec<Choice>>
+    pub presets: Vec<String>
 }
 
 #[derive(Deserialize, Serialize)]

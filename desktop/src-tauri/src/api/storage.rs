@@ -66,7 +66,7 @@ pub mod storage {
         // TODO: Se om vi kan fikse bedre error handling
         let mut file = File::create_new(path).map_err(|err| {
             format!(
-                "Preset with this name exist already (?)\n {}",
+                "File with this name exist already (?)\n {}",
                 err.to_string()
             )
         })?;
@@ -92,11 +92,12 @@ pub mod storage {
             }
             None => return Err(String::from("Could not get data dir path")),
         };
-        let contents = match fs::read_to_string(path) {
+        let contents = match fs::read_to_string(&path) {
             Ok(content) => content,
             Err(err) => {
                 return Err(format!(
-                    "Could not read from file with given path {}",
+                    "Could not read from file with given path {:?} {}",
+                    path,
                     err.to_string()
                 ))
             }

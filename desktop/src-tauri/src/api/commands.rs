@@ -99,14 +99,13 @@ pub mod commands {
         let mut experiment_presets : HashMap<String, Preset> = HashMap::with_capacity(experiment_init_data.presets.len());
 
         for preset_name in experiment_init_data.presets {
-            experiment_presets.insert(slugify(preset_name.clone()), storage::parse_from_json_file::<Preset>(preset_name, Folder::Presets)?);
+            experiment_presets.insert(slugify(preset_name.clone()), storage::parse_from_json_file::<Preset>(slugify(preset_name), Folder::Presets)?);
         }
 
         let experiment : Experiment = Experiment { 
             experiment_type: experiment_init_data.experiment_type,
             name: experiment_init_data.name,
-            presets: experiment_presets,
-            choices: experiment_init_data.choices
+            presets: experiment_presets
         };
 
         //Parse Experiment to JSON

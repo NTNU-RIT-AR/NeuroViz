@@ -15,12 +15,18 @@ interface Preset {
   parameters: Parameters;
 }
 
-interface Experiment {
-  experiment_type: string;
-  name: string;
-  presets: Map<string, Preset>;
-  choices: Choice[];
-}
+type Experiment =
+  | {
+      experiment_type: "choice";
+      name: string;
+      presets: Record<string, Preset>;
+      choices: Choice[];
+    }
+  | {
+      experiment_type: "rating";
+      name: string;
+      presets: Record<string, Preset>;
+    };
 
 // enum Parameter =
 export type { Parameters, Preset, Experiment };
