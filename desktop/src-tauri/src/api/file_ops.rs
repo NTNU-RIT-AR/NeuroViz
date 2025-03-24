@@ -24,6 +24,8 @@ pub fn get_data_dir() -> Option<PathBuf> {
         path = dirs::executable_dir()?;
     }
 
+    fs::create_dir_all(&path).unwrap();
+
     println!("data dir: {}", path.display());
     Some(path)
 }
