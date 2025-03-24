@@ -4,12 +4,19 @@ import ListButton from "../components/ListButton";
 import { Layout } from "../components/Layout";
 import { ContentBox } from "../components/ContentBox";
 import CreateExperimentForm from "../components/CreateExperimentForm";
+import Button from "../components/Button";
 
 export default function ExperimentsPage() {
   const [experiments, setExperiments] = useState<string[]>([""]);
   const [selectedExperiment, setSelectedExperiment] = useState<
     string | undefined
   >("");
+  const [viewCreateExperiment, setViewCreateExperiment] =
+    useState<boolean>(false);
+
+  function toggleViewCreateExperiment() {
+    setViewCreateExperiment(!viewCreateExperiment);
+  }
 
   useEffect(() => {
     fetchExperiments().then(setExperiments);
@@ -35,7 +42,20 @@ export default function ExperimentsPage() {
 
         <ContentBox>{selectedExperiment && selectedExperiment}</ContentBox>
       </Layout>
-      <CreateExperimentForm />
+      {viewCreateExperiment && <CreateExperimentForm />}
+      {viewCreateExperiment ? (
+        <Button
+          theme={"neutral"}
+          textContent="Cancel"
+          onClick={toggleViewCreateExperiment}
+        />
+      ) : (
+        <Button
+          theme={"green"}
+          textContent="Create new"
+          onClick={toggleViewCreateExperiment}
+        />
+      )}
     </>
   );
 }
