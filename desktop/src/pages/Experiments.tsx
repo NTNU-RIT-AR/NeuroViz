@@ -3,6 +3,7 @@ import { fetchExperiments, retrieveExperiment } from "../commands";
 import ListButton from "../components/ListButton";
 import { Layout } from "../components/Layout";
 import { ContentBox } from "../components/ContentBox";
+import CreateExperimentForm from "../components/CreateExperimentForm";
 
 export default function ExperimentsPage() {
   const [experiments, setExperiments] = useState<string[]>([""]);
@@ -34,6 +35,7 @@ export default function ExperimentsPage() {
 
         <ContentBox>{selectedExperiment && selectedExperiment}</ContentBox>
       </Layout>
+      <CreateExperimentForm />
     </>
   );
 }
