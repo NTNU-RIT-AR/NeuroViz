@@ -5,31 +5,6 @@ use std::{
     path::PathBuf,
 };
 
-pub fn get_data_dir() -> Option<PathBuf> {
-    //let mut path = env::current_exe().ok()?;
-    //path.push("data");
-
-    // Linux    ~/.local/share/xreal_control
-    // macOS    ~/Library/Application Support\xreal_control
-    // Windows  C:\Users\Alice\AppData\Roaming\xreal_control
-
-    let mut path;
-
-    if cfg!(debug_assertions) {
-        // debug mode
-        path = dirs::data_dir()?;
-        path.push("NeuroViz");
-    } else {
-        // release mode
-        path = dirs::executable_dir()?;
-    }
-
-    fs::create_dir_all(&path).unwrap();
-
-    println!("data dir: {}", path.display());
-    Some(path)
-}
-
 pub fn make_file_list(path: PathBuf) -> io::Result<Vec<String>> {
     let mut list: Vec<String> = vec![];
     if path.is_dir() {

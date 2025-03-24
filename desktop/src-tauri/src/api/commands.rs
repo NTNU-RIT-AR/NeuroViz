@@ -1,8 +1,13 @@
-use crate::api::file_ops::*;
-use crate::consts;
+use crate::api::storage;
+use crate::consts::Folder;
+use crate::structs::CreateExperiment;
+use crate::structs::Experiment;
+use crate::structs::Preset;
 use crate::structs::RenderParams;
 
 use local_ip_address::local_ip;
+use slug::slugify;
+use std::collections::HashMap;
 use tauri::Manager;
 
 #[tauri::command]
@@ -49,7 +54,7 @@ pub fn get_param(app: tauri::AppHandle, param_name: &str) -> f64 {
 
 #[tauri::command]
 pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
-    let path = match get_data_dir() {
+    let path = match storage::get_data_dir() {
         Some(mut path) => {
             path.push(folder);
             path
@@ -57,15 +62,10 @@ pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
         None => return Err(format!("could not get data dir path")),
     };
 
-    match make_file_list(path) {
+    match storage::make_file_list(path) {
         Ok(files) => Ok(files),
         Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
     }
-}
-
-#[tauri::command]
-pub fn list_presets() -> Result<Vec<String>, String> {
-    return list_files("presets");
 }
 
 #[tauri::command]
@@ -75,10 +75,84 @@ pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), Str
     let params = state.lock().unwrap().clone();
     let json_string = serde_json::to_string(&params).unwrap();
 
-    create_and_write_to_json_file(json_string, consts::FOLDER_PRESETS.to_string(), preset_name)
+    storage::create_and_write_to_json_file(json_string, Folder::Presets, preset_name)
 }
 
 #[tauri::command]
-pub fn retrieve_preset(preset_name: String) -> Result<String, String> {
-    read_from_json_file(consts::FOLDER_PRESETS, format!("{}.json", preset_name))
+pub fn list_presets() -> Result<Vec<String>, String> {
+    return storage::list_files(Folder::Presets);
+}
+
+#[tauri::command]
+pub fn list_experiments() -> Result<Vec<String>, String> {
+    return storage::list_files(Folder::Experiments);
+}
+
+//fn delete_file(file_name: String) -> Result<(), String> {
+//    let folder_path = fs::read_to_string(file_name).map_err(|e| e.to_string())?;
+//    let file_path = BaseDirectory::AppData + "/" + &file_name;
+//
+//    println!("Document path: {}", folder_path);
+//
+//    //fs::remove_file(file_path).map_err(|e| e.to_string())?;
+//    Ok(())
+//}
+
+#[tauri::command]
+pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+    // Parse PARAMS to JSON
+    let state = app.state::<RenderParams>();
+    let params = state.lock().unwrap().clone();
+    let json_string = serde_json::to_string(&params).unwrap();
+
+    storage::create_and_write_to_json_file(json_string, Folder::Presets, preset_name)
+}
+
+#[tauri::command]
+pub fn retrieve_preset(slugged_preset_name: String) -> Result<Preset, String> {
+    storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
+}
+
+#[tauri::command]
+pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
+    //Derive from CreateExperiment and Preset to Experiment
+    let mut experiment_presets: HashMap<String, Preset> =
+        HashMap::with_capacity(experiment_init_data.presets.len());
+
+    for preset_name in experiment_init_data.presets {
+        experiment_presets.insert(
+            slugify(preset_name.clone()),
+            storage::parse_from_json_file::<Preset>(slugify(preset_name), Folder::Presets)?,
+        );
+    }
+
+    let experiment: Experiment = Experiment {
+        experiment_type: experiment_init_data.experiment_type,
+        name: experiment_init_data.name,
+        presets: experiment_presets,
+    };
+
+    //Parse Experiment to JSON
+    let experiment_as_json = match serde_json::to_string(&experiment) {
+        Ok(content) => content,
+        Err(e) => {
+            return Err(format!(
+                "Could not parse experiment into JSON before storing it {}",
+                e.to_string()
+            ))
+        }
+    };
+
+    //Generate file name <SLUG OF EXPERIMENT NAME>
+    let file_name = slugify(experiment.name);
+
+    //Create and write to JSON file
+    storage::create_and_write_to_json_file(experiment_as_json, Folder::Experiments, file_name)?;
+    //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
+    Ok(String::from("Experiment created successfully"))
+}
+
+#[tauri::command]
+pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
+    storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
 }
