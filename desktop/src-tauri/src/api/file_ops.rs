@@ -12,8 +12,17 @@ pub fn get_data_dir() -> Option<PathBuf> {
     // Linux    ~/.local/share/xreal_control
     // macOS    ~/Library/Application Support\xreal_control
     // Windows  C:\Users\Alice\AppData\Roaming\xreal_control
-    let mut path = dirs::data_dir()?;
-    path.push("xreal_control");
+
+    let mut path;
+
+    if cfg!(debug_assertions) {
+        // debug mode
+        path = dirs::data_dir()?;
+        path.push("NeuroViz");
+    } else {
+        // release mode
+        path = dirs::executable_dir()?;
+    }
 
     println!("data dir: {}", path.display());
     Some(path)
