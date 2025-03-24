@@ -1,4 +1,6 @@
-use crate::{api::events::events, structs::RenderParams};
+use super::events;
+
+use crate::structs::RenderParams;
 
 use std::time::Duration;
 use tauri::{AppHandle, Manager};
