@@ -1,3 +1,4 @@
+use crate::api::file_ops::*;
 use crate::consts;
 use crate::structs::RenderParams;
 
@@ -66,16 +67,6 @@ pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
 pub fn list_presets() -> Result<Vec<String>, String> {
     return list_files("presets");
 }
-
-//fn delete_file(file_name: String) -> Result<(), String> {
-//    let folder_path = fs::read_to_string(file_name).map_err(|e| e.to_string())?;
-//    let file_path = BaseDirectory::AppData + "/" + &file_name;
-//
-//    println!("Document path: {}", folder_path);
-//
-//    //fs::remove_file(file_path).map_err(|e| e.to_string())?;
-//    Ok(())
-//}
 
 #[tauri::command]
 pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {

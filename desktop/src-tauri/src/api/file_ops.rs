@@ -1,4 +1,11 @@
-fn get_data_dir() -> Option<path::PathBuf> {
+use dirs;
+use std::{
+    fs::{self, File},
+    io::{self, ErrorKind, Write},
+    path::PathBuf,
+};
+
+pub fn get_data_dir() -> Option<PathBuf> {
     //let mut path = env::current_exe().ok()?;
     //path.push("data");
 
@@ -12,21 +19,21 @@ fn get_data_dir() -> Option<path::PathBuf> {
     Some(path)
 }
 
-fn make_file_list(path: path::PathBuf) -> io::Result<Vec<String>> {
+pub fn make_file_list(path: PathBuf) -> io::Result<Vec<String>> {
     let mut list: Vec<String> = vec![];
     if path.is_dir() {
         for entry in fs::read_dir(path)? {
             let file_name = entry?
                 .file_name()
                 .into_string()
-                .map_err(|_| io::ErrorKind::InvalidData)?;
+                .map_err(|_| ErrorKind::InvalidData)?;
             list.push(file_name);
         }
     }
     Ok(list)
 }
 
-fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, String> {
+pub fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, String> {
     let path = match get_data_dir() {
         Some(mut path) => {
             path.push(folder_path);
@@ -47,7 +54,7 @@ fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, St
     Ok(contents)
 }
 
-fn create_and_write_to_json_file(
+pub fn create_and_write_to_json_file(
     contents: String,
     folder_path: String,
     filename: String,
@@ -75,3 +82,13 @@ fn create_and_write_to_json_file(
     file.write_all(contents.as_bytes())
         .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
 }
+
+//fn delete_file(file_name: String) -> Result<(), String> {
+//    let folder_path = fs::read_to_string(file_name).map_err(|e| e.to_string())?;
+//    let file_path = BaseDirectory::AppData + "/" + &file_name;
+//
+//    println!("Document path: {}", folder_path);
+//
+//    //fs::remove_file(file_path).map_err(|e| e.to_string())?;
+//    Ok(())
+//}
