@@ -15,7 +15,7 @@ model Parameters {
 }
 
 model ExperimentPrompt {
-  type: "choice" | "rating";
+  experiment_type: "choice" | "rating";
   preset: Parameters;
 }
 
