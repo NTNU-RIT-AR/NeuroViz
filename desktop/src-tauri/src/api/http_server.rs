@@ -71,17 +71,19 @@ impl HttpServer {
     }
 }
 
+/// Get the current state
 async fn get_state(State(state): State<HttpServer>) -> Json<AppState> {
     Json(state.state.borrow().clone())
 }
 
+/// Subscribe to state updates as an SSE stream
 async fn subscribe_state(
     State(state): State<HttpServer>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    println!("/subscribe/parameters connected");
-
+    // Convert the watch channel to a stream
     let stream = WatchStream::new(state.state);
 
+    // Map the stream to SSE events with JSON data
     let stream = stream
         .map(|params| {
             let params = serde_json::to_string(&params).unwrap();
@@ -90,6 +92,7 @@ async fn subscribe_state(
         })
         .map(Ok);
 
+    // Create an SSE stream with a keep-alive interval of 1 second
     Sse::new(stream).keep_alive(
         axum::response::sse::KeepAlive::new()
             .interval(Duration::from_secs(1))
