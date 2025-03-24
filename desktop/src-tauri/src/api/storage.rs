@@ -83,14 +83,6 @@ pub fn create_and_write_to_json_file(
         )
     })?;
 
-    // {
-    //     Ok(f) => f,
-    //     Err(err ) => match err.kind() {
-    //         Errorkind::AlreadyExists => return Err(String::from("Preset with this name already exists.")),
-    //         _ => return return Err(String::from("Unknown error.")),
-    //     }
-    // };
-
     file.write_all(contents.as_bytes())
         .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
 }
