@@ -36,14 +36,14 @@ union State {
   }
 }
 
-@discriminated(#{ envelope: "none", discriminatorPropertyName: "kind" })
+@discriminated(#{ envelope: "none", discriminatorPropertyName: "experiment_type" })
 union ExperimentAnswer {
   choice: {
-    kind: "choice";
+    experiment_type: "choice";
   },
 
   rating: {
-    kind: "rating";
+    experiment_type: "rating";
     value: integer;
   },
 }
