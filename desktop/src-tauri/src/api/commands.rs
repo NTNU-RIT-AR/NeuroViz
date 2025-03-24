@@ -1,14 +1,18 @@
 pub mod commands {
-    use std::fs::File;
-    use std::io::Write;
-    use std::path;
-    use std::{fs, io};
 
+    use crate::structs::Experiment;
+    use crate::structs::CreateExperiment;
+    use crate::structs::Preset;
     use crate::structs::RenderParams;
+    use crate::consts::Folder;
+    // use crate::consts::FOLDER_PRESETS;
+    // use crate::consts::FOLDER_EXPERIMENTS;
+    use crate::api::storage::storage;
 
-    use super::super::super::consts::FOLDER_PRESETS;
     use local_ip_address::local_ip;
     use tauri::Manager;
+    use std::collections::HashMap;
+    use slug::slugify;
 
     #[tauri::command]
     pub fn get_ip_address() -> String {
@@ -52,53 +56,15 @@ pub mod commands {
         } as f64;
     }
 
-    fn get_data_dir() -> Option<path::PathBuf> {
-        //let mut path = env::current_exe().ok()?;
-        //path.push("data");
-
-        // Linux    ~/.local/share/xreal_control
-        // macOS    ~/Library/Application Support\xreal_control
-        // Windows  C:\Users\Alice\AppData\Roaming\xreal_control
-        let mut path = dirs::data_dir()?;
-        path.push("xreal_control");
-
-        println!("data dir: {}", path.display());
-        Some(path)
-    }
-
-    fn make_file_list(path: path::PathBuf) -> io::Result<Vec<String>> {
-        let mut list: Vec<String> = vec![];
-        if path.is_dir() {
-            for entry in fs::read_dir(path)? {
-                let file_name = entry?
-                    .file_name()
-                    .into_string()
-                    .map_err(|_| io::ErrorKind::InvalidData)?;
-                list.push(file_name);
-            }
-        }
-        Ok(list)
-    }
-
-    #[tauri::command]
-    pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
-        let path = match get_data_dir() {
-            Some(mut path) => {
-                path.push(folder);
-                path
-            }
-            None => return Err(format!("could not get data dir path")),
-        };
-
-        match make_file_list(path) {
-            Ok(files) => Ok(files),
-            Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
-        }
-    }
-
     #[tauri::command]
     pub fn list_presets() -> Result<Vec<String>, String> {
-        return list_files("presets");
+        return storage::list_files(Folder::Presets);
+    }
+
+    
+    #[tauri::command]
+    pub fn list_experiments() -> Result<Vec<String>, String> {
+        return storage::list_files(Folder::Experiments);
     }
 
     //fn delete_file(file_name: String) -> Result<(), String> {
@@ -112,67 +78,54 @@ pub mod commands {
     //}
 
     #[tauri::command]
-    pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+    pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
         // Parse PARAMS to JSON
         let state = app.state::<RenderParams>();
         let params = state.lock().unwrap().clone();
         let json_string = serde_json::to_string(&params).unwrap();
 
-        create_and_write_to_json_file(json_string, FOLDER_PRESETS.to_string(), preset_name)
-    }
-
-    fn create_and_write_to_json_file(
-        contents: String,
-        folder_path: String,
-        filename: String,
-    ) -> Result<(), String> {
-        let mut path = get_data_dir().unwrap();
-        path.push(folder_path);
-        path.push(format!("{}.json", filename));
-
-        // TODO: Se om vi kan fikse bedre error handling
-        let mut file = File::create_new(path).map_err(|err| {
-            format!(
-                "Preset with this name exist already (?)\n {}",
-                err.to_string()
-            )
-        })?;
-
-        // {
-        //     Ok(f) => f,
-        //     Err(err ) => match err.kind() {
-        //         Errorkind::AlreadyExists => return Err(String::from("Preset with this name already exists.")),
-        //         _ => return return Err(String::from("Unknown error.")),
-        //     }
-        // };
-
-        file.write_all(contents.as_bytes())
-            .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
+        storage::create_and_write_to_json_file(json_string, Folder::Presets, preset_name)
     }
 
     #[tauri::command]
-    pub fn retrieve_preset(preset_name: String) -> Result<String, String> {
-        read_from_json_file(FOLDER_PRESETS, format!("{}.json", preset_name))
+    pub fn retrieve_preset(slugged_preset_name: String) -> Result<Preset, String> {
+        storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
     }
 
-    fn read_from_json_file(folder_path: &str, filename: String) -> Result<String, String> {
-        let path = match get_data_dir() {
-            Some(mut path) => {
-                path.push(folder_path);
-                path.push(filename);
-                path
-            }
-            None => return Err(String::from("Could not get data dir path")),
+    #[tauri::command]
+    pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
+
+        //Derive from CreateExperiment and Preset to Experiment
+        let mut experiment_presets : HashMap<String, Preset> = HashMap::with_capacity(experiment_init_data.presets.len());
+
+        for preset_name in experiment_init_data.presets {
+            experiment_presets.insert(slugify(preset_name.clone()), storage::parse_from_json_file::<Preset>(slugify(preset_name), Folder::Presets)?);
+        }
+
+        let experiment : Experiment = Experiment { 
+            experiment_type: experiment_init_data.experiment_type,
+            name: experiment_init_data.name,
+            presets: experiment_presets
         };
-        let contents = match fs::read_to_string(path) {
+
+        //Parse Experiment to JSON
+        let experiment_as_json = match serde_json::to_string(&experiment) {
             Ok(content) => content,
-            Err(err) => {
-                return Err(format!(
-                    "Could not read from file with given path {}",
-                    err.to_string()
-                ))
-            }
+            Err(e) => return Err(format!("Could not parse experiment into JSON before storing it {}", e.to_string()))
         };
-        Ok(contents)
+
+        //Generate file name <SLUG OF EXPERIMENT NAME>
+        let file_name = slugify(experiment.name);
+
+        //Create and write to JSON file 
+        storage::create_and_write_to_json_file(experiment_as_json, Folder::Experiments, file_name)?;
+        //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
+        Ok(String::from("Experiment created successfully"))
     }
+
+    #[tauri::command]
+    pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
+        storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
+    }
+
 }
