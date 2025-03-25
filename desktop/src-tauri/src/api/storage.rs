@@ -91,7 +91,6 @@ pub fn read_from_json_file(folder: Folder, filename: String) -> Result<String, S
 
 pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
     let path = get_folder(folder).map_err(|e| format!("Could not open folder: {}", e))?;
-
     let mut list: Vec<String> = vec![];
 
     if path.is_dir() {
@@ -100,11 +99,11 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
             if let Some(file_stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
                 list.push(file_stem.to_string());
             } else {
-                return Err(String::from("Could not get file stem"));
+                return Err(format!("Could not get file stem"));
             }
         }
     } else {
-        return Err(String::from("Folder does not exist"));
+        return Err(format!("Folder does not exist"));
     }
     Ok(list)
 }
