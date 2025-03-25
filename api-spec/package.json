@@ -1,0 +1,39 @@
+{
+  "name": "api-spec",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build:tsp": "tsp compile .",
+    "build:vite": "vite build",
+    "build": "npm-run-all build:*",
+    "dev:tsp": "tsp compile . --watch",
+    "dev:vite": "vite --open",
+    "dev": "npm-run-all --parallel dev:*",
+    "preview": "npm run build && vite preview"
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/openapi": "latest",
+    "@typespec/openapi3": "latest",
+    "@typespec/rest": "latest"
+  },
+  "devDependencies": {
+    "@modyfi/vite-plugin-yaml": "^1.1.1",
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/openapi": "latest",
+    "@typespec/openapi3": "latest",
+    "@typespec/rest": "latest",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2"
+  },
+  "dependencies": {
+    "@typespec/http-client-js": "^0.2.0",
+    "@typespec/sse": "^0.67.1",
+    "swagger-ui": "^5.20.1"
+  },
+  "private": true,
+  "packageManager": "npm@11.2.0+sha512.3dc9c50ba813a3d54393155a435fe66404b72685ab0e3008f9ae9ed8d81f6104860f07ed2656dd5748c1322d95f3140fa9b19c59a6bba7750fd12285f81866da"
+}

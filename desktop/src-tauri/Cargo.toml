@@ -29,8 +29,15 @@ futures-util = "0.3"
 lazy_static = "1"
 local-ip-address = "0.5"
 dirs = "6.0.0"
+axum = "0.8.1"
+tokio-stream = { version = "0.1.17", features = ["sync"] }
+futures = "0.3.31"
 slug = "0.1"
 
 [profile.dev]
 debug = 0
 codegen-backend = "cranelift"
+
+[dev-dependencies]
+eventsource-stream = "0.2.3"
+reqwest = { version = "0.12.15", features = ["json", "stream"] }
