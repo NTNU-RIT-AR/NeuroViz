@@ -32,12 +32,12 @@ export default function ConnectionBox({ url, isConnected }: ConnectionBoxProps) 
         isConnected ?
           <>
             <img src="src/assets/xreal-glasses.png" />
-            <p>• Connected</p>
+            <p>Connected</p>
           </>
           :
           <>
             {qrCode}
-            <p>• Disconnected</p>
+            <p>Disconnected</p>
           </>
 
       }
