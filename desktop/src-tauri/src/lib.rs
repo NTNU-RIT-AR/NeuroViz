@@ -3,14 +3,55 @@ pub mod api;
 pub mod consts;
 pub mod structs;
 
-use api::{commands, tcpservice};
+use api::{commands, http_server};
 
 use crate::structs::RenderParams;
-use crate::structs::CreateExperiment;
-use crate::structs::Choice;
-use crate::structs::ExperimentType;
+use crate::structs::RenderParamsInner;
+use crate::http_server::UnityState;
 
+use std::sync::Arc;
+use std::sync::Mutex;
 use tauri::Manager;
+use tokio::sync::watch;
+
+#[derive(Clone)]
+pub struct AppData {
+    params: Arc<Mutex<RenderParamsInner>>,
+    watch_sender: watch::Sender<UnityState>
+}
+
+impl AppData {
+    fn new(watch_sender: watch::Sender<UnityState>) -> Self {
+        AppData { params: Arc::new(RenderParams::default()), watch_sender: watch_sender }
+    }
+
+    fn set_params(&self, param_name: &str, value: f64){
+        let value = value as f32;
+        let mut params = self.params.lock().unwrap();
+        println!("Updated slider values {:?}", params);
+        match param_name {
+            "Hue" => params.hue = value,
+            "Smoothness" => params.smoothness = value,
+            "Metallic" => params.metallic = value,
+            "Emission" => params.emission = value,
+            _ => {}
+        }
+
+        self.watch_sender.send(http_server::UnityState::Live { parameters: params.clone() }).unwrap();
+    }
+
+    fn get_param(&self, param_name: &str) -> f64 {
+        let params = self.params.lock().unwrap();
+        println!("Returned param:  {:?}", params);
+        return match param_name {
+            "Hue" => params.hue,
+            "Smoothness" => params.smoothness,
+            "Metallic" => params.metallic,
+            "Emission" => params.emission,
+            _ => panic!("param mismatch"),
+        } as f64;
+    }
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -20,6 +61,8 @@ pub fn run() {
     //     name: String::from("My test experiment"),
     //     presets: Vec::from([String::from("High emission"), String::from("Metal looking"), String::from("Very hue")])
     // }));
+
+    
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -35,10 +78,16 @@ pub fn run() {
             commands::create_experiment
         ])
         .setup(|app| {
-            app.manage(RenderParams::default());
+            let (watch_sender, watch_receiver) = watch::channel(http_server::UnityState::Idle);
 
-            let app_handle = app.app_handle().clone();
-            tauri::async_runtime::spawn(tcpservice::tcp_listener(app_handle));
+            let http_server = http_server::HttpServer {
+                state: watch_receiver,
+            };
+
+            app.manage(AppData::new(watch_sender));
+
+            tauri::async_runtime::spawn(http_server.run());
+            
             Ok(())
         })
         .run(tauri::generate_context!())

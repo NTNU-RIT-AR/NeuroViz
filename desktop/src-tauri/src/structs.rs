@@ -3,8 +3,6 @@ use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 
-use tauri::{AppHandle, Manager};
-
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 pub struct RenderParamsInner {
     pub hue: f32,
