@@ -26,7 +26,7 @@ where
     Ok(parsed)
 }
 
-pub fn get_data_dir() -> Option<PathBuf> {
+pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
     //let mut path = env::current_exe().ok()?;
     //path.push("data");
 
@@ -38,32 +38,18 @@ pub fn get_data_dir() -> Option<PathBuf> {
 
     if cfg!(debug_assertions) {
         // debug mode
-        path = dirs::data_dir()?;
+        path = dirs::data_dir().ok_or_else(|| format!("Could not get data dir"))?;
         path.push("NeuroViz");
     } else {
         // release mode
-        path = dirs::executable_dir()?;
+        path = dirs::executable_dir().ok_or_else(|| format!("Could not get executable dir"))?;
     }
+    path.push(folder.as_str());
 
-    fs::create_dir_all(&path).unwrap();
+    fs::create_dir_all(&path).map_err(|e| format!("Could not create directory: {}", e))?;
 
     println!("data dir: {}", path.display());
-    Some(path)
-}
-
-pub fn make_file_list(path: path::PathBuf) -> io::Result<Vec<String>> {
-    let mut list: Vec<String> = vec![];
-
-    if path.is_dir() {
-        for entry in fs::read_dir(path)? {
-            let entry = entry?;
-            if let Some(file_stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
-                list.push(file_stem.to_string());
-            }
-        }
-    }
-
-    Ok(list)
+    Ok(path)
 }
 
 pub fn create_and_write_to_json_file(
@@ -71,8 +57,7 @@ pub fn create_and_write_to_json_file(
     folder: Folder,
     filename: String,
 ) -> Result<(), String> {
-    let mut path = get_data_dir().unwrap();
-    path.push(folder.as_str());
+    let mut path = get_folder(folder).unwrap();
     path.push(format!("{}.json", filename));
 
     // TODO: Se om vi kan fikse bedre error handling
@@ -88,14 +73,9 @@ pub fn create_and_write_to_json_file(
 }
 
 pub fn read_from_json_file(folder: Folder, filename: String) -> Result<String, String> {
-    let path = match get_data_dir() {
-        Some(mut path) => {
-            path.push(folder.as_str());
-            path.push(filename);
-            path
-        }
-        None => return Err(String::from("Could not get data dir path")),
-    };
+    let mut path = get_folder(folder)?;
+    path.push(filename);
+
     let contents = match fs::read_to_string(&path) {
         Ok(content) => content,
         Err(err) => {
@@ -110,16 +90,21 @@ pub fn read_from_json_file(folder: Folder, filename: String) -> Result<String, S
 }
 
 pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
-    let path = match get_data_dir() {
-        Some(mut path) => {
-            path.push(folder.as_str());
-            path
-        }
-        None => return Err(format!("could not get data dir path")),
-    };
+    let path = get_folder(folder).map_err(|e| format!("Could not open folder: {}", e))?;
 
-    match make_file_list(path) {
-        Ok(files) => Ok(files),
-        Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
+    let mut list: Vec<String> = vec![];
+
+    if path.is_dir() {
+        for entry in fs::read_dir(path).map_err(|_| "Couldnt read dir".to_string())? {
+            let entry = entry.map_err(|e| e.to_string())?;
+            if let Some(file_stem) = entry.path().file_stem().and_then(|s| s.to_str()) {
+                list.push(file_stem.to_string());
+            } else {
+                return Err(String::from("Could not get file stem"));
+            }
+        }
+    } else {
+        return Err(String::from("Folder does not exist"));
     }
+    Ok(list)
 }

@@ -7,7 +7,7 @@ use core::fmt;
 pub enum Folder {
     Presets,
     Experiments,
-    Results
+    Results,
 }
 
 impl Folder {
@@ -15,7 +15,17 @@ impl Folder {
         match self {
             Folder::Presets => "presets",
             Folder::Experiments => "experiments",
-            Folder::Results => "results"
+            Folder::Results => "results",
+        }
+    }
+}
+impl From<&str> for Folder {
+    fn from(s: &str) -> Self {
+        match s.to_lowercase().as_str() {
+            "presets" => Folder::Presets,
+            "experiments" => Folder::Experiments,
+            "results" => Folder::Results,
+            _ => panic!("Folder enum not defined"),
         }
     }
 }
@@ -25,3 +35,4 @@ impl fmt::Display for Folder {
         write!(f, "{}", self.as_str())
     }
 }
+
