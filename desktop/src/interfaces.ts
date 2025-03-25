@@ -5,5 +5,28 @@ interface Parameters {
   emission: number;
 }
 
-// enum Parameter = 
-export { type Parameters };
+interface Choice {
+  a: string;
+  b: string;
+}
+
+interface Preset {
+  name: string;
+  parameters: Parameters;
+}
+
+type Experiment =
+  | {
+      experiment_type: "choice";
+      name: string;
+      presets: Record<string, Preset>;
+      choices: Choice[];
+    }
+  | {
+      experiment_type: "rating";
+      name: string;
+      presets: Record<string, Preset>;
+    };
+
+// enum Parameter =
+export type { Parameters, Preset, Experiment };

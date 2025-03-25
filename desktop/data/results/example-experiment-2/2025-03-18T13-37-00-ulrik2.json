@@ -1,0 +1,71 @@
+{
+  "type": "rating",
+  "name": "Example experiment 2",
+  "time": "2025-03-18T13:36:00",
+  "observer_id": 1,
+  "note": "lorem ipsum...",
+  "presets": {
+    "smoothish": {
+      "name": "Smoothish",
+      "parameters": {
+        "hue": 0.0,
+        "smoothness": 1.0,
+        "metallic": 0.0,
+        "emission": 0.1
+      }
+    },
+    "high-emission": {
+      "name": "High emission",
+      "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.2,
+        "metallic": 0.5,
+        "emission": 1.0
+      }
+    },
+    "metal-looking": {
+      "name": "Metal looking",
+      "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.4,
+        "metallic": 1.0,
+        "emission": 0.95
+      }
+    },
+    "very-hue": {
+      "name": "Very hue",
+      "parameters": {
+        "hue": 1.0,
+        "smoothness": 1.0,
+        "metallic": 0.0,
+        "emission": 0.1
+      }
+    }
+  },
+  "ratings": [
+    {
+      "preset": "smoothish",
+      "rank": 1,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
+    },
+    {
+      "preset": "high-emission",
+      "rank": 3,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
+    },
+    {
+      "preset": "metal-looking",
+      "rank": 2,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
+    },
+    {
+      "preset": "very-hue",
+      "rank": 5,
+      "time": "2025-03-18T13:37:00",
+      "duration": 5
+    }
+  ]
+}

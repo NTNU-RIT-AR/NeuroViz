@@ -1,0 +1,56 @@
+{
+  "experiment_type": "choice",
+  "name": "Example experiment 1",
+  "presets": {
+    "smoothish": {
+      "name": "Smoothish",
+      "parameters": {
+        "hue": 0.0,
+        "smoothness": 1.0,
+        "metallic": 0.0,
+        "emission": 0.1
+      }
+    },
+    "high-emission": {
+      "name": "High emission",
+      "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.2,
+        "metallic": 0.5,
+        "emission": 1.0
+      }
+    },
+    "metal-looking": {
+      "name": "Metal looking",
+      "parameters": {
+        "hue": 0.2,
+        "smoothness": 0.4,
+        "metallic": 1.0,
+        "emission": 0.95
+      }
+    },
+    "very-hue": {
+      "name": "Very hue",
+      "parameters": {
+        "hue": 1.0,
+        "smoothness": 1.0,
+        "metallic": 0.0,
+        "emission": 0.1
+      }
+    }
+  },
+  "choices": [
+    {
+      "a": "smoothish",
+      "b": "high-emission"
+    },
+    {
+      "a": "very-hue",
+      "b": "smoothish"
+    },
+    {
+      "a": "high-emission",
+      "b": "very-hue"
+    }
+  ]
+}

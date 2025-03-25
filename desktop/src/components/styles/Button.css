@@ -1,0 +1,15 @@
+.green {
+  color: var(--green-hl);
+  background: var(--green-bg);
+  padding: 1rem;
+}
+
+.red {
+  color: var(--red-hl);
+  background: var(--red-bg);
+}
+
+.neutral {
+  color: var(--primary-hl);
+  background: var(--primary-bg);
+}

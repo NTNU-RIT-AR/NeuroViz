@@ -35,7 +35,10 @@ export default function ConnectionBox({ url, isConnected }: ConnectionBoxProps) 
             <p>• Connected</p>
           </>
           :
-          qrCode
+          <>
+            {qrCode}
+            <p>• Disconnected</p>
+          </>
 
       }
 
