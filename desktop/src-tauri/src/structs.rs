@@ -1,9 +1,11 @@
 use std::sync::Mutex;
 use std::collections::HashMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+use tauri::{AppHandle, Manager};
+
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
 pub struct RenderParamsInner {
     pub hue: f32,
     pub smoothness: f32,

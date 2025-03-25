@@ -1,7 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-mod api;
-mod consts;
-mod structs;
+pub mod api;
+pub mod consts;
+pub mod structs;
 
 use api::commands::commands;
 use api::tcpservice::tcpservice;
