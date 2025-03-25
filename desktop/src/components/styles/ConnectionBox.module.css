@@ -1,28 +1,27 @@
-
 .box {
   width: 200px;
   height: 180px;
 
   border-radius: 10px;
   transition-duration: .5s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .connected {
   color: var(--green-hl);
   border: 1px solid var(--green-hl);
-  background: var(--green-bg); 
+  background: var(--green-bg);
 
-  display: flex;
-  justify-content: center;
-  align-items:center;
-  flex-direction: column;
-  
+
 }
 
 .disconnected {
-  color: var(--red-bg);
+  color: var(--red-hl);
   border: 1px solid var(--red-hl);
-  background: var(--red-bg); 
+  background: var(--red-bg);
   height: 200px;
 }
 
@@ -31,7 +30,3 @@ img {
   margin-top: 30px;
 
 }
-
-
-
-
