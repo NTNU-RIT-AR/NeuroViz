@@ -3,7 +3,7 @@ use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
 use crate::structs::Preset;
-use crate::AppData;
+use crate::appdata::AppData;
 
 use local_ip_address::local_ip;
 use slug::slugify;
