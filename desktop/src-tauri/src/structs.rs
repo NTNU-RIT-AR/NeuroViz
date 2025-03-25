@@ -1,5 +1,5 @@
-use std::sync::Mutex;
 use std::collections::HashMap;
+use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 
@@ -63,9 +63,9 @@ pub struct Experiment {
 #[derive(Deserialize)]
 pub struct CreateExperiment {
     #[serde(flatten)]
-    pub experiment_type: ExperimentType, 
+    pub experiment_type: ExperimentType,
     pub name: String,
-    pub presets: Vec<String>
+    pub presets: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -75,5 +75,6 @@ pub struct Result {
     pub subject: String,
     pub note: String,
     pub presets: HashMap<String, Preset>,
-    pub choices: Vec<Outcome>
+    pub choices: Vec<Outcome>,
 }
+

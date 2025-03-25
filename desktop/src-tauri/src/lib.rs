@@ -3,8 +3,7 @@ pub mod api;
 pub mod consts;
 pub mod structs;
 
-use api::commands::commands;
-use api::tcpservice::tcpservice;
+use api::{commands, tcpservice};
 
 use crate::structs::RenderParams;
 use crate::structs::CreateExperiment;
