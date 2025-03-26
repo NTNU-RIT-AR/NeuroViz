@@ -53,10 +53,10 @@ pub fn get_param(app: tauri::AppHandle, param_name: &str) -> f64 {
 }
 
 #[tauri::command]
-pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
-    match storage::list_files(Folder::from(folder)) {
+pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
+    match storage::list_files(folder) {
         Ok(files) => Ok(files),
-        Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
+        Err(e) => Err(format!("could not generate file list: {}", e)),
     }
 }
 
