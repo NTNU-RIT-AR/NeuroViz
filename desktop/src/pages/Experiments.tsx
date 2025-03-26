@@ -5,9 +5,11 @@ import { Layout } from "../components/Layout";
 import { ContentBox } from "../components/ContentBox";
 import CreateExperimentForm from "../components/CreateExperimentForm";
 import Button from "../components/Button";
+import { Experiment } from "../interfaces";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function ExperimentsPage() {
-  const [experiments, setExperiments] = useState<string[]>([""]);
+  const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [selectedExperiment, setSelectedExperiment] = useState<
     string | undefined
   >("");
@@ -19,7 +21,7 @@ export default function ExperimentsPage() {
   }
 
   useEffect(() => {
-    fetchExperiments().then(setExperiments);
+    invoke<Experiment[]>("get_experiments").then(setExperiments);
   }, []);
 
   return (
