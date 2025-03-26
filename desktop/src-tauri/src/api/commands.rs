@@ -1,4 +1,5 @@
 use crate::api::storage;
+
 use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
@@ -153,6 +154,9 @@ pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<Strin
 }
 
 #[tauri::command]
-pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
-    storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
+pub fn get_experiment(slugged_name: String) -> Result<Experiment, String> {
+    storage::parse_from_json_file::<Experiment>(slugged_name, Folder::Experiments)
 }
+
+#[tauri::command]
+pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {}
