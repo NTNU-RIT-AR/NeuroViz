@@ -4,28 +4,61 @@ import { Layout } from "../components/Layout";
 import { Experiment } from "../interfaces";
 import { invoke } from "@tauri-apps/api/core";
 
-import ExperimentCard from "../components/ExperimentCard";
+import styles from "./styles/Experiments.module.css"
+import Backdrop from "../components/Backdrop";
 
+enum FilterState {
+  All = "All",
+  Published = "Published",
+  Draft = "Draft"
+}
+
+interface ExperimentCardProps {
+  data: Experiment,
+}
+
+function viewExperiment() {
+  return (
+    <Backdrop><></></Backdrop>
+  )
+}
+
+function ExperimentCard({ data }: ExperimentCardProps) {
+
+  return (
+    <button className={styles.experimentCard} onClick={viewExperiment}>
+      <h3>{data.name}</h3>
+      <p>Type: {data.experiment_type}</p>
+    </button >
+  )
+}
 
 export default function ExperimentsPage() {
   const [experiments, setExperiments] = useState<Experiment[]>([]);
+  const [filter, setFilter] = useState<FilterState>(FilterState.All);
 
   useEffect(() => {
-    invoke<Experiment[]>("get_experiments").then(setExperiments);
+    invoke<Experiment[]>("get_all_experiments").then(setExperiments);
   }, []);
 
   return (
     <>
-      <h1>Experiments</h1>
-      <Layout>
-        {
-          experiments.map((experiment) => (
-            <ExperimentCard data={experiment} />
-
-            // retrieveExperiment(experiment_name).then((result) =>
-            //   setSelectedExperiment(result)
-          ))
-        }
+      <Layout title="Experiments" scrollable={true}>
+        <div className={styles.experimentsContainer}>
+          {
+            experiments
+              // .filter(
+              //   (experiment) => (
+              //     experiment
+              //   )
+              // )
+              .map(
+                (experiment) => (
+                  <ExperimentCard data={experiment} />
+                )
+              )
+          }
+        </div>
 
       </Layout>
 

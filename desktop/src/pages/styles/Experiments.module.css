@@ -1,0 +1,19 @@
+.experimentsContainer {
+  width: 100%;
+  display: grid;
+  margin-bottom: auto;
+
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-columns: 1fr;
+  gap: 30px;
+}
+
+.experimentCard {
+  min-width: 200px;
+  height: 200px;
+  color: white;
+
+  text-align: left;
+  justify-content: start;
+
+}
