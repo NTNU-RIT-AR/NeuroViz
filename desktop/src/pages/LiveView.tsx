@@ -1,14 +1,13 @@
 import { ContentBox } from "../components/ContentBox";
+import { Layout } from "../components/Layout";
 import SliderCollection from "../components/SliderCollection";
 
 export default function LiveViewPage() {
   return (
-    <>
-      <h1>Live View</h1>
-
+    <Layout title="Live View">
       <ContentBox>
         <SliderCollection />
       </ContentBox>
-    </>
+    </Layout>
   );
 }
