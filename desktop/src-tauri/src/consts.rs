@@ -19,6 +19,14 @@ pub enum Folder {
 
 impl fmt::Display for Folder {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", serde_json::to_string(&self).unwrap())
+        write!(
+            f,
+            "{}",
+            match &self {
+                Folder::Presets => "presets",
+                Folder::Experiments => "experiments",
+                Folder::Results => "results",
+            }
+        )
     }
 }
