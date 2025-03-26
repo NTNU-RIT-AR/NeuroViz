@@ -151,4 +151,12 @@ pub fn get_experiment(slugged_name: String) -> Result<Experiment, String> {
 }
 
 #[tauri::command]
-pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {}
+pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {
+    let mut result: Vec<Experiment> = Vec::new();
+
+    let experiments = list_experiments()?;
+    for experiment in experiments {
+        result.push(get_experiment(experiment)?);
+    }
+    Ok(result)
+}
