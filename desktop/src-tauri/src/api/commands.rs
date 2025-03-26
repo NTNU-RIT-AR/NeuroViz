@@ -54,18 +54,10 @@ pub fn get_param(app: tauri::AppHandle, param_name: &str) -> f64 {
 }
 
 #[tauri::command]
-pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
-    let path = match storage::get_data_dir() {
-        Some(mut path) => {
-            path.push(folder);
-            path
-        }
-        None => return Err(format!("could not get data dir path")),
-    };
-
-    match storage::make_file_list(path) {
+pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
+    match storage::list_files(folder) {
         Ok(files) => Ok(files),
-        Err(e) => Err(format!("could not generate file list ({}): {}", folder, e)),
+        Err(e) => Err(format!("could not generate file list: {}", e)),
     }
 }
 
