@@ -1,14 +1,22 @@
 use crate::api::storage;
+use crate::appdata::AppState;
 use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
+use crate::structs::ExperimentPrompt;
+use crate::structs::ExperimentResult;
+use crate::structs::ExperimentType;
+use crate::structs::ExperimentState;
 use crate::structs::Preset;
 use crate::appdata::AppData;
+use crate::structs::UnityExperimentType;
 
 use local_ip_address::local_ip;
 use slug::slugify;
 use std::collections::HashMap;
 use tauri::Manager;
+
+use super::http_server::UnityState;
 
 #[tauri::command]
 pub fn get_ip_address() -> String {
@@ -27,7 +35,7 @@ pub fn get_ip_address() -> String {
 #[tauri::command]
 pub fn set_param(app: tauri::AppHandle, param_name: &str, value: f64) {
     let appdata = app.state::<AppData>();
-    appdata.set_params(param_name, value);
+    appdata.set_param(param_name, value);
 }
 
 #[tauri::command]
@@ -139,4 +147,32 @@ pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<Strin
 #[tauri::command]
 pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
     storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
+}
+
+#[tauri::command]
+pub fn start_experiment(app: tauri::AppHandle, slugged_experiment_name: String, obeserver_id: u64, note: String) -> Result<(), String> {
+    
+    //Instansiate ExperimentResult and Experiment for the selected experiment (so that we can eventually store the data to file)
+    let experiment: Experiment = match storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments) {
+        Ok(e) => e,
+        Err(e) => return Err(e)
+    };
+    let experiment_result: ExperimentResult = ExperimentResult::new(&experiment, obeserver_id, note);
+
+    let experiment_type: UnityExperimentType = match experiment.experiment_type {
+        ExperimentType::Choice {..} => UnityExperimentType::Choice,
+        ExperimentType::Rating {..} => UnityExperimentType::Rating
+    };
+
+    //Update the AppState in AppData to be in "ExperimentMode"
+    let appdata = app.state::<AppData>();
+    appdata.set_state(AppState::ExperimentMode { experiment_result, experiment, experiment_state: ExperimentState::new() });
+
+    //Notify the unity app by signaling the HTTP server (via watch channel) that we have started an experiment. Time to experiment!
+    let preset = appdata.get_current_preset()?;
+
+    appdata.watch_sender.send(UnityState::Experiment { prompt: ExperimentPrompt {experiment_type, preset} }).unwrap();
+
+    //Return success signal to frontend
+    Ok(())
 }

@@ -1,5 +1,9 @@
+use crate::structs::CurrentPreset;
 use crate::structs::ExperimentResult;
+use crate::structs::ExperimentState;
 use crate::structs::Experiment;
+use crate::structs::ExperimentType;
+use crate::structs::Preset;
 use crate::structs::RenderParams;
 use crate::structs::RenderParamsInner;
 use crate::http_server::UnityState;
@@ -13,7 +17,7 @@ use tokio::sync::watch;
 
 #[derive(Clone)]
 pub enum AppState {
-    ExperimentMode {experiment_result: ExperimentResult, experiment: Experiment},
+    ExperimentMode {experiment_result: ExperimentResult, experiment: Experiment, experiment_state: ExperimentState},
     LiveViewMode
 }
 
@@ -22,15 +26,15 @@ pub struct AppData {
     //TODO flytte params inn i LiveViewMode
     pub params: Arc<Mutex<RenderParamsInner>>,
     pub watch_sender: watch::Sender<UnityState>,
-    pub app_state: AppState
+    pub app_state: Arc<Mutex<AppState>>
 }
 
 impl AppData {
     pub fn new(watch_sender: watch::Sender<UnityState>) -> Self {
-        AppData { params: Arc::new(RenderParams::default()), watch_sender: watch_sender, app_state: AppState::LiveViewMode }
+        AppData { params: Arc::new(RenderParams::default()), watch_sender, app_state: Arc::new(Mutex::new(AppState::LiveViewMode)) }
     }
 
-    pub fn set_params(&self, param_name: &str, value: f64){
+    pub fn set_param(&self, param_name: &str, value: f64){
         let value = value as f32;
         let mut params = self.params.lock().unwrap();
         println!("Updated slider values {:?}", params);
@@ -57,7 +61,30 @@ impl AppData {
         } as f64;
     }
 
-    pub fn get_state(&self) -> &AppState {
-        &self.app_state
+    pub fn get_state(&self) -> AppState {
+        let app_state = self.app_state.lock().unwrap();
+        app_state.clone()
+    }
+
+    pub fn set_state(&self, new_state: AppState) {
+        let mut app_state = self.app_state.lock().unwrap(); // Get mutable access
+        (*app_state) = new_state;
+    }
+
+    pub fn get_current_preset(&self) -> Result<Preset, String> {
+        let app_state = self.app_state.lock().unwrap();
+        //Check if current state is AppState::ExperimentMode
+        match app_state.clone() {
+            AppState::LiveViewMode => return Err(String::from("Can not get current preset when in LiveViewMode")),
+            AppState::ExperimentMode {experiment_result: _, experiment, experiment_state } => {
+                match experiment.experiment_type {
+                    ExperimentType::Choice {choices} => return match experiment_state.choice_current_preset {
+                        CurrentPreset::A => Ok(experiment.presets[&choices[experiment_state.current_index].a].clone()),
+                        CurrentPreset::B => Ok(experiment.presets[&choices[experiment_state.current_index].b].clone())
+                    },
+                    ExperimentType::Rating { order } => return Ok(experiment.presets[&order[experiment_state.current_index]].clone())
+                };
+            }
+        }
     }
 }

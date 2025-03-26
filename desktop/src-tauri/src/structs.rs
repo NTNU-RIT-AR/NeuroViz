@@ -56,11 +56,25 @@ pub struct OutcomeRating {
 pub enum ExperimentType {
     /// Rating between 1-5
     #[serde(rename = "rating")]
-    Rating,
+    Rating {order: Vec<String>},
 
     /// Choose between two options
     #[serde(rename = "choice")]
     Choice { choices: Vec<Choice> },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum UnityExperimentType {
+    #[serde(rename = "choice")]
+    Choice,
+    #[serde(rename = "rating")]
+    Rating,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ExperimentPrompt {
+    pub experiment_type: UnityExperimentType,
+    pub preset: Preset,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -77,7 +91,7 @@ pub struct Experiment {
     #[serde(flatten)]
     pub experiment_type: ExperimentType,
     pub name: String,
-    pub presets: HashMap<String, Preset>,
+    pub presets: HashMap<String, Preset>
 }
 
 #[derive(Deserialize)]
@@ -99,19 +113,40 @@ pub struct ExperimentResult {
     pub presets: HashMap<String, Preset>
 }
 
+#[derive(Clone)]
+pub enum CurrentPreset {
+    A,
+    B
+}
+
+#[derive(Clone)]
+pub struct ExperimentState {
+    pub current_index: usize,
+    pub choice_current_preset: CurrentPreset
+}
+
+impl ExperimentState {
+    pub fn new() -> Self {
+        Self {
+            current_index: 0,
+            choice_current_preset: CurrentPreset::A
+        }
+    }
+}
+
 impl ExperimentResult {
-    //TODO lage funksjoner for å starte opp og å avslutte eksperimentet. Når man avslutter så lagres det til fil i korresponderende folder
-    pub fn new(experiment: Experiment, observer_id: u64, note: String) -> Self {
+    //TODO lage funksjon for å avslutte eksperimentet. Når man avslutter så lagres det til fil i korresponderende folder
+    pub fn new(experiment: &Experiment, observer_id: u64, note: String) -> Self {
         Self {
             experiment_type: match experiment.experiment_type {
                 ExperimentType::Choice {..} => ExperimentResultType::Choice { choices: Vec::new() },
-                ExperimentType::Rating => ExperimentResultType::Rating { ratings: Vec::new() }
+                ExperimentType::Rating {..} => ExperimentResultType::Rating { ratings: Vec::new() }
             },
-            name: experiment.name,
+            name: experiment.name.clone(),
             observer_id,
             time: Local::now(),
             note,
-            presets: experiment.presets
+            presets: experiment.presets.clone()
         }
     }
 

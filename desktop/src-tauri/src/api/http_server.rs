@@ -10,21 +10,7 @@ use std::{convert::Infallible, time::Duration};
 use tokio::{net::TcpListener, sync::watch};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
-use crate::{consts::HTTP_SERVER_PORT, structs::{Preset, RenderParamsInner}};
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum ExperimentType {
-    #[serde(rename = "choice")]
-    Choice,
-    #[serde(rename = "rating")]
-    Rating,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ExperimentPrompt {
-    experiment_type: ExperimentType,
-    preset: Preset,
-}
+use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner}};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind")]
@@ -103,6 +89,8 @@ async fn subscribe_state(
 mod tests {
     use eventsource_stream::Eventsource;
     use tokio::net::TcpListener;
+
+    use crate::structs::{Preset, UnityExperimentType};
 
     use super::*;
 
@@ -190,7 +178,7 @@ mod tests {
         // Send an experiment state, check if the event stream receives it
         let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
-                experiment_type: ExperimentType::Choice,
+                experiment_type: UnityExperimentType::Choice,
                 preset: Preset {
                     name: String::from("smoothish"),
                     parameters: RenderParamsInner {
