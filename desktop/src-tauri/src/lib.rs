@@ -31,6 +31,7 @@ pub fn run() {
             commands::create_preset,
             commands::list_experiments,
             commands::get_experiment,
+            commands::get_all_experiments,
             commands::create_experiment
         ])
         .setup(|app| {
