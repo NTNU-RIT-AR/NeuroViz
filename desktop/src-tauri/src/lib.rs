@@ -5,16 +5,15 @@ pub mod structs;
 
 use api::{commands, tcpservice};
 
-use crate::structs::RenderParams;
-use crate::structs::CreateExperiment;
 use crate::structs::Choice;
+use crate::structs::CreateExperiment;
 use crate::structs::ExperimentType;
+use crate::structs::RenderParams;
 
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-
     // println!("{:?}", commands::create_experiment(CreateExperiment {
     //     experiment_type: ExperimentType::Choice { choices: Vec::from([Choice {a: String::from("high-emission"), b: String::from("metal-looking")}, Choice {a: String::from("very-hue"), b: String::from("metal-looking")}]) },
     //     name: String::from("My test experiment"),
@@ -28,10 +27,10 @@ pub fn run() {
             commands::get_param,
             commands::get_ip_address,
             commands::list_presets,
-            commands::retrieve_preset,
+            commands::get_preset,
             commands::create_preset,
             commands::list_experiments,
-            commands::retrieve_experiment,
+            commands::get_experiment,
             commands::create_experiment
         ])
         .setup(|app| {

@@ -102,7 +102,7 @@ pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), S
 }
 
 #[tauri::command]
-pub fn retrieve_preset(slugged_preset_name: String) -> Result<Preset, String> {
+pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
     storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
 }
 
