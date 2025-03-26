@@ -26,7 +26,7 @@ pub struct Choice {
     pub b: String,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct Preset {
     pub name: String,
     pub parameters: RenderParamsInner,

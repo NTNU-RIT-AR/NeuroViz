@@ -10,7 +10,7 @@ use std::{convert::Infallible, time::Duration};
 use tokio::{net::TcpListener, sync::watch};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
-use crate::{consts::HTTP_SERVER_PORT, structs::RenderParamsInner};
+use crate::{consts::HTTP_SERVER_PORT, structs::{Preset, RenderParamsInner}};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ExperimentType {
@@ -23,7 +23,7 @@ pub enum ExperimentType {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ExperimentPrompt {
     experiment_type: ExperimentType,
-    preset: RenderParamsInner,
+    preset: Preset,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -191,11 +191,14 @@ mod tests {
         let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
                 experiment_type: ExperimentType::Choice,
-                preset: RenderParamsInner {
-                    hue: 0.5,
-                    smoothness: 0.5,
-                    metallic: 0.5,
-                    emission: 0.5,
+                preset: Preset {
+                    name: String::from("smoothish"),
+                    parameters: RenderParamsInner {
+                        hue: 0.5,
+                        smoothness: 0.5,
+                        metallic: 0.5,
+                        emission: 0.5,
+                    }
                 },
             },
         };
