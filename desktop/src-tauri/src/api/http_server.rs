@@ -10,25 +10,11 @@ use std::{convert::Infallible, time::Duration};
 use tokio::{net::TcpListener, sync::watch};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
-use crate::{consts::HTTP_SERVER_PORT, structs::RenderParamsInner};
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum ExperimentType {
-    #[serde(rename = "choice")]
-    Choice,
-    #[serde(rename = "rating")]
-    Rating,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ExperimentPrompt {
-    experiment_type: ExperimentType,
-    preset: RenderParamsInner,
-}
+use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner}};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind")]
-pub enum AppState {
+pub enum UnityState {
     #[serde(rename = "idle")]
     Idle,
 
@@ -41,7 +27,7 @@ pub enum AppState {
 
 #[derive(Clone)]
 pub struct HttpServer {
-    pub state: watch::Receiver<AppState>,
+    pub state: watch::Receiver<UnityState>,
 }
 
 impl HttpServer {
@@ -63,8 +49,7 @@ impl HttpServer {
         let listener = TcpListener::bind(&addr).await.unwrap();
 
         println!(
-            "HTTP server listening on http://{}",
-            listener.local_addr().unwrap()
+            "HTTP server listening on http://localhost:{HTTP_SERVER_PORT}"
         );
 
         axum::serve(listener, app).await.unwrap();
@@ -72,7 +57,7 @@ impl HttpServer {
 }
 
 /// Get the current state
-async fn get_state(State(state): State<HttpServer>) -> Json<AppState> {
+async fn get_state(State(state): State<HttpServer>) -> Json<UnityState> {
     Json(state.state.borrow().clone())
 }
 
@@ -105,6 +90,8 @@ mod tests {
     use eventsource_stream::Eventsource;
     use tokio::net::TcpListener;
 
+    use crate::structs::{Preset, UnityExperimentType};
+
     use super::*;
 
     // A helper function that spawns our axum application in the background
@@ -126,7 +113,7 @@ mod tests {
     #[tokio::test]
     async fn test_current_state() {
         // A watch MPMC channel for the state
-        let (_state_sender, state_receiver) = watch::channel(AppState::Idle);
+        let (_state_sender, state_receiver) = watch::channel(UnityState::Idle);
 
         let http_server = HttpServer {
             state: state_receiver,
@@ -139,18 +126,18 @@ mod tests {
             .send()
             .await
             .unwrap()
-            .json::<AppState>()
+            .json::<UnityState>()
             .await
             .unwrap();
 
-        assert_eq!(app_state, AppState::Idle);
+        assert_eq!(app_state, UnityState::Idle);
     }
 
     /// Test the `/state/subscribe` endpoint, which should return a stream of state updates
     #[tokio::test]
     async fn test_subscribe_state() {
         // A watch MPMC channel for the state
-        let (state_sender, state_receiver) = watch::channel(AppState::Idle);
+        let (state_sender, state_receiver) = watch::channel(UnityState::Idle);
 
         let http_server = HttpServer {
             state: state_receiver,
@@ -168,15 +155,15 @@ mod tests {
 
         let mut get_next_state = async || {
             let event = event_stream.next().await.unwrap().unwrap();
-            let data = serde_json::from_str::<AppState>(&event.data).unwrap();
+            let data = serde_json::from_str::<UnityState>(&event.data).unwrap();
 
             data
         };
 
-        assert_eq!(get_next_state().await, AppState::Idle);
+        assert_eq!(get_next_state().await, UnityState::Idle);
 
         // Send a live state, check if the event stream receives it
-        let live = AppState::Live {
+        let live = UnityState::Live {
             parameters: RenderParamsInner {
                 hue: 0.5,
                 smoothness: 0.5,
@@ -189,14 +176,17 @@ mod tests {
         assert_eq!(get_next_state().await, live);
 
         // Send an experiment state, check if the event stream receives it
-        let experiment = AppState::Experiment {
+        let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
-                experiment_type: ExperimentType::Choice,
-                preset: RenderParamsInner {
-                    hue: 0.5,
-                    smoothness: 0.5,
-                    metallic: 0.5,
-                    emission: 0.5,
+                experiment_type: UnityExperimentType::Choice,
+                preset: Preset {
+                    name: String::from("smoothish"),
+                    parameters: RenderParamsInner {
+                        hue: 0.5,
+                        smoothness: 0.5,
+                        metallic: 0.5,
+                        emission: 0.5,
+                    }
                 },
             },
         };
