@@ -2,6 +2,43 @@
 using System.Threading.Tasks;
 using EvtSource;
 using UnityEngine;
+using System.Text.Json;
+using NeuroViz;
+
+public struct RenderParameters
+{
+    public float Hue;
+    public float Smoothness;
+    public float Metallic;
+    public float Emission;
+}
+
+public static class UnityStateKind
+{
+    public const string Idle = "idle";
+    public const string Live = "live";
+}
+
+[UnionTag(nameof(Kind))]
+[UnionCase(typeof(IdleUnityState), UnityStateKind.Idle)]
+[UnionCase(typeof(LiveUnityState), UnityStateKind.Live)]
+public abstract class UnityState
+{
+    public abstract string Kind { get; }
+}
+
+public sealed class IdleUnityState : UnityState
+{
+    public override string Kind => UnityStateKind.Idle;
+}
+
+public sealed class LiveUnityState : UnityState
+{
+    public override string Kind => UnityStateKind.Idle;
+
+    public RenderParameters Parameters;
+}
+
 
 namespace NeuroViz.Scenes
 {
@@ -11,25 +48,32 @@ namespace NeuroViz.Scenes
         [SerializeField] public int port;
         [SerializeField] public string secret;
         
-        private EventSourceReader event_source;
+        private EventSourceReader eventSource;
     
         void Start()
         {
             Debug.Log("Starting event source");
-            event_source = new EventSourceReader(new Uri($"http://{ip}:{port}/state/subscribe"));
-            event_source.Start();
+            eventSource = new EventSourceReader(new Uri($"http://{ip}:{port}/state/subscribe"));
+            eventSource.Start();
         
-            event_source.MessageReceived += (object sender, EventSourceMessageEventArgs e) => Debug.LogWarning($"{e.Event} : {e.Message}");
-            event_source.Disconnected += async (object sender, DisconnectEventArgs e) => {
+            eventSource.MessageReceived += (object sender, EventSourceMessageEventArgs e) => HandleEvent(e);
+            eventSource.Disconnected += async (object sender, DisconnectEventArgs e) => {
                 Debug.Log($"Retry: {e.ReconnectDelay} - Error: {e.Exception}");
                 await Task.Delay(e.ReconnectDelay);
-                event_source.Start(); // Reconnect to the same URL
+                eventSource.Start(); // Reconnect to the same URL
             };
+        }
+
+        private void HandleEvent(EventSourceMessageEventArgs e)
+        {
+            Debug.LogWarning($"{e.Event} : {e.Message}");
+            
+            
         }
 
         private void OnDestroy()
         {
-            event_source.Dispose();
+            eventSource.Dispose();
         }
     }
 }
