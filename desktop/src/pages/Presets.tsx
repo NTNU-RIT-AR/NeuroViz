@@ -42,38 +42,32 @@ type presetElementProps = {
 
 function PresetElement({ name, onSelect }: presetElementProps) {
   return (
-    <div className={styles.presetElement}>
+    <button className={styles.presetElement}>
       <p>{name}</p>
       <div className={styles.buttonsContainer}>
         <button onClick={onSelect}>Select</button>
         <button></button>
       </div>
-    </div>
+    </button>
   );
 }
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
-    undefined
-  );
-  const [selectedPresetName, setSelectedPresetName] = useState<string>("");
-
-  const [preset, setPreset] = useState("");
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
+  const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
   useEffect(() => {
     fetchFiles().then(setFiles);
   }, []);
 
   useEffect(() => {
-    return () => {};
+    return () => { };
   }, [preset]);
 
   return (
     <>
-      <h1>Presets page text</h1>
-
-      <Layout>
+      <Layout title="Presets">
         <ContentBox className={styles.presetsContainer}>
           {files.map((file) => (
             <PresetElement
