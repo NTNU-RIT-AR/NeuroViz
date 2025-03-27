@@ -1,6 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import "./components/styles/Button.css";
 import styles from "./App.module.css";
 import { NavigationProvider } from "./NavigationProvider";
 import { SliderProvider } from "./SliderProviders";
