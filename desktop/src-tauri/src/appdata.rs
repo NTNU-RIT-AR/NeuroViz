@@ -1,18 +1,13 @@
-use crate::structs::CurrentPreset;
-use crate::structs::ExperimentResult;
-use crate::structs::ExperimentState;
-use crate::structs::Experiment;
-use crate::structs::ExperimentType;
-use crate::structs::Preset;
-use crate::structs::RenderParams;
-use crate::structs::RenderParamsInner;
+use crate::structs::{UnityExperimentType, RenderParamsInner, RenderParams, Preset, ExperimentType, Experiment, ExperimentState, ExperimentResult, ExperimentPrompt, CurrentPreset};
 use crate::http_server::UnityState;
 
 
-use crate::api::http_server;
+use crate::api::{events, http_server};
 
 use std::sync::Arc;
 use std::sync::Mutex;
+use tauri::AppHandle;
+use tauri::Emitter;
 use tokio::sync::watch;
 
 #[derive(Clone)]
@@ -26,12 +21,13 @@ pub struct AppData {
     //TODO flytte params inn i LiveViewMode
     pub params: Arc<Mutex<RenderParamsInner>>,
     pub watch_sender: watch::Sender<UnityState>,
-    pub app_state: Arc<Mutex<AppState>>
+    pub app_state: Arc<Mutex<AppState>>,
+    pub app_handle: AppHandle
 }
 
 impl AppData {
-    pub fn new(watch_sender: watch::Sender<UnityState>) -> Self {
-        AppData { params: Arc::new(RenderParams::default()), watch_sender, app_state: Arc::new(Mutex::new(AppState::LiveViewMode)) }
+    pub fn new(watch_sender: watch::Sender<UnityState>, app_handle: AppHandle) -> Self {
+        AppData { params: Arc::new(RenderParams::default()), watch_sender, app_state: Arc::new(Mutex::new(AppState::LiveViewMode)), app_handle }
     }
 
     pub fn set_param(&self, param_name: &str, value: f64){
@@ -100,6 +96,13 @@ impl AppData {
     }
 
     pub fn swap_current_preset(&self) -> Result<Preset, String> {
-        self.get_current_preset(Some(()))
+        match self.get_current_preset(Some(())) {
+            Ok(preset) => {
+                events::emit_swap_preset_in_experiment(&self.app_handle, &preset);
+                self.watch_sender.send(http_server::UnityState::Experiment { prompt: ExperimentPrompt {experiment_type: UnityExperimentType::Choice, preset: preset.clone()} }).unwrap();
+                Ok(preset)
+            },
+            Err(e) => Err(e)
+        }
     }
 }

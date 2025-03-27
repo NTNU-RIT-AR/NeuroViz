@@ -39,20 +39,21 @@ pub fn run() {
                 sender: signal_sender
             };
 
-            app.manage(AppData::new(watch_sender));
+            let app_handle = app.app_handle().clone();
+
+            app.manage(AppData::new(watch_sender, app_handle.clone()));
 
             //Starts the HTTP server to listen for incoming traffic
             tauri::async_runtime::spawn(http_server.run());
 
-            let app_handle = app.app_handle().clone();
 
             //Listen from signals to swap preset
             tauri::async_runtime::spawn(async move {
                 while let Some(_) = signal_reciever.recv().await {
                     println!("Got signal to swap!");
                     let app_data = app_handle.state::<AppData>();
-                    if let Ok(preset) = app_data.swap_current_preset()  {
-                        app_data.watch_sender.send(http_server::UnityState::Experiment { prompt: ExperimentPrompt {experiment_type: UnityExperimentType::Choice, preset} }).unwrap();
+                    if let Err(e) = app_data.swap_current_preset()  {
+                        println!("Could not swap preset: {}", e.to_string())
                     };
                 }
             });       
