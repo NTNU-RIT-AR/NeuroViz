@@ -1,0 +1,18 @@
+.button {
+
+  border-radius: 8px;
+  border: solid 2px var(--line);
+
+  padding: 8px;
+  font-family: inherit;
+  color: white;
+  background-color: #00000026;
+  transition: border-color 0.25s;
+
+  cursor: pointer;
+}
+
+.iconButton {
+  width: 20px;
+  aspect-ratio: 1;
+}
