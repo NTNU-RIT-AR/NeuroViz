@@ -13,22 +13,32 @@ enum FilterState {
   Draft = "Draft"
 }
 
-interface ExperimentCardProps {
+interface ViewExperimentProps {
+  data: Experiment
+  setShow: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+function viewExperiment({ data, setShow }: ViewExperimentProps) {
+  return (
+    <Backdrop>
+      <div>
+        {data.name}
+        <button onClick={() => setShow(false)}>Close</button>
+      </div>
+    </Backdrop >
+  )
+}
+interface ExperimentData {
   data: Experiment,
 }
 
-function viewExperiment() {
+function ExperimentCard({ data }: ExperimentData) {
+  const [show, setShow] = useState(false);
   return (
-    <Backdrop><></></Backdrop>
-  )
-}
-
-function ExperimentCard({ data }: ExperimentCardProps) {
-
-  return (
-    <button className={styles.experimentCard} onClick={viewExperiment}>
+    <button className={styles.experimentCard} onClick={() => setShow(true)}>
       <h3>{data.name}</h3>
       <p>Type: {data.experiment_type}</p>
+      {show && viewExperiment({ data, setShow })}
     </button >
   )
 }
