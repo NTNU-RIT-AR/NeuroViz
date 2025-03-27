@@ -13,7 +13,41 @@
   height: 200px;
   color: white;
 
-  text-align: left;
-  justify-content: start;
+  border: solid var(--primary-hl) 2px;
+  background-color: var(--primary-bg);
+  border-radius: 10px;
+  cursor: pointer;
 
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+}
+
+
+.experimentCardTitle,
+.experimentCardContent,
+.experimentCardBottom {
+  width: 100%;
+  padding: 20px;
+}
+
+.experimentCardTitle {
+  border-bottom: solid var(--primary-hl) 2px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+
+.experimentCardContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--primary-hl)
+}
+
+.experimentCardBottom {
+  height: 30px;
 }

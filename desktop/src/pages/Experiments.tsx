@@ -18,28 +18,35 @@ interface ViewExperimentProps {
   setShow: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-function viewExperiment({ data, setShow }: ViewExperimentProps) {
+function ViewExperiment({ data, setShow }: ViewExperimentProps) {
   return (
     <Backdrop>
-      <div>
-        {data.name}
-        <button onClick={() => setShow(false)}>Close</button>
-      </div>
+      <h3>{data.name}</h3>
+      <button onClick={() => setShow(false)}>Close</button>
     </Backdrop >
   )
 }
-interface ExperimentData {
+
+interface ExperimentCardProps {
   data: Experiment,
 }
-
-function ExperimentCard({ data }: ExperimentData) {
+function ExperimentCard({ data }: ExperimentCardProps) {
   const [show, setShow] = useState(false);
   return (
-    <button className={styles.experimentCard} onClick={() => setShow(true)}>
-      <h3>{data.name}</h3>
-      <p>Type: {data.experiment_type}</p>
-      {show && viewExperiment({ data, setShow })}
-    </button >
+    <>
+      <div className={styles.experimentCard} onClick={() => setShow(true)}>
+        <h3 className={styles.experimentCardTitle}>{data.name}</h3>
+        <div className={styles.experimentCardContent}>
+          <p>Type: {data.experiment_type}</p>
+        </div>
+        <div className={styles.experimentCardBottom}></div>
+      </div>
+
+      {
+        show &&
+        <ViewExperiment data={data} setShow={setShow} />
+      }
+    </>
   )
 }
 
