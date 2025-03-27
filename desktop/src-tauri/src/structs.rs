@@ -26,6 +26,21 @@ pub struct Choice {
     pub b: String,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct Answer {
+    #[serde(flatten)]
+    pub experiment_type: AnswerExperimentType
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(tag = "experiment_type")]
+pub enum AnswerExperimentType {
+    #[serde(rename="rating")]
+    Rating {value: u8},
+    #[serde(rename="choice")]
+    Choice
+}
+
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct Preset {
     pub name: String,

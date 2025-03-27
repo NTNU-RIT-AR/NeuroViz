@@ -32,11 +32,13 @@ pub fn run() {
         ])
         .setup(|app| {
             let (watch_sender, watch_receiver) = watch::channel(http_server::UnityState::Idle);
-            let (signal_sender, mut signal_reciever) = mpsc::channel(10);
+            let (swap_signal_sender, mut signal_reciever) = mpsc::channel(10);
+            let (answer_sender, mut answer_reciever) = mpsc::channel(10);
 
             let http_server = http_server::HttpServer {
                 state: watch_receiver,
-                sender: signal_sender
+                swap_signal_sender,
+                answer_sender
             };
 
             let app_handle = app.app_handle().clone();
@@ -56,7 +58,16 @@ pub fn run() {
                         println!("Could not swap preset: {}", e.to_string())
                     };
                 }
-            });       
+            }); 
+
+            let app_handle = app.app_handle().clone();
+
+            //Listen for answers from experiment
+            tauri::async_runtime::spawn(async move {
+                while let Some(answer) = answer_reciever.recv().await {
+                    println!("Got an answer from the experiment! {:?}", answer);
+                }
+            });
             
             println!("{:?}", commands::start_experiment(app.handle().clone(), String::from("example-experiment-1"), 0, String::from("my note hihi")) );
 

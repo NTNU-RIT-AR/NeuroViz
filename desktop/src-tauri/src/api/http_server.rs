@@ -1,16 +1,15 @@
 use axum::{
-    extract::State,
-    response::{sse::Event, Sse},
-    routing::get,
-    Json, Router,
+    extract::{State, Json},
+    response::{sse::Event, IntoResponse, Sse},
+    routing::{get, post}, Router,
 };
 use futures::stream::Stream;
 use serde::{Deserialize, Serialize};
-use std::{convert::Infallible, time::Duration};
+use std::{convert::Infallible, net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{net::TcpListener, sync::{watch, mpsc}};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
-use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner}};
+use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner, Answer}};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind")]
@@ -28,7 +27,8 @@ pub enum UnityState {
 #[derive(Clone)]
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
-    pub sender: mpsc::Sender<u8>
+    pub swap_signal_sender: mpsc::Sender<u8>,
+    pub answer_sender: mpsc::Sender<Answer>
 }
 
 impl HttpServer {
@@ -36,9 +36,10 @@ impl HttpServer {
         let state = self;
 
         let app = Router::new()
-            .route("/state/current", get(get_state))
+            .route("/state/current", get(current_state))
             .route("/state/subscribe", get(subscribe_state))
-            .route("/experiment/swap", get(swap_preset))
+            .route("/experiment/swap", get(swap_preset_experiment))
+            .route("/experiment/answer", get(answer_choice_experiment))
             .with_state(state);
 
         app
@@ -58,16 +59,30 @@ impl HttpServer {
     }
 }
 
-async fn swap_preset(State(state): State<HttpServer>) {
+async fn answer_choice_experiment( 
+    State(state): State<HttpServer>,
+    Json(payload): Json<Answer>
+) -> impl IntoResponse {
+    println!("Got a request to /answer");
+    // Send Answer struct with answer_sender channel
+    if let Err(e) = state.answer_sender.send(payload).await {
+        eprintln!("Failed to send answer: {}", e);
+        return "failure";
+    }
+    
+    "success"
+}
+
+async fn swap_preset_experiment(State(state): State<HttpServer>) {
     println!("Got request to swap preset");
-    match state.sender.send(1).await{
+    match state.swap_signal_sender.send(1).await{
         Ok(_) => println!("Sent signal successfully"),
         Err(e) => println!("{}", format!("Failed to send signal: {}", e.to_string()))
     };
 }
 
 /// Get the current state
-async fn get_state(State(state): State<HttpServer>) -> Json<UnityState> {
+async fn current_state(State(state): State<HttpServer>) -> Json<UnityState> {
     Json(state.state.borrow().clone())
 }
 
@@ -125,10 +140,12 @@ mod tests {
         // A watch MPMC channel for the state
         let (_state_sender, state_receiver) = watch::channel(UnityState::Idle);
         let (swap_signal_sender, _swap_signal_reciever) = mpsc::channel(10);
+        let (answer_sender, mut answer_reciever) = mpsc::channel(10);
 
         let http_server = HttpServer {
             state: state_receiver,
-            sender: swap_signal_sender
+            swap_signal_sender,
+            answer_sender,
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -151,10 +168,12 @@ mod tests {
         // A watch MPMC channel for the state
         let (state_sender, state_receiver) = watch::channel(UnityState::Idle);
         let (swap_signal_sender, _swap_signal_reciever) = mpsc::channel(10);
+        let (answer_sender, mut answer_reciever) = mpsc::channel(10);
 
         let http_server = HttpServer {
             state: state_receiver,
-            sender: swap_signal_sender
+            swap_signal_sender,
+            answer_sender
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
