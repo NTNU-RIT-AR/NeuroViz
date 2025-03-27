@@ -8,6 +8,7 @@ import { type Parameters, type Preset } from "../interfaces";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import styles from "./styles/Presets.module.css";
+import Button from "../components/Button.tsx";
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -42,13 +43,13 @@ type presetElementProps = {
 
 function PresetElement({ name, onSelect }: presetElementProps) {
   return (
-    <button className={styles.presetElement}>
+    <div className={styles.presetElement}>
       <p>{name}</p>
       <div className={styles.buttonsContainer}>
-        <button onClick={onSelect}>Select</button>
-        <button></button>
+        <Button onClick={onSelect}>Select</Button>
+        <Button></Button>
       </div>
-    </button>
+    </div>
   );
 }
 
