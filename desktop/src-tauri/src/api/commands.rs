@@ -169,7 +169,7 @@ pub fn start_experiment(app: tauri::AppHandle, slugged_experiment_name: String, 
     appdata.set_state(AppState::ExperimentMode { experiment_result, experiment, experiment_state: ExperimentState::new() });
 
     //Notify the unity app by signaling the HTTP server (via watch channel) that we have started an experiment. Time to experiment!
-    let preset = appdata.get_current_preset()?;
+    let preset = appdata.get_current_preset(None)?;
 
     appdata.watch_sender.send(UnityState::Experiment { prompt: ExperimentPrompt {experiment_type, preset} }).unwrap();
 

@@ -71,20 +71,35 @@ impl AppData {
         (*app_state) = new_state;
     }
 
-    pub fn get_current_preset(&self) -> Result<Preset, String> {
-        let app_state = self.app_state.lock().unwrap();
+    pub fn get_current_preset(&self, swap: Option<()>) -> Result<Preset, String> {
+        let mut app_state = self.app_state.lock().unwrap();
+        let app_state = &mut *app_state;
         //Check if current state is AppState::ExperimentMode
-        match app_state.clone() {
-            AppState::LiveViewMode => return Err(String::from("Can not get current preset when in LiveViewMode")),
-            AppState::ExperimentMode {experiment_result: _, experiment, experiment_state } => {
-                match experiment.experiment_type {
-                    ExperimentType::Choice {choices} => return match experiment_state.choice_current_preset {
-                        CurrentPreset::A => Ok(experiment.presets[&choices[experiment_state.current_index].a].clone()),
-                        CurrentPreset::B => Ok(experiment.presets[&choices[experiment_state.current_index].b].clone())
-                    },
-                    ExperimentType::Rating { order } => return Ok(experiment.presets[&order[experiment_state.current_index]].clone())
-                };
-            }
-        }
+
+        let AppState::ExperimentMode { experiment_result: _, experiment, experiment_state } = app_state else {
+            return Err(String::from("Can not get current preset when in LiveViewMode"));
+        };
+
+        match &mut experiment.experiment_type {
+            ExperimentType::Choice {choices} => return match (&mut experiment_state.choice_current_preset, swap) {
+                (CurrentPreset::A, None) | (CurrentPreset::B, Some(_)) => {
+                    if swap == Some(()) {
+                        experiment_state.choice_current_preset = CurrentPreset::A;
+                    }
+                    Ok(experiment.presets[&choices[experiment_state.current_index].a].clone())
+                },
+                (CurrentPreset::B, None) | (CurrentPreset::A, Some(_)) => {
+                    if swap == Some(()) {
+                        experiment_state.choice_current_preset = CurrentPreset::B;
+                    }
+                    Ok(experiment.presets[&choices[experiment_state.current_index].b].clone())
+                }
+            },
+            ExperimentType::Rating { order } => return Ok(experiment.presets[&order[experiment_state.current_index]].clone())
+        };
+    }
+
+    pub fn swap_current_preset(&self) -> Result<Preset, String> {
+        self.get_current_preset(Some(()))
     }
 }
