@@ -8,7 +8,7 @@ interface BackdropProps {
 export default function Backdrop({ children }: BackdropProps) {
   return (
     createPortal(
-      <div className={styles.Backdrop}>
+      <div className={styles.backdrop}>
         {children}
       </div>,
       document.body
