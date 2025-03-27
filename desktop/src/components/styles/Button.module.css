@@ -5,7 +5,7 @@
 
   padding: 8px;
   font-family: inherit;
-  color: white;
+  color: var(--white);
   background-color: #00000026;
   transition: border-color 0.25s;
 
