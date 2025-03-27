@@ -1,15 +1,22 @@
 use crate::api::storage;
-
+use crate::appdata::AppData;
+use crate::appdata::AppState;
 use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
+use crate::structs::ExperimentPrompt;
+use crate::structs::ExperimentResult;
+use crate::structs::ExperimentState;
+use crate::structs::ExperimentType;
 use crate::structs::Preset;
-use crate::structs::RenderParams;
+use crate::structs::UnityExperimentType;
 
 use local_ip_address::local_ip;
 use slug::slugify;
 use std::collections::HashMap;
 use tauri::Manager;
+
+use super::http_server::UnityState;
 
 #[tauri::command]
 pub fn get_ip_address() -> String {
@@ -27,30 +34,14 @@ pub fn get_ip_address() -> String {
 
 #[tauri::command]
 pub fn set_param(app: tauri::AppHandle, param_name: &str, value: f64) {
-    let state = app.state::<RenderParams>();
-    let mut params = state.lock().unwrap();
-    let value = value as f32;
-    println!("Updated slider values {:?}", params);
-    match param_name {
-        "Hue" => params.hue = value,
-        "Smoothness" => params.smoothness = value,
-        "Metallic" => params.metallic = value,
-        "Emission" => params.emission = value,
-        _ => {}
-    }
+    let appdata = app.state::<AppData>();
+    appdata.set_param(param_name, value);
 }
+
 #[tauri::command]
 pub fn get_param(app: tauri::AppHandle, param_name: &str) -> f64 {
-    let state = app.state::<RenderParams>();
-    let params = state.lock().unwrap();
-    println!("Returned param:  {:?}", params);
-    return match param_name {
-        "Hue" => params.hue,
-        "Smoothness" => params.smoothness,
-        "Metallic" => params.metallic,
-        "Emission" => params.emission,
-        _ => panic!("param mismatch"),
-    } as f64;
+    let appdata = app.state::<AppData>();
+    appdata.get_param(param_name)
 }
 
 #[tauri::command]
@@ -64,8 +55,8 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
 #[tauri::command]
 pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
     // Parse PARAMS to JSON
-    let state = app.state::<RenderParams>();
-    let params = state.lock().unwrap().clone();
+    let appdata = app.state::<AppData>();
+    let params = appdata.params.lock().unwrap().clone();
     let json_string = serde_json::to_string(&params).unwrap();
 
     storage::create_and_write_to_json_file(json_string, Folder::Presets, preset_name)
@@ -94,8 +85,8 @@ pub fn list_experiments() -> Result<Vec<String>, String> {
 #[tauri::command]
 pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
     // Parse PARAMS to JSON
-    let state = app.state::<RenderParams>();
-    let params = state.lock().unwrap().clone();
+    let appdata = app.state::<AppData>();
+    let params = appdata.params.lock().unwrap().clone();
     let json_string = serde_json::to_string(&params).unwrap();
 
     storage::create_and_write_to_json_file(json_string, Folder::Presets, preset_name)
@@ -159,4 +150,52 @@ pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {
         result.push(get_experiment(experiment)?);
     }
     Ok(result)
+}
+
+#[tauri::command]
+pub fn start_experiment(
+    app: tauri::AppHandle,
+    slugged_experiment_name: String,
+    obeserver_id: u64,
+    note: String,
+) -> Result<(), String> {
+    //Instansiate ExperimentResult and Experiment for the selected experiment (so that we can eventually store the data to file)
+    let experiment: Experiment = match storage::parse_from_json_file::<Experiment>(
+        slugged_experiment_name,
+        Folder::Experiments,
+    ) {
+        Ok(e) => e,
+        Err(e) => return Err(e),
+    };
+    let experiment_result: ExperimentResult =
+        ExperimentResult::new(&experiment, obeserver_id, note);
+
+    let experiment_type: UnityExperimentType = match experiment.experiment_type {
+        ExperimentType::Choice { .. } => UnityExperimentType::Choice,
+        ExperimentType::Rating { .. } => UnityExperimentType::Rating,
+    };
+
+    //Update the AppState in AppData to be in "ExperimentMode"
+    let appdata = app.state::<AppData>();
+    appdata.set_state(AppState::ExperimentMode {
+        experiment_result,
+        experiment,
+        experiment_state: ExperimentState::new(),
+    });
+
+    //Notify the unity app by signaling the HTTP server (via watch channel) that we have started an experiment. Time to experiment!
+    let preset = appdata.get_current_preset()?;
+
+    appdata
+        .watch_sender
+        .send(UnityState::Experiment {
+            prompt: ExperimentPrompt {
+                experiment_type,
+                preset,
+            },
+        })
+        .unwrap();
+
+    //Return success signal to frontend
+    Ok(())
 }

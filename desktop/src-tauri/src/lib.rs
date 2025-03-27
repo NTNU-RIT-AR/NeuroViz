@@ -2,23 +2,17 @@
 pub mod api;
 pub mod consts;
 pub mod structs;
+pub mod appdata;
 
-use api::{commands, tcpservice};
-
-use crate::structs::Choice;
-use crate::structs::CreateExperiment;
-use crate::structs::ExperimentType;
-use crate::structs::RenderParams;
+use appdata::AppData;
+use api::{commands, http_server};
 
 use tauri::Manager;
+use tokio::sync::watch;
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // println!("{:?}", commands::create_experiment(CreateExperiment {
-    //     experiment_type: ExperimentType::Choice { choices: Vec::from([Choice {a: String::from("high-emission"), b: String::from("metal-looking")}, Choice {a: String::from("very-hue"), b: String::from("metal-looking")}]) },
-    //     name: String::from("My test experiment"),
-    //     presets: Vec::from([String::from("High emission"), String::from("Metal looking"), String::from("Very hue")])
-    // }));
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -27,18 +21,30 @@ pub fn run() {
             commands::get_param,
             commands::get_ip_address,
             commands::list_presets,
+
             commands::get_preset,
             commands::create_preset,
-            commands::list_experiments,
+
             commands::get_experiment,
-            commands::get_all_experiments,
             commands::create_experiment
+
+            commands::list_experiments,
+            commands::get_all_experiments,
+            commands::start_experiment
         ])
         .setup(|app| {
-            app.manage(RenderParams::default());
+            let (watch_sender, watch_receiver) = watch::channel(http_server::UnityState::Idle);
 
-            let app_handle = app.app_handle().clone();
-            tauri::async_runtime::spawn(tcpservice::tcp_listener(app_handle));
+            let http_server = http_server::HttpServer {
+                state: watch_receiver,
+            };
+
+            app.manage(AppData::new(watch_sender));
+
+            tauri::async_runtime::spawn(http_server.run());
+
+            // println!("{:?}", commands::start_experiment(app.handle().clone(), String::from("example-experiment-1"), 0, String::from("my note hihi")) );
+            
             Ok(())
         })
         .run(tauri::generate_context!())
