@@ -38,5 +38,6 @@
         "emission": 0.1
       }
     }
-  }
+  },
+  "order": ["smoothish", "high-emission", "metal-looking", "very-hue"]
 }
