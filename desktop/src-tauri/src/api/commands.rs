@@ -6,9 +6,9 @@ use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
 use crate::structs::ExperimentPrompt;
 use crate::structs::ExperimentResult;
-use crate::structs::ExperimentState;
 use crate::structs::ExperimentType;
 use crate::structs::Preset;
+use crate::structs::RenderParameter;
 use crate::structs::UnityExperimentType;
 
 use local_ip_address::local_ip;
@@ -33,17 +33,35 @@ pub fn get_ip_address() -> String {
 }
 
 #[tauri::command]
-pub fn set_param(app: tauri::AppHandle, param_name: &str, value: f64) {
-    let appdata = app.state::<AppData>();
-    appdata.set_param(param_name, value);
+pub fn set_param(
+    app: tauri::AppHandle,
+    parameter: RenderParameter,
+    value: f32,
+) -> Result<(), String> {
+    let app_data = app.state::<AppData>();
+    let mut app_state = app_data.state.lock_mut();
+
+    let live_state = app_state
+        .try_as_live_view_mut()
+        .ok_or("Must be in live mode".to_owned())?;
+
+    live_state.set(parameter, value);
+    Ok(())
 }
 
 #[tauri::command]
-pub fn get_param(app: tauri::AppHandle, param_name: &str) -> f64 {
-    let appdata = app.state::<AppData>();
-    appdata.get_param(param_name)
+pub fn get_param(app: tauri::AppHandle, parameter: RenderParameter) -> f32 {
+    let app_data = app.state::<AppData>();
+    let app_state = app_data.state.lock_ref();
+
+    let live_state = app_state
+        .try_as_live_view_ref()
+        .expect("Must be in live mode");
+
+    live_state.get(parameter)
 }
 
+/// List all files in a given folder
 #[tauri::command]
 pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
     let path = match storage::get_data_dir() {
@@ -60,11 +78,14 @@ pub fn list_files(folder: &str) -> Result<Vec<String>, String> {
     }
 }
 
+/// Save current live parameters to a preset
 #[tauri::command]
 pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
     // Parse PARAMS to JSON
-    let appdata = app.state::<AppData>();
-    let params = appdata.params.lock().unwrap().clone();
+    let app_data = app.state::<AppData>();
+    let app_state = app_data.state.lock_ref();
+
+    let params = app_data.params.lock().unwrap().clone();
     let json_string = serde_json::to_string(&params).unwrap();
 
     storage::create_and_write_to_json_file(json_string, Folder::Presets, preset_name)

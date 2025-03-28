@@ -7,10 +7,16 @@ use axum::{
 use futures::stream::Stream;
 use serde::{Deserialize, Serialize};
 use std::{convert::Infallible, time::Duration};
-use tokio::{net::TcpListener, sync::{watch, mpsc}};
+use tokio::{
+    net::TcpListener,
+    sync::{mpsc, watch},
+};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
-use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner}};
+use crate::{
+    consts::HTTP_SERVER_PORT,
+    structs::{ExperimentPrompt, RenderParameters},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind")]
@@ -19,7 +25,7 @@ pub enum UnityState {
     Idle,
 
     #[serde(rename = "live")]
-    Live { parameters: RenderParamsInner },
+    Live { parameters: RenderParameters },
 
     #[serde(rename = "experiment")]
     Experiment { prompt: ExperimentPrompt },
@@ -28,7 +34,7 @@ pub enum UnityState {
 #[derive(Clone)]
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
-    pub sender: mpsc::Sender<u8>
+    pub sender: mpsc::Sender<u8>,
 }
 
 impl HttpServer {
@@ -50,9 +56,7 @@ impl HttpServer {
         let addr = format!("0.0.0.0:{HTTP_SERVER_PORT}");
         let listener = TcpListener::bind(&addr).await.unwrap();
 
-        println!(
-            "HTTP server listening on http://localhost:{HTTP_SERVER_PORT}"
-        );
+        println!("HTTP server listening on http://localhost:{HTTP_SERVER_PORT}");
 
         axum::serve(listener, app).await.unwrap();
     }
@@ -60,9 +64,9 @@ impl HttpServer {
 
 async fn swap_preset(State(state): State<HttpServer>) {
     println!("Got request to swap preset");
-    match state.sender.send(1).await{
+    match state.sender.send(1).await {
         Ok(_) => println!("Sent signal successfully"),
-        Err(e) => println!("{}", format!("Failed to send signal: {}", e.to_string()))
+        Err(e) => println!("{}", format!("Failed to send signal: {}", e.to_string())),
     };
 }
 
@@ -128,7 +132,7 @@ mod tests {
 
         let http_server = HttpServer {
             state: state_receiver,
-            sender: swap_signal_sender
+            sender: swap_signal_sender,
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -154,7 +158,7 @@ mod tests {
 
         let http_server = HttpServer {
             state: state_receiver,
-            sender: swap_signal_sender
+            sender: swap_signal_sender,
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -178,7 +182,7 @@ mod tests {
 
         // Send a live state, check if the event stream receives it
         let live = UnityState::Live {
-            parameters: RenderParamsInner {
+            parameters: RenderParameters {
                 hue: 0.5,
                 smoothness: 0.5,
                 metallic: 0.5,
@@ -195,12 +199,12 @@ mod tests {
                 experiment_type: UnityExperimentType::Choice,
                 preset: Preset {
                     name: String::from("smoothish"),
-                    parameters: RenderParamsInner {
+                    parameters: RenderParameters {
                         hue: 0.5,
                         smoothness: 0.5,
                         metallic: 0.5,
                         emission: 0.5,
-                    }
+                    },
                 },
             },
         };

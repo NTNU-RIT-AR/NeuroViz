@@ -1,24 +1,42 @@
-use std::collections::HashMap;
-use std::sync::Mutex;
-
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+#[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq)]
+pub enum RenderParameter {
+    Hue,
+    Smoothness,
+    Metallic,
+    Emission,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
-pub struct RenderParamsInner {
+pub struct RenderParameters {
     pub hue: f32,
     pub smoothness: f32,
     pub metallic: f32,
     pub emission: f32,
 }
 
-pub type RenderParams = Mutex<RenderParamsInner>;
+impl RenderParameters {
+    pub fn get(&self, param: RenderParameter) -> f32 {
+        match param {
+            RenderParameter::Hue => self.hue,
+            RenderParameter::Smoothness => self.smoothness,
+            RenderParameter::Metallic => self.metallic,
+            RenderParameter::Emission => self.emission,
+        }
+    }
 
-//TODO: implement something like this for easier access to renderparams
-//pub fn aquire_render_params<'a>(app: &'a AppHandle) -> MutexGuard<'a, RenderParamsInner> {
-//    let state = app.state::<RenderParams>();
-//    state.lock().unwrap()
-//}
+    pub fn set(&mut self, param: RenderParameter, value: f32) {
+        match param {
+            RenderParameter::Hue => self.hue = value,
+            RenderParameter::Smoothness => self.smoothness = value,
+            RenderParameter::Metallic => self.metallic = value,
+            RenderParameter::Emission => self.emission = value,
+        }
+    }
+}
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Choice {
@@ -29,7 +47,7 @@ pub struct Choice {
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct Preset {
     pub name: String,
-    pub parameters: RenderParamsInner,
+    pub parameters: RenderParameters,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -40,7 +58,7 @@ pub struct OutcomeChoice {
     pub time: DateTime<Local>,
     pub duration_on_a: f64,
     pub duration_on_b: f64,
-    pub duration: f64
+    pub duration: f64,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -48,7 +66,7 @@ pub struct OutcomeRating {
     pub preset: String,
     pub rank: u8,
     pub time: DateTime<Local>,
-    pub duration: f64
+    pub duration: f64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -56,7 +74,7 @@ pub struct OutcomeRating {
 pub enum ExperimentType {
     /// Rating between 1-5
     #[serde(rename = "rating")]
-    Rating {order: Vec<String>},
+    Rating { order: Vec<String> },
 
     /// Choose between two options
     #[serde(rename = "choice")]
@@ -81,9 +99,9 @@ pub struct ExperimentPrompt {
 #[serde(tag = "experiment_type")]
 pub enum ExperimentResultType {
     #[serde(rename = "rating")]
-    Rating {ratings: Vec<OutcomeRating>},
+    Rating { ratings: Vec<OutcomeRating> },
     #[serde(rename = "choice")]
-    Choice {choices: Vec<OutcomeChoice>}
+    Choice { choices: Vec<OutcomeChoice> },
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -91,7 +109,7 @@ pub struct Experiment {
     #[serde(flatten)]
     pub experiment_type: ExperimentType,
     pub name: String,
-    pub presets: HashMap<String, Preset>
+    pub presets: HashMap<String, Preset>,
 }
 
 #[derive(Deserialize)]
@@ -110,28 +128,13 @@ pub struct ExperimentResult {
     pub time: DateTime<Local>,
     pub observer_id: u64,
     pub note: String,
-    pub presets: HashMap<String, Preset>
+    pub presets: HashMap<String, Preset>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum CurrentPreset {
     A,
-    B
-}
-
-#[derive(Clone)]
-pub struct ExperimentState {
-    pub current_index: usize,
-    pub choice_current_preset: CurrentPreset
-}
-
-impl ExperimentState {
-    pub fn new() -> Self {
-        Self {
-            current_index: 0,
-            choice_current_preset: CurrentPreset::A
-        }
-    }
+    B,
 }
 
 impl ExperimentResult {
@@ -139,14 +142,18 @@ impl ExperimentResult {
     pub fn new(experiment: &Experiment, observer_id: u64, note: String) -> Self {
         Self {
             experiment_type: match experiment.experiment_type {
-                ExperimentType::Choice {..} => ExperimentResultType::Choice { choices: Vec::new() },
-                ExperimentType::Rating {..} => ExperimentResultType::Rating { ratings: Vec::new() }
+                ExperimentType::Choice { .. } => ExperimentResultType::Choice {
+                    choices: Vec::new(),
+                },
+                ExperimentType::Rating { .. } => ExperimentResultType::Rating {
+                    ratings: Vec::new(),
+                },
             },
             name: experiment.name.clone(),
             observer_id,
             time: Local::now(),
             note,
-            presets: experiment.presets.clone()
+            presets: experiment.presets.clone(),
         }
     }
 

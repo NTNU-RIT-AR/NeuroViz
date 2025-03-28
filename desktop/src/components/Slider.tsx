@@ -15,7 +15,7 @@ export default function Slider({ name, min, max }: SliderProps) {
 
   useEffect(() => {
     try {
-      invoke<number>("get_param", { paramName: name }).then(setValue);
+      invoke<number>("get_param", { parameter: name }).then(setValue);
     } catch (e) {
       console.log("get_param error: ", e);
     }
@@ -24,7 +24,7 @@ export default function Slider({ name, min, max }: SliderProps) {
   const handleChange = (newValue: number) => {
     setValue(newValue);
     try {
-      invoke("set_param", { paramName: name, value: newValue });
+      invoke("set_param", { parameter: name, value: newValue });
     } catch (e) {
       console.log("set_param error: ", e);
     }
