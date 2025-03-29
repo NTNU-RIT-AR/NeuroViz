@@ -38,7 +38,7 @@ impl RenderParameters {
     }
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Choice {
     pub a: String,
     pub b: String,
@@ -50,7 +50,7 @@ pub struct Preset {
     pub parameters: RenderParameters,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct OutcomeChoice {
     pub a: String,
     pub b: String,
@@ -61,7 +61,7 @@ pub struct OutcomeChoice {
     pub duration: f64,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct OutcomeRating {
     pub preset: String,
     pub rank: u8,
@@ -69,7 +69,7 @@ pub struct OutcomeRating {
     pub duration: f64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "experiment_type")]
 pub enum ExperimentType {
     /// Rating between 1-5
@@ -92,10 +92,10 @@ pub enum UnityExperimentType {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ExperimentPrompt {
     pub experiment_type: UnityExperimentType,
-    pub preset: Preset,
+    pub parameters: RenderParameters,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(tag = "experiment_type")]
 pub enum ExperimentResultType {
     #[serde(rename = "rating")]
@@ -104,7 +104,7 @@ pub enum ExperimentResultType {
     Choice { choices: Vec<OutcomeChoice> },
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Experiment {
     #[serde(flatten)]
     pub experiment_type: ExperimentType,
@@ -120,7 +120,7 @@ pub struct CreateExperiment {
     pub presets: Vec<String>,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ExperimentResult {
     #[serde(flatten)]
     pub experiment_type: ExperimentResultType,
@@ -131,7 +131,7 @@ pub struct ExperimentResult {
     pub presets: HashMap<String, Preset>,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum CurrentPreset {
     A,
     B,

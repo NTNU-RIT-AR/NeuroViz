@@ -5,15 +5,30 @@ use crate::structs::{
 };
 
 use futures_signals::signal::{Mutable, MutableLockMut, MutableLockRef};
+use serde::{Deserialize, Serialize};
 use strum::EnumTryAs;
 use tauri::Manager;
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExperimentState {
-    pub experiment_result: ExperimentResult,
     pub experiment: Experiment,
+    pub experiment_result: ExperimentResult,
     pub current_index: usize,
     pub choice_current_preset: CurrentPreset,
+}
+
+impl ExperimentState {
+    pub fn new(experiment: Experiment, experiment_result: ExperimentResult) -> Self {
+        let current_index = 0;
+        let choice_current_preset = CurrentPreset::A;
+
+        Self {
+            experiment,
+            experiment_result,
+            current_index,
+            choice_current_preset,
+        }
+    }
 }
 
 impl ExperimentState {
@@ -45,25 +60,11 @@ impl ExperimentState {
         preset
     }
 
-    pub fn swap_current_preset(&mut self) -> Result<(), String> {
-        let Self {
-            experiment,
-            current_index,
-            choice_current_preset,
-            ..
-        } = self;
-
-        let ExperimentType::Choice { choices } = &experiment.experiment_type else {
-            return Err("Experiment is not of type Choice".to_string());
+    pub fn swap_current_preset(&mut self) {
+        match self.choice_current_preset {
+            CurrentPreset::A => self.choice_current_preset = CurrentPreset::B,
+            CurrentPreset::B => self.choice_current_preset = CurrentPreset::A,
         };
-
-        let choice = &choices[*current_index];
-        match choice_current_preset {
-            CurrentPreset::A => *choice_current_preset = CurrentPreset::B,
-            CurrentPreset::B => *choice_current_preset = CurrentPreset::A,
-        };
-
-        Ok(())
     }
 }
 
@@ -76,9 +77,8 @@ impl ExperimentState {
 //     }
 // }
 
-#[derive(Clone, EnumTryAs)]
+#[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize)]
 pub enum AppState {
-    Idle,
     LiveView(RenderParameters),
     Experiment(ExperimentState),
 }
@@ -91,7 +91,7 @@ pub struct AppData {
 impl AppData {
     pub fn new() -> Self {
         AppData {
-            state: Mutable::new(AppState::Idle),
+            state: Mutable::new(AppState::LiveView(RenderParameters::default())),
         }
     }
 }
