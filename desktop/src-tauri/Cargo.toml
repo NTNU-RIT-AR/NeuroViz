@@ -1,4 +1,4 @@
-cargo-features = ["codegen-backend"]
+# cargo-features = ["codegen-backend"]
 [package]
 name = "min-tauri-app"
 version = "0.1.0"
@@ -35,9 +35,9 @@ futures = "0.3.31"
 slug = "0.1"
 chrono = { version = "0.4.40", features = ["serde"] }
 
-[profile.dev]
-debug = 0
-codegen-backend = "cranelift"
+# [profile.dev]
+# debug = 0
+# codegen-backend = "cranelift"
 
 [dev-dependencies]
 eventsource-stream = "0.2.3"

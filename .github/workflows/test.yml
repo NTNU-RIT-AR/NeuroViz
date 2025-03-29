@@ -1,0 +1,37 @@
+name: Desktop
+
+on:
+  push:
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    runs-on: "ubuntu-22.04"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./desktop/src-tauri -> target"
+
+      - uses: awalsh128/cache-apt-pkgs-action@v1.4.3
+        with:
+          packages: libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          version: 1.0
+
+      - name: Run tests
+        working-directory: ./desktop/src-tauri
+        run: cargo test --verbose
