@@ -7,7 +7,7 @@ use axum::{
 use futures::stream::Stream;
 use serde::{Deserialize, Serialize};
 use std::{convert::Infallible, time::Duration};
-use tokio::{net::TcpListener, sync::watch};
+use tokio::{net::TcpListener, sync::{watch, mpsc}};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
 use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner}};
@@ -28,6 +28,7 @@ pub enum UnityState {
 #[derive(Clone)]
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
+    pub sender: mpsc::Sender<u8>
 }
 
 impl HttpServer {
@@ -37,6 +38,7 @@ impl HttpServer {
         let app = Router::new()
             .route("/state/current", get(get_state))
             .route("/state/subscribe", get(subscribe_state))
+            .route("/experiment/swap", get(swap_preset))
             .with_state(state);
 
         app
@@ -54,6 +56,14 @@ impl HttpServer {
 
         axum::serve(listener, app).await.unwrap();
     }
+}
+
+async fn swap_preset(State(state): State<HttpServer>) {
+    println!("Got request to swap preset");
+    match state.sender.send(1).await{
+        Ok(_) => println!("Sent signal successfully"),
+        Err(e) => println!("{}", format!("Failed to send signal: {}", e.to_string()))
+    };
 }
 
 /// Get the current state
@@ -114,9 +124,11 @@ mod tests {
     async fn test_current_state() {
         // A watch MPMC channel for the state
         let (_state_sender, state_receiver) = watch::channel(UnityState::Idle);
+        let (swap_signal_sender, _swap_signal_reciever) = mpsc::channel(10);
 
         let http_server = HttpServer {
             state: state_receiver,
+            sender: swap_signal_sender
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -138,9 +150,11 @@ mod tests {
     async fn test_subscribe_state() {
         // A watch MPMC channel for the state
         let (state_sender, state_receiver) = watch::channel(UnityState::Idle);
+        let (swap_signal_sender, _swap_signal_reciever) = mpsc::channel(10);
 
         let http_server = HttpServer {
             state: state_receiver,
+            sender: swap_signal_sender
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
