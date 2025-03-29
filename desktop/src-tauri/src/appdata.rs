@@ -64,15 +64,6 @@ impl ExperimentState {
     }
 }
 
-// impl ExperimentState {
-//     pub fn new() -> Self {
-//         Self {
-//             current_index: 0,
-//             choice_current_preset: CurrentPreset::A,
-//         }
-//     }
-// }
-
 #[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize)]
 pub enum AppState {
     LiveView(RenderParameters),
