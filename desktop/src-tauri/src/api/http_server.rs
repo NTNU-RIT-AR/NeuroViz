@@ -5,7 +5,7 @@ use axum::{
     Json, Router,
 };
 use futures::stream::Stream;
-use futures_signals::signal::{Broadcaster, Flatten, Signal, SignalExt};
+use futures_signals::signal::{Broadcaster, Signal, SignalExt};
 use serde::{Deserialize, Serialize};
 use std::{convert::Infallible, pin::Pin, sync::Arc, time::Duration};
 use tokio::{
@@ -80,8 +80,7 @@ impl HttpServer {
         state_signal: impl Signal<Item = UnityState> + Send + Sync + 'static,
         event_sender: mpsc::UnboundedSender<UnityEvent>,
     ) -> Self {
-        let state_signal =
-            Box::pin(state_signal) as Pin<Box<dyn Signal<Item = UnityState> + Send + Sync>>;
+        let state_signal = Box::pin(state_signal) as BoxSignal<'static, UnityState>;
         let state_signal = state_signal.broadcast();
 
         Self {

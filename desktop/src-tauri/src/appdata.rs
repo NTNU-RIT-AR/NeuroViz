@@ -1,13 +1,10 @@
-use std::ops::Deref;
-
 use crate::structs::{
     CurrentPreset, Experiment, ExperimentResult, ExperimentType, Preset, RenderParameters,
 };
 
-use futures_signals::signal::{Mutable, MutableLockMut, MutableLockRef};
+use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
 use strum::EnumTryAs;
-use tauri::Manager;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExperimentState {

@@ -4,13 +4,11 @@ pub mod appdata;
 pub mod consts;
 pub mod structs;
 
-use api::http_server::{HttpServer, UnityState};
+use api::http_server::HttpServer;
 use api::{commands, http_server};
-use appdata::{AppData, AppState};
+use appdata::AppData;
 
 use futures_signals::signal::SignalExt;
-use structs::UnityExperimentType;
-use structs::{ExperimentPrompt, ExperimentType};
 use tauri::{Emitter, Manager};
 use tokio::sync::mpsc;
 
@@ -75,7 +73,7 @@ pub fn run() {
 
                             experiment_state.swap_current_preset();
                         }
-                        http_server::UnityEvent::Answer(experiment_answer) => todo!(),
+                        http_server::UnityEvent::Answer(_experiment_answer) => todo!(),
                     }
                 }
             });

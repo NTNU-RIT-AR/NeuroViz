@@ -1,7 +1,7 @@
+use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::{self, PathBuf};
-use std::{fs, io};
+use std::path::PathBuf;
 
 use dirs;
 use serde::Serialize;
