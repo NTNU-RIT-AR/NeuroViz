@@ -23,6 +23,10 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./desktop/src-tauri -> target"
+
       - name: install dependencies
         run: |
           sudo apt-get update
