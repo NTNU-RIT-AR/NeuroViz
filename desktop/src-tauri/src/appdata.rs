@@ -70,6 +70,7 @@ pub enum AppState {
     Experiment(ExperimentState),
 }
 
+/// A handle to all the state of the app.
 #[derive(Clone)]
 pub struct AppData {
     pub state: Mutable<AppState>,
