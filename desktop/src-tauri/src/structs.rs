@@ -131,7 +131,7 @@ pub struct ExperimentResult {
     pub presets: HashMap<String, Preset>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum CurrentPreset {
     A,
     B,

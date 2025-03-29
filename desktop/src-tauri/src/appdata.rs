@@ -1,7 +1,6 @@
 use crate::structs::{
     CurrentPreset, Experiment, ExperimentResult, ExperimentType, Preset, RenderParameters,
 };
-
 use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
 use strum::EnumTryAs;
@@ -86,9 +85,9 @@ pub struct AppData {
 }
 
 impl AppData {
-    pub fn new() -> Self {
-        AppData {
-            state: Mutable::new(AppState::LiveView(RenderParameters::default())),
+    pub fn new(state: AppState) -> Self {
+        Self {
+            state: Mutable::new(state),
         }
     }
 }

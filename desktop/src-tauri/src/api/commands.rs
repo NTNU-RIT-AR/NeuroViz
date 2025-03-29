@@ -43,6 +43,7 @@ pub fn set_param(
         .ok_or("Must be in live mode".to_owned())?;
 
     live_state.set(parameter, value);
+
     Ok(())
 }
 

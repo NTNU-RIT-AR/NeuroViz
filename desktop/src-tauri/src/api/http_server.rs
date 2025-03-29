@@ -4,19 +4,14 @@ use axum::{
     routing::get,
     Json, Router,
 };
-use futures::stream::Stream;
-use futures_signals::signal::{Broadcaster, Signal, SignalExt};
+use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{convert::Infallible, pin::Pin, sync::Arc, time::Duration};
-use tokio::{
-    net::TcpListener,
-    sync::{mpsc, Mutex},
-};
-use tokio_stream::StreamExt;
+use std::{convert::Infallible, time::Duration};
+use tokio::sync::{mpsc, watch};
 
 use crate::{
     appdata::AppState,
-    consts::HTTP_SERVER_PORT,
+    extensions::WatchReceiverExt,
     structs::{ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType},
 };
 
@@ -65,31 +60,13 @@ pub enum UnityEvent {
     Answer(ExperimentAnswer),
 }
 
-pub type BoxSignal<'a, T> = Pin<Box<dyn Signal<Item = T> + Send + Sync + 'a>>;
-
 #[derive(Clone)]
 pub struct HttpServer {
-    current_state: Arc<Mutex<UnityState>>,
-    state_signal: Broadcaster<BoxSignal<'static, UnityState>>,
-    event_sender: mpsc::UnboundedSender<UnityEvent>,
+    pub state: watch::Receiver<UnityState>,
+    pub event_sender: mpsc::Sender<UnityEvent>,
 }
 
 impl HttpServer {
-    pub fn new(
-        current_state: UnityState,
-        state_signal: impl Signal<Item = UnityState> + Send + Sync + 'static,
-        event_sender: mpsc::UnboundedSender<UnityEvent>,
-    ) -> Self {
-        let state_signal = Box::pin(state_signal) as BoxSignal<'static, UnityState>;
-        let state_signal = state_signal.broadcast();
-
-        Self {
-            state_signal,
-            current_state: Arc::new(Mutex::new(current_state)),
-            event_sender,
-        }
-    }
-
     pub fn app(self) -> Router {
         let state = self;
 
@@ -101,41 +78,21 @@ impl HttpServer {
 
         app
     }
-
-    pub async fn run(self) {
-        let state = self.state_signal.signal_cloned();
-        let current_state = self.current_state.clone();
-
-        let app = self.app();
-
-        let addr = format!("0.0.0.0:{HTTP_SERVER_PORT}");
-        let listener = TcpListener::bind(&addr).await.unwrap();
-
-        println!("HTTP server listening on http://localhost:{HTTP_SERVER_PORT}");
-
-        let update_current_state = state.for_each(|state| {
-            let current_state = current_state.clone();
-
-            async {
-                let mut current_state = current_state.lock_owned().await;
-                *current_state = state;
-            }
-        });
-
-        let (axum_result, _) = tokio::join!(axum::serve(listener, app), update_current_state);
-        axum_result.unwrap();
-    }
 }
 
-async fn swap_preset(State(state): State<HttpServer>) {
+async fn swap_preset(State(http_server): State<HttpServer>) {
     println!("Got request to swap preset");
 
-    state.event_sender.send(UnityEvent::SwapPreset).unwrap();
+    http_server
+        .event_sender
+        .send(UnityEvent::SwapPreset)
+        .await
+        .unwrap();
 }
 
-async fn current_state(State(state): State<HttpServer>) -> Json<UnityState> {
+async fn current_state(State(http_server): State<HttpServer>) -> Json<UnityState> {
     // Get the current state
-    let current_state = state.current_state.lock().await.clone();
+    let current_state = http_server.state.borrow().clone();
 
     // Return the current state as JSON
     Json(current_state)
@@ -143,13 +100,12 @@ async fn current_state(State(state): State<HttpServer>) -> Json<UnityState> {
 
 /// Subscribe to state updates as an SSE stream
 async fn subscribe_state(
-    State(state): State<HttpServer>,
+    State(http_server): State<HttpServer>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    let state = state.state_signal.signal_cloned();
-
     // Map the stream to SSE events with JSON data
-    let stream = state
-        .to_stream()
+    let stream = http_server
+        .state
+        .into_stream()
         .map(|unity_state| {
             // Convert the UnityState to a JSON string
             let params = serde_json::to_string(&unity_state).unwrap();
@@ -169,8 +125,10 @@ async fn subscribe_state(
 #[cfg(test)]
 mod tests {
     use eventsource_stream::Eventsource;
-    use futures_signals::signal::Mutable;
-    use tokio::net::TcpListener;
+    use tokio::{
+        net::TcpListener,
+        sync::{mpsc, watch},
+    };
 
     use crate::structs::UnityExperimentType;
 
@@ -194,15 +152,13 @@ mod tests {
     /// Test the `/state/current` endpoint, which should return the current state
     #[tokio::test]
     async fn test_current_state() {
-        // A watch MPMC channel for the state
-        let unity_state = Mutable::new(UnityState::Idle);
-        let (unity_event_sender, _unity_event_reciever) = mpsc::unbounded_channel();
+        let (_, unity_state_receiver) = watch::channel(UnityState::Idle);
+        let (unity_event_sender, _) = mpsc::channel(100);
 
-        let http_server = HttpServer::new(
-            unity_state.get_cloned(),
-            unity_state.signal_cloned(),
-            unity_event_sender,
-        );
+        let http_server = HttpServer {
+            state: unity_state_receiver,
+            event_sender: unity_event_sender,
+        };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
 
@@ -221,14 +177,13 @@ mod tests {
     /// Test the `/state/subscribe` endpoint, which should return a stream of state updates
     #[tokio::test]
     async fn test_subscribe_state() {
-        let unity_state = Mutable::new(UnityState::Idle);
-        let (unity_event_sender, _unity_event_reciever) = mpsc::unbounded_channel();
+        let (unity_state_sender, unity_state_receiver) = watch::channel(UnityState::Idle);
+        let (unity_event_sender, _unity_event_reciever) = mpsc::channel(100);
 
-        let http_server = HttpServer::new(
-            unity_state.get_cloned(),
-            unity_state.signal_cloned(),
-            unity_event_sender,
-        );
+        let http_server = HttpServer {
+            state: unity_state_receiver,
+            event_sender: unity_event_sender,
+        };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
 
@@ -258,7 +213,7 @@ mod tests {
                 emission: 0.5,
             },
         };
-        unity_state.set(live.clone());
+        unity_state_sender.send(live.clone()).unwrap();
         assert_eq!(get_next_state().await, live);
 
         // Send an experiment state, check if the event stream receives it
@@ -274,7 +229,7 @@ mod tests {
             },
         };
 
-        unity_state.set(experiment.clone());
+        unity_state_sender.send(experiment.clone()).unwrap();
         assert_eq!(get_next_state().await, experiment);
     }
 }
