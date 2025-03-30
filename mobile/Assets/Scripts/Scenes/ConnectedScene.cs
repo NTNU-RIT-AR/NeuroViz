@@ -68,7 +68,14 @@ namespace NeuroViz.Scenes
         {
             Debug.LogWarning($"{e.Event} : {e.Message}");
             
-            
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+                Converters = { new UnionConverterFactory() }
+            };
+
+            var state = JsonSerializer.Deserialize<UnityState>(e.Message, options);
+            Debug.Log(state);
         }
 
         private void OnDestroy()

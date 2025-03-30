@@ -78,18 +78,30 @@ namespace NeuroViz
     {
         public static object? ToObject(this JsonElement element, Type type, JsonSerializerOptions options)
         {
-            var bufferWriter = new ArrayBufferWriter<byte>();
+            IBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>();
             using (var writer = new Utf8JsonWriter(bufferWriter))
             {
                 element.WriteTo(writer);
             }
-            return JsonSerializer.Deserialize(bufferWriter.WrittenSpan, type, options);
+            return JsonSerializer.Deserialize(bufferWriter.GetSpan(), type, options);
         }
 
         public static Object? ToObject(this JsonDocument document, Type type, JsonSerializerOptions options)
         {
             if (document is null) throw new ArgumentNullException(nameof(document));
             return document.RootElement.ToObject(type, options);
+        }
+    }
+    
+    public sealed class UnionConverterFactory : JsonConverterFactory
+    {
+        public override Boolean CanConvert(Type typeToConvert) =>
+            typeToConvert.GetCustomAttribute<UnionTagAttribute>(false) is not null;
+
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+        {
+            var converterType = typeof(UnionConverter<>).MakeGenericType(typeToConvert);
+            return (JsonConverter?)Activator.CreateInstance(converterType);
         }
     }
 }
