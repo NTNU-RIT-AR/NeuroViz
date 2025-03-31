@@ -1,15 +1,19 @@
-use tauri::{Emitter, AppHandle};
+use tauri::{AppHandle, Emitter};
 
-use crate::structs::Preset;
+use crate::appdata::AppState;
 
 pub fn emit_connection_event(app_handle: &AppHandle) {
-    app_handle.emit("connection", "A device has connected").unwrap();
+    app_handle
+        .emit("connection", "A device has connected")
+        .unwrap();
 }
 
 pub fn emit_disconnection_event(app_handle: AppHandle) {
-    app_handle.emit("disconnection", "A device has disconnected").unwrap();
+    app_handle
+        .emit("disconnection", "A device has disconnected")
+        .unwrap();
 }
 
-pub fn emit_swap_preset_in_experiment(app_handle: &AppHandle, payload: &Preset) {
-    app_handle.emit("swap", payload).unwrap();
+pub fn emit_app_state(app_handle: &AppHandle, app_state: AppState) {
+    app_handle.emit("state", app_state).unwrap();
 }
