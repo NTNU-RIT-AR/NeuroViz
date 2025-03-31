@@ -13,7 +13,6 @@ import ExperimentsPage from "./pages/Experiments";
 import LiveViewPage from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
 import ResultsPage from "./pages/Results";
-a;
 
 export default function App() {
   return (
