@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tauri-apps/api": "^2.3.0",
     "@tauri-apps/plugin-opener": "^2",
     "classnames": "^2.5.1",
@@ -17,7 +18,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-qr-code": "^2.0.15",
-    "react-router-dom": "^7.2.0"
+    "react-router-dom": "^7.2.0",
+    "react-select": "^5.10.1",
+    "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

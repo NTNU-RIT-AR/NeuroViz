@@ -8,6 +8,7 @@ interface ConnectionBoxProps {
 
 export default function ConnectionBox({ url, isConnected }: ConnectionBoxProps) {
 
+  isConnected = false;
   let qrCode =
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', width: '100%' }}>
       <QRCodeCanvas
@@ -20,7 +21,7 @@ export default function ConnectionBox({ url, isConnected }: ConnectionBoxProps) 
           height: '87%',
           width: '87%',
           borderRadius: "6px",
-          margin: "auto"
+          margin: "auto",
         }}
       />
     </div>;
@@ -37,7 +38,7 @@ export default function ConnectionBox({ url, isConnected }: ConnectionBoxProps) 
           :
           <>
             {qrCode}
-            <p>• Disconnected</p>
+            <p>Disconnected</p>
           </>
 
       }
