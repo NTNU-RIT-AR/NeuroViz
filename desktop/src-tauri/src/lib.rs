@@ -65,7 +65,7 @@ pub async fn handle_unity_events_task(
 
         match event {
             UnityEvent::SwapPreset => experiment.swap_current_preset(),
-            UnityEvent::Answer(_experiment_answer) => todo!(),
+            UnityEvent::Answer(experiment_answer) => experiment.answer(experiment_answer),
         }
     }
 }
@@ -95,6 +95,16 @@ async fn setup(app: AppHandle) {
     let handle_unity_events =
         handle_unity_events_task(app_data.state.clone(), unity_event_receiver);
 
+    println!(
+        "{:?}",
+        commands::start_experiment(
+            app.clone(),
+            String::from("example-experiment-1"),
+            0,
+            String::from("my note hihi")
+        )
+    );
+
     // Tawsk to emit app state changes to the tauri frontend
     let emit_app_state = async move {
         let mut app_state_stream = app_data.state.signal_cloned().to_stream();
@@ -108,15 +118,7 @@ async fn setup(app: AppHandle) {
     // Run all tasks concurrently
     join!(http_server, handle_unity_events, emit_app_state);
 
-    // println!(
-    //     "{:?}",
-    //     commands::start_experiment(
-    //         app,
-    //         String::from("example-experiment-1"),
-    //         0,
-    //         String::from("my note hihi")
-    //     )
-    // );
+    
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

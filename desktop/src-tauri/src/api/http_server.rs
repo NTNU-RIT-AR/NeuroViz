@@ -1,22 +1,15 @@
 use axum::{
     extract::{State, Json},
     response::{sse::Event, IntoResponse, Sse},
-    routing::{get, post}, Router,
+    routing::get, Router,
 };
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{convert::Infallible, net::SocketAddr, sync::Arc, time::Duration};
-use tokio::{net::TcpListener, sync::{watch, mpsc}};
-use tokio_stream::{wrappers::WatchStream, StreamExt};
-
-use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner, Answer}};
 use std::{convert::Infallible, time::Duration};
-use tokio::sync::{mpsc, watch};
+use tokio::sync::{watch, mpsc};
 
 use crate::{
-    appdata::AppState,
-    extensions::WatchReceiverExt,
-    structs::{ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType},
+    appdata::AppState, extensions::WatchReceiverExt, structs::{ExperimentAnswer, ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType}
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -49,16 +42,6 @@ impl From<AppState> for UnityState {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(tag = "experiment_type")]
-pub enum ExperimentAnswer {
-    #[serde(rename = "choice")]
-    Choice,
-
-    #[serde(rename = "rating")]
-    Rating { value: u8 },
-}
-
 pub enum UnityEvent {
     SwapPreset,
     Answer(ExperimentAnswer),
@@ -77,7 +60,7 @@ impl HttpServer {
         let app = Router::new()
             .route("/state/current", get(current_state))
             .route("/state/subscribe", get(subscribe_state))
-            .route("/experiment/swap", get(swap_preset_experiment))
+            .route("/experiment/swap", get(swap_preset))
             .route("/experiment/answer", get(answer_choice_experiment))
             .with_state(state);
 
@@ -87,16 +70,11 @@ impl HttpServer {
 
 // Answer experiment
 async fn answer_choice_experiment( 
-    State(state): State<HttpServer>,
-    Json(payload): Json<Answer>
+    State(http_server): State<HttpServer>,
+    Json(payload): Json<ExperimentAnswer>
 ) -> impl IntoResponse {
     println!("Got a request to /answer");
-    // Send Answer struct with answer_sender channel
-    if let Err(e) = state.answer_sender.send(payload).await {
-        eprintln!("Failed to send answer: {}", e);
-        return "failure";
-    }
-    
+    http_server.event_sender.send(UnityEvent::Answer(payload)).await.unwrap();
     "success"
 }
 

@@ -44,19 +44,14 @@ pub struct Choice {
     pub b: String,
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Answer {
-    #[serde(flatten)]
-    pub experiment_type: AnswerExperimentType
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "experiment_type")]
-pub enum AnswerExperimentType {
-    #[serde(rename="rating")]
-    Rating {value: u8},
-    #[serde(rename="choice")]
-    Choice
+pub enum ExperimentAnswer {
+    #[serde(rename = "choice")]
+    Choice,
+
+    #[serde(rename = "rating")]
+    Rating { value: u8 },
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
