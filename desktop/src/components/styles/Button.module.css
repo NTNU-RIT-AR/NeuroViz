@@ -9,10 +9,26 @@
   background-color: #00000026;
   transition: border-color 0.25s;
 
+  transition-duration: 0.3s;
+
   cursor: pointer;
 }
 
-.iconButton {
-  width: 20px;
+.square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px;
+  width: 40px;
+  height: 40px;
   aspect-ratio: 1;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(0.95);
 }
