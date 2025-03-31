@@ -128,10 +128,12 @@ pub fn run() {
             commands::get_param,
             commands::get_ip_address,
             commands::list_presets,
-            commands::retrieve_preset,
-            commands::list_experiments,
-            commands::retrieve_experiment,
+            commands::get_preset,
+            commands::create_preset,
+            commands::get_experiment,
             commands::create_experiment,
+            commands::list_experiments,
+            commands::get_all_experiments,
             commands::start_experiment
         ])
         .setup(|app| {

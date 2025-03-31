@@ -2,7 +2,7 @@ import classNames from "classnames";
 import styles from "./styles/ContentBox.module.css";
 
 interface ContentBoxProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 

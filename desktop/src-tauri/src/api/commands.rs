@@ -72,7 +72,7 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
 
 /// Save current live parameters to a preset
 #[tauri::command]
-pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
     // Parse PARAMS to JSON
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.lock_ref();
@@ -108,7 +108,7 @@ pub fn list_experiments() -> Result<Vec<String>, String> {
 
 /// Retrieve a preset by file name
 #[tauri::command]
-pub fn retrieve_preset(slugged_preset_name: String) -> Result<Preset, String> {
+pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
     storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
 }
 
@@ -143,11 +143,22 @@ pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<Strin
 
 /// Retrieve a preset
 #[tauri::command]
-pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
-    storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
+pub fn get_experiment(slugged_name: String) -> Result<Experiment, String> {
+    storage::parse_from_json_file::<Experiment>(slugged_name, Folder::Experiments)
 }
 
 /// Start an experiment
+#[tauri::command]
+pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {
+    let mut result: Vec<Experiment> = Vec::new();
+
+    let experiments = list_experiments()?;
+    for experiment in experiments {
+        result.push(get_experiment(experiment)?);
+    }
+    Ok(result)
+}
+
 #[tauri::command]
 pub fn start_experiment(
     app: tauri::AppHandle,

@@ -1,61 +1,108 @@
 import { useEffect, useState } from "react";
 import { fetchExperiments, retrieveExperiment } from "../commands";
-import ListButton from "../components/ListButton";
 import { Layout } from "../components/Layout";
-import { ContentBox } from "../components/ContentBox";
-import CreateExperimentForm from "../components/CreateExperimentForm";
+import { Experiment } from "../interfaces";
+import { invoke } from "@tauri-apps/api/core";
+
+import styles from "./styles/Experiments.module.css"
+import Backdrop from "../components/Backdrop";
 import Button from "../components/Button";
+import { EyeIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/solid";
+import { ContentBox } from "../components/ContentBox";
+import Popup from "../components/Popup";
+
+enum FilterState {
+  All = "All",
+  Published = "Published",
+  Draft = "Draft"
+}
+
+interface ViewExperimentProps {
+  data: Experiment
+  setShow: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+function ViewExperiment({ data, setShow }: ViewExperimentProps) {
+  let close = () => {
+    setShow(false);
+  }
+  return (
+    <Popup title={data.name} onClose={close}>
+      <h3>{data.name}</h3>
+    </Popup >
+  )
+}
+
+interface ExperimentCardProps {
+  data: Experiment,
+}
+function ExperimentCard({ data }: ExperimentCardProps) {
+  const [show, setShow] = useState(false);
+  return (
+    <>
+      <div className={styles.experimentCard} >
+        <h3 className={styles.experimentCardTitle}>{data.name}</h3>
+        <div className={styles.experimentCardContent}>
+          <p>Type: {data.experiment_type}</p>
+        </div>
+        <div className={styles.experimentCardBottom}>
+          <Button square={true} onClick={() => setShow(true)}> <EyeIcon className="icon" /></Button>
+          <Button square={true}><TrashIcon /></Button>
+        </div >
+      </div >
+
+      {
+        show &&
+        <ViewExperiment data={data} setShow={setShow} />
+      }
+    </>
+  )
+}
 
 export default function ExperimentsPage() {
-  const [experiments, setExperiments] = useState<string[]>([""]);
-  const [selectedExperiment, setSelectedExperiment] = useState<
-    string | undefined
-  >("");
-  const [viewCreateExperiment, setViewCreateExperiment] =
-    useState<boolean>(false);
-
-  function toggleViewCreateExperiment() {
-    setViewCreateExperiment(!viewCreateExperiment);
-  }
+  const [experiments, setExperiments] = useState<Experiment[]>([]);
+  const [filter, setFilter] = useState<FilterState>(FilterState.All);
 
   useEffect(() => {
-    fetchExperiments().then(setExperiments);
+    invoke<Experiment[]>("get_all_experiments").then(setExperiments);
   }, []);
 
   return (
     <>
-      <h1>Experiments</h1>
-      <Layout>
-        <ContentBox>
-          {experiments.length > 0 &&
-            experiments.map((experiment_name) => (
-              <ListButton
-                textContent={experiment_name}
-                onClick={() => {
-                  retrieveExperiment(experiment_name).then((result) =>
-                    setSelectedExperiment(result)
-                  );
-                }}
-              />
-            ))}
-        </ContentBox>
+      <Layout title="Experiments" scrollable={true}>
+        <div className={styles.experimentsContainer}>
+          {
+            experiments
+              // .filter(
+              //   (experiment) => (
+              //     experiment
+              //   )
+              // )
+              .map(
+                (experiment) => (
+                  <ExperimentCard data={experiment} />
+                )
+              )
+          }
+        </div>
 
-        <ContentBox>{selectedExperiment && selectedExperiment}</ContentBox>
       </Layout>
-      {viewCreateExperiment && <CreateExperimentForm />}
-      {viewCreateExperiment ? (
-        <Button
-          theme={"neutral"}
-          textContent="Cancel"
-          onClick={toggleViewCreateExperiment}
-        />
-      ) : (
-        <Button
-          theme={"green"}
-          textContent="Create new"
-          onClick={toggleViewCreateExperiment}
-        />
-      )}
+
+      {/* {viewCreateExperiment && <CreateExperimentForm />} */}
+      {/* {viewCreateExperiment ? ( */}
+      {/*   <Button */}
+      {/*     theme={"neutral"} */}
+      {/*     textContent="Cancel" */}
+      {/*     onClick={toggleViewCreateExperiment} */}
+      {/*   /> */}
+      {/* ) : ( */}
+      {/*   <Button */}
+      {/*     theme={"green"} */}
+      {/*     textContent="Create new" */}
+      {/*     onClick={toggleViewCreateExperiment} */}
+      {/*   /> */}
+      {/* )} */}
     </>
   );
 }
