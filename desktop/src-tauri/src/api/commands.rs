@@ -6,10 +6,8 @@ use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
 use crate::structs::ExperimentResult;
-use crate::structs::ExperimentState;
-use crate::structs::ExperimentType;
 use crate::structs::Preset;
-use crate::structs::UnityExperimentType;
+use crate::structs::RenderParameter;
 
 use local_ip_address::local_ip;
 use slug::slugify;
@@ -74,7 +72,7 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
 
 /// Save current live parameters to a preset
 #[tauri::command]
-pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
     // Parse PARAMS to JSON
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.lock_ref();
