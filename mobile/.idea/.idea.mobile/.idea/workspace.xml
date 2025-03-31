@@ -5,10 +5,62 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="091451e9-6284-40ea-b1db-fb98c943c51e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/LiveScene.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/LiveScene.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UpdateParameters.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UpdateParameters.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Amygdala.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Amygdala.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Basal Ganglia.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Basal Ganglia.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Cerebellum.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Cerebellum.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Cerebrum Main.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Cerebrum Main.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Cornea.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Cornea.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Corpus.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Corpus.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Eye.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Eye.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Fornix.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Fornix.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Hippocampus.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Hippocampus.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Medulla.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Medulla.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Midbrain.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Midbrain.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Olfactory.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Olfactory.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Optic chiasm.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Optic chiasm.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Parent.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Parent.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Pituitory Gland.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Pituitory Gland.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Pons.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Pons.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Thalamus.mat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Thalamus.mat.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Models/Brain.blend" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Models/Brain.blend" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Models/Brain.blend1" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Models/Brain.blend1" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Serialization.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Serialization.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain 2.shadergraph" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain 2.shadergraph.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Universal Render Pipeline Asset.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Universal Render Pipeline Asset.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Universal Render Pipeline Asset_Renderer.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Universal Render Pipeline Asset_Renderer.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/packages.config" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/packages.config" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/QualitySettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,7 +76,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/82f6ec6d27854784846944d02fae2d6a7ca00/fd/cc2bffcc/QRCodeReader.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b89cd35921564d179b956caa8377e01faef28/68/960c6b0a/Utf8JsonWriter.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d422cfeeefda40689dbfe51354ae760e4000/07/09e1dbf5/JsonUtility.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/de80aed0bd3646409e8bfb15c101f005e2000/6f/a1fa68c2/ArrayBufferWriter`1.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/de80aed0bd3646409e8bfb15c101f005e2000/c5/cf02d253/IBufferWriter`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/27c4858128168eda568c1334d70d5241efb9461e2a3209258a04deee5d9c367/JsonSerializer.Read.String.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/74ba7f27cd426ecd5cfe4d318683c97667d6ffafd905560b23788d17eea9/JsonWriterOptions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8a522b806eac9bb894e6e4c5fe87f353457535e769447e79c6b396beecb5d0/System.Threading.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/920eb4cc5c0c68369a0163bd7f5ae691e441f8223fad7576c5d68b1924b984/Utf8JsonWriter.cs" root0="FORCE_HIGHLIGHTING" />
@@ -42,20 +96,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;RIT-64-Unity-Project&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "RIT-64-Unity-Project",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "rider.code.cleanup.on.save": "true",
+    "rider.code.cleanup.on.save.profile": "Built-in: Reformat Code",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.43f1\Editor\Unity.exe" />
@@ -111,7 +168,8 @@
       <workItem from="1742920210731" duration="2067000" />
       <workItem from="1742922410866" duration="22539000" />
       <workItem from="1743094697766" duration="2965000" />
-      <workItem from="1743363179240" duration="956000" />
+      <workItem from="1743363179240" duration="9919000" />
+      <workItem from="1743446162274" duration="5090000" />
     </task>
     <servers />
   </component>
@@ -128,5 +186,9 @@
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

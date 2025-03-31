@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>ObjectDumper.NET</id>
+    <version>4.3.2</version>
+    <authors>Thomas Galliker</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <icon>ObjectDumper.png</icon>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/thomasgalliker/ObjectDumper</projectUrl>
+    <description>ObjectDumper is a utility which aims to serialize C# objects to string for debugging and logging purposes.</description>
+    <releaseNotes>4.2
+- Bug fix for circular references in collections
+- Internal refactoring to handle collection dumping more efficiently
+- Print element count for IEnumerables for DumpStyle.Console
+
+4.1
+- Raise minimum .NET framework version from net45 to net48
+- Remove support for net5.0
+- Bug fix for constructorless record types
+
+4.0
+- Add support for C# record types
+- Add assembly strong-naming
+
+3.4
+- Improve circular reference detection
+
+3.3
+- Bug fix for generic default value creation
+- Bug fix for anonymous object dumping
+
+3.2
+- New versioning schema
+
+3.1
+- Add support for dumping anonymous types
+- Add support for .NET 5
+- Detect circular references for hash combinations h(value, type)
+- Dump warning for circular references
+- Performance improvement for property dumps
+
+3.0
+- New formatting logic for DumpStyle.Console (default)
+- Bug fix for dumping decimal numbers in different cultures
+- Dump MinValue, MaxValue for built-in types (where available)
+
+2.5
+- Handle CultureInfo formatting
+- Extend GetFormattedName to handle nested generics and multi-dimensional arrays
+- Optimize variable naming for generic types
+
+2.4
+- Handle Guid formatting
+- Handle DateTimeOffset formatting 
+- Handle TimeSpan formatting
+- Set LineBreakChar default to Environment.NewLine
+
+2.3
+- Fix escape sequences in string values
+
+2.2
+- Add bool property DumpOptions.IgnoreDefaultValues to filter properties which contain default values
+- Refactor namespaces: Move ObjectDumper to root namespace
+- Add support for netstandard2.0
+      
+2.0
+- Migration to netstandard1.2
+- Bug fixes
+
+1.0
+- Initial release
+- Bugfix for .NET Standard: CSharp initializer code generation for KeyValuePairs is currently disabled in this release
+- Change DateTime formatting to ISO 8601 standard
+- Add formatting for IDictionary&amp;lt;TKey, TValue&amp;gt; and KeyValuePair&amp;lt;TKey, TValue&amp;gt;
+- Replace long suffix 'l' with 'L'
+- Optimization for DateTime.MinValue and DateTime.MaxValue serialization
+- Bug fix: Use default dump options if not specified
+- Add support for .NET Standard
+- Add DumpOptions several serialization options, e.g. C#-like DumpStyle
+- Bug fix: Filter COM objects
+- Bug fix: Catch exceptions if properties/fields cannot be accessed
+- Bug fix: Ignore non-public properties</releaseNotes>
+    <copyright>Copyright 2017-2024 © Thomas Galliker</copyright>
+    <tags>objectdumper dump dumpobject initializer c# objects debug logging tracing</tags>
+    <repository type="git" url="https://github.com/thomasgalliker/ObjectDumper" commit="d3a5d244ed113f3c9091835982f0576f065a13e1" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.8" />
+      <group targetFramework="net7.0" />
+      <group targetFramework="net8.0" />
+      <group targetFramework=".NETStandard1.2">
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
+    </frameworkAssemblies>
+  </metadata>
+</package>

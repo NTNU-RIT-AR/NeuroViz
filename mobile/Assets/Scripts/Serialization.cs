@@ -26,7 +26,7 @@ namespace NeuroViz
         public UnionCaseAttribute(Type caseType, String tagPropertyValue) =>
             (this.CaseType, this.TagPropertyValue) = (caseType, tagPropertyValue);
     }
-    
+
     public sealed class UnionConverter<T> : JsonConverter<T> where T : class
     {
         private String TagPropertyName { get; }
@@ -78,12 +78,13 @@ namespace NeuroViz
     {
         public static object? ToObject(this JsonElement element, Type type, JsonSerializerOptions options)
         {
-            IBufferWriter<byte> bufferWriter = new ArrayBufferWriter<byte>();
+            var bufferWriter = new ArrayBufferWriter<byte>();
             using (var writer = new Utf8JsonWriter(bufferWriter))
             {
                 element.WriteTo(writer);
             }
-            return JsonSerializer.Deserialize(bufferWriter.GetSpan(), type, options);
+
+            return JsonSerializer.Deserialize(bufferWriter.WrittenSpan, type, options);
         }
 
         public static Object? ToObject(this JsonDocument document, Type type, JsonSerializerOptions options)
@@ -92,7 +93,7 @@ namespace NeuroViz
             return document.RootElement.ToObject(type, options);
         }
     }
-    
+
     public sealed class UnionConverterFactory : JsonConverterFactory
     {
         public override Boolean CanConvert(Type typeToConvert) =>
