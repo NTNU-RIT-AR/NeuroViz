@@ -6,6 +6,11 @@ import { invoke } from "@tauri-apps/api/core";
 
 import styles from "./styles/Experiments.module.css"
 import Backdrop from "../components/Backdrop";
+import Button from "../components/Button";
+import { EyeIcon } from "@heroicons/react/24/outline";
+import { TrashIcon } from "@heroicons/react/24/solid";
+import { ContentBox } from "../components/ContentBox";
+import Popup from "../components/Popup";
 
 enum FilterState {
   All = "All",
@@ -19,11 +24,13 @@ interface ViewExperimentProps {
 }
 
 function ViewExperiment({ data, setShow }: ViewExperimentProps) {
+  let close = () => {
+    setShow(false);
+  }
   return (
-    <Backdrop>
+    <Popup title={data.name} onClose={close}>
       <h3>{data.name}</h3>
-      <button onClick={() => setShow(false)}>Close</button>
-    </Backdrop >
+    </Popup >
   )
 }
 
@@ -34,13 +41,16 @@ function ExperimentCard({ data }: ExperimentCardProps) {
   const [show, setShow] = useState(false);
   return (
     <>
-      <div className={styles.experimentCard} onClick={() => setShow(true)}>
+      <div className={styles.experimentCard} >
         <h3 className={styles.experimentCardTitle}>{data.name}</h3>
         <div className={styles.experimentCardContent}>
           <p>Type: {data.experiment_type}</p>
         </div>
-        <div className={styles.experimentCardBottom}></div>
-      </div>
+        <div className={styles.experimentCardBottom}>
+          <Button square={true} onClick={() => setShow(true)}> <EyeIcon className="icon" /></Button>
+          <Button square={true}><TrashIcon /></Button>
+        </div >
+      </div >
 
       {
         show &&
