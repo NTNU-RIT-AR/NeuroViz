@@ -35,5 +35,10 @@ type Experiment =
     presets: Record<string, Preset>;
   };
 
-// enum Parameter =
-export type { Parameters, Preset, Experiment };
+interface QrPayload {
+  ip: string;
+  port: number;
+  secret: string;
+}
+
+export type { Experiment, Parameters, Preset, QrPayload };

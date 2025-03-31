@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { getIpAddress } from "../commands.ts";
 import {
-  DEEPLINK,
   ROUTE_EXPERIMENTS,
   ROUTE_LIVE_VIEW,
   ROUTE_PRESETS,
   ROUTE_RESULTS,
+  UNITY_API_PORT,
 } from "../const.ts";
+import { QrPayload } from "../interfaces.ts";
 import { useAppNavigate } from "./../NavigationProvider.tsx";
 import ConnectionBox from "./ConnectionBox.tsx";
 import styles from "./styles/Sidebar.module.css";
@@ -69,12 +70,19 @@ export default function Sidebar() {
     };
   }, []);
 
+  const qrPayload: QrPayload = {
+    ip: ipAddress,
+    port: UNITY_API_PORT,
+    // TODO: Use password protection
+    secret: "",
+  };
+
   return (
     <div className={styles.Sidebar}>
       {ipAddress !== "" && (
         <ConnectionBox
           // url={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
-          url={DEEPLINK + ipAddress}
+          qrText={JSON.stringify(qrPayload)}
           isConnected={deviceConnected}
         />
       )}
