@@ -1,9 +1,10 @@
+use std::fs;
 use std::fs::File;
 use std::io::Write;
-use std::path::{self, PathBuf};
-use std::{fs, io};
+use std::path::PathBuf;
 
 use dirs;
+use serde::Serialize;
 
 use crate::consts::Folder;
 
@@ -37,9 +38,12 @@ pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
     let mut path;
 
     if cfg!(debug_assertions) {
-        // debug mode
-        path = dirs::data_dir().ok_or_else(|| format!("Could not get data dir"))?;
-        path.push("NeuroViz");
+        // debug mode}
+        let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
+        let mut desktop_dir = PathBuf::from(manifest_dir);
+
+        desktop_dir.pop();
+        path = desktop_dir.join("data");
     } else {
         // release mode
         path = dirs::executable_dir().ok_or_else(|| format!("Could not get executable dir"))?;
@@ -53,10 +57,13 @@ pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
 }
 
 pub fn create_and_write_to_json_file(
-    contents: String,
+    contents: &impl Serialize,
     folder: Folder,
     filename: String,
 ) -> Result<(), String> {
+    let json = serde_json::to_string(contents)
+        .map_err(|err| format!("Could not serialize to JSON\n {}", err.to_string()))?;
+
     let mut path = get_folder(folder).unwrap();
     path.push(format!("{}.json", filename));
 
@@ -68,7 +75,7 @@ pub fn create_and_write_to_json_file(
         )
     })?;
 
-    file.write_all(contents.as_bytes())
+    file.write_all(json.as_bytes())
         .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
 }
 

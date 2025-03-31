@@ -1,0 +1,56 @@
+.experimentsContainer {
+  width: 100%;
+  display: grid;
+  margin-bottom: auto;
+
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-columns: 1fr;
+  gap: 30px;
+}
+
+.experimentCard {
+  min-width: 200px;
+  height: 200px;
+  color: white;
+
+  border: solid var(--primary-hl) 2px;
+  background-color: var(--primary-bg);
+  border-radius: 10px;
+
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition-duration: 0.4s;
+  z-index: 2;
+}
+
+.experimentCardTitle,
+.experimentCardContent,
+.experimentCardBottom {
+  width: 100%;
+  padding-left: 20px;
+}
+
+.experimentCardTitle {
+  border-bottom: solid var(--primary-hl) 2px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+
+.experimentCardContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--primary-hl)
+}
+
+.experimentCardBottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 10px;
+  padding: 10px;
+}
