@@ -1,27 +1,32 @@
 import styles from "./styles/Button.module.css"
 
+type Variant = "primary" | "secondary" | "danger";
 
 interface ButtonProps {
-  variant?: "primary" | "secondary" | "danger",
+  variant?: Variant,
   onClick?: () => void,
   children?: React.ReactNode,
   square?: boolean,
 }
 
+const styleVariant: Record<Variant, string> = {
+  primary: styles.primary,
+  secondary: styles.secondary,
+  danger: styles.danger
+}
 
-
-export default function Button({ variant, onClick }: ButtonProps) {
-  let styleVariant = new Map<string, string>();
-  styleVariant.set("primary", styles.primary)
-  styleVariant.set("secondary", styles.secondary)
-  styleVariant.set("danger", styles.danger)
+export default function Button({ children, variant = "primary", onClick, square = false }: ButtonProps) {
 
   return (
-
     <button
       onClick={onClick}
-      className={`${styles.button} ${styleVariant.get(variant || "primary")}`}
+      className={`
+        ${styles.button} 
+        ${square ? styles.square : " "}
+      `}
+    // ${styleVariant[variant]}
     >
+      {children}
     </button>
   );
 } 
