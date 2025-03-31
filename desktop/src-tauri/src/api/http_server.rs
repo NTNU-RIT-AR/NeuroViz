@@ -3,13 +3,21 @@ use axum::{
     response::{sse::Event, IntoResponse, Sse},
     routing::{get, post}, Router,
 };
-use futures::stream::Stream;
+use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::{convert::Infallible, net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{net::TcpListener, sync::{watch, mpsc}};
 use tokio_stream::{wrappers::WatchStream, StreamExt};
 
 use crate::{consts::HTTP_SERVER_PORT, structs::{ExperimentPrompt, RenderParamsInner, Answer}};
+use std::{convert::Infallible, time::Duration};
+use tokio::sync::{mpsc, watch};
+
+use crate::{
+    appdata::AppState,
+    extensions::WatchReceiverExt,
+    structs::{ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind")]
@@ -18,17 +26,48 @@ pub enum UnityState {
     Idle,
 
     #[serde(rename = "live")]
-    Live { parameters: RenderParamsInner },
+    Live { parameters: RenderParameters },
 
     #[serde(rename = "experiment")]
     Experiment { prompt: ExperimentPrompt },
 }
 
+impl From<AppState> for UnityState {
+    fn from(app_state: AppState) -> Self {
+        match app_state {
+            AppState::LiveView(parameters) => UnityState::Live { parameters },
+            AppState::Experiment(experiment_state) => UnityState::Experiment {
+                prompt: ExperimentPrompt {
+                    experiment_type: match experiment_state.experiment.experiment_type {
+                        ExperimentType::Choice { .. } => UnityExperimentType::Choice,
+                        ExperimentType::Rating { .. } => UnityExperimentType::Rating,
+                    },
+                    parameters: experiment_state.get_current_preset().parameters,
+                },
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(tag = "experiment_type")]
+pub enum ExperimentAnswer {
+    #[serde(rename = "choice")]
+    Choice,
+
+    #[serde(rename = "rating")]
+    Rating { value: u8 },
+}
+
+pub enum UnityEvent {
+    SwapPreset,
+    Answer(ExperimentAnswer),
+}
+
 #[derive(Clone)]
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
-    pub swap_signal_sender: mpsc::Sender<u8>,
-    pub answer_sender: mpsc::Sender<Answer>
+    pub event_sender: mpsc::Sender<UnityEvent>,
 }
 
 impl HttpServer {
@@ -44,21 +83,9 @@ impl HttpServer {
 
         app
     }
-
-    pub async fn run(self) {
-        let app = self.app();
-
-        let addr = format!("0.0.0.0:{HTTP_SERVER_PORT}");
-        let listener = TcpListener::bind(&addr).await.unwrap();
-
-        println!(
-            "HTTP server listening on http://localhost:{HTTP_SERVER_PORT}"
-        );
-
-        axum::serve(listener, app).await.unwrap();
-    }
 }
 
+// Answer experiment
 async fn answer_choice_experiment( 
     State(state): State<HttpServer>,
     Json(payload): Json<Answer>
@@ -73,30 +100,37 @@ async fn answer_choice_experiment(
     "success"
 }
 
-async fn swap_preset_experiment(State(state): State<HttpServer>) {
+// Swap preset
+async fn swap_preset(State(http_server): State<HttpServer>) {
     println!("Got request to swap preset");
-    match state.swap_signal_sender.send(1).await{
-        Ok(_) => println!("Sent signal successfully"),
-        Err(e) => println!("{}", format!("Failed to send signal: {}", e.to_string()))
-    };
+
+    http_server
+        .event_sender
+        .send(UnityEvent::SwapPreset)
+        .await
+        .unwrap();
 }
 
-/// Get the current state
-async fn current_state(State(state): State<HttpServer>) -> Json<UnityState> {
-    Json(state.state.borrow().clone())
+// Get current state
+async fn current_state(State(http_server): State<HttpServer>) -> Json<UnityState> {
+    // Get the current state
+    let current_state = http_server.state.borrow().clone();
+
+    // Return the current state as JSON
+    Json(current_state)
 }
 
 /// Subscribe to state updates as an SSE stream
 async fn subscribe_state(
-    State(state): State<HttpServer>,
+    State(http_server): State<HttpServer>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    // Convert the watch channel to a stream
-    let stream = WatchStream::new(state.state);
-
     // Map the stream to SSE events with JSON data
-    let stream = stream
-        .map(|params| {
-            let params = serde_json::to_string(&params).unwrap();
+    let stream = http_server
+        .state
+        .into_stream()
+        .map(|unity_state| {
+            // Convert the UnityState to a JSON string
+            let params = serde_json::to_string(&unity_state).unwrap();
 
             Event::default().data(params)
         })
@@ -113,9 +147,12 @@ async fn subscribe_state(
 #[cfg(test)]
 mod tests {
     use eventsource_stream::Eventsource;
-    use tokio::net::TcpListener;
+    use tokio::{
+        net::TcpListener,
+        sync::{mpsc, watch},
+    };
 
-    use crate::structs::{Preset, UnityExperimentType};
+    use crate::structs::UnityExperimentType;
 
     use super::*;
 
@@ -137,15 +174,12 @@ mod tests {
     /// Test the `/state/current` endpoint, which should return the current state
     #[tokio::test]
     async fn test_current_state() {
-        // A watch MPMC channel for the state
-        let (_state_sender, state_receiver) = watch::channel(UnityState::Idle);
-        let (swap_signal_sender, _swap_signal_reciever) = mpsc::channel(10);
-        let (answer_sender, mut answer_reciever) = mpsc::channel(10);
+        let (_, unity_state_receiver) = watch::channel(UnityState::Idle);
+        let (unity_event_sender, _) = mpsc::channel(100);
 
         let http_server = HttpServer {
-            state: state_receiver,
-            swap_signal_sender,
-            answer_sender,
+            state: unity_state_receiver,
+            event_sender: unity_event_sender,
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -165,15 +199,12 @@ mod tests {
     /// Test the `/state/subscribe` endpoint, which should return a stream of state updates
     #[tokio::test]
     async fn test_subscribe_state() {
-        // A watch MPMC channel for the state
-        let (state_sender, state_receiver) = watch::channel(UnityState::Idle);
-        let (swap_signal_sender, _swap_signal_reciever) = mpsc::channel(10);
-        let (answer_sender, mut answer_reciever) = mpsc::channel(10);
+        let (unity_state_sender, unity_state_receiver) = watch::channel(UnityState::Idle);
+        let (unity_event_sender, _unity_event_reciever) = mpsc::channel(100);
 
         let http_server = HttpServer {
-            state: state_receiver,
-            swap_signal_sender,
-            answer_sender
+            state: unity_state_receiver,
+            event_sender: unity_event_sender,
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -197,34 +228,30 @@ mod tests {
 
         // Send a live state, check if the event stream receives it
         let live = UnityState::Live {
-            parameters: RenderParamsInner {
+            parameters: RenderParameters {
                 hue: 0.5,
                 smoothness: 0.5,
                 metallic: 0.5,
                 emission: 0.5,
             },
         };
-        state_sender.send(live.clone()).unwrap();
-
+        unity_state_sender.send(live.clone()).unwrap();
         assert_eq!(get_next_state().await, live);
 
         // Send an experiment state, check if the event stream receives it
         let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
                 experiment_type: UnityExperimentType::Choice,
-                preset: Preset {
-                    name: String::from("smoothish"),
-                    parameters: RenderParamsInner {
-                        hue: 0.5,
-                        smoothness: 0.5,
-                        metallic: 0.5,
-                        emission: 0.5,
-                    }
+                parameters: RenderParameters {
+                    hue: 0.5,
+                    smoothness: 0.5,
+                    metallic: 0.5,
+                    emission: 0.5,
                 },
             },
         };
-        state_sender.send(experiment.clone()).unwrap();
 
+        unity_state_sender.send(experiment.clone()).unwrap();
         assert_eq!(get_next_state().await, experiment);
     }
 }
