@@ -2,12 +2,6 @@
 pub mod api;
 pub mod appdata;
 pub mod consts;
-<<<<<<< HEAD
-pub mod structs;
-
-use api::{commands, http_server};
-use appdata::AppData;
-=======
 pub mod extensions;
 pub mod structs;
 
@@ -15,7 +9,6 @@ use api::commands;
 use api::http_server::{HttpServer, UnityEvent};
 use appdata::{AppData, AppState};
 use consts::HTTP_SERVER_PORT;
->>>>>>> main
 
 use extensions::MpscReceiverExt;
 use futures::StreamExt;
@@ -25,8 +18,6 @@ use tokio::join;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
 
-<<<<<<< HEAD
-=======
 /// Runs the HTTP server, and also transforms the app state into a Unity state
 pub async fn http_server_task(
     listener: TcpListener,
@@ -128,7 +119,6 @@ async fn setup(app: AppHandle) {
     // );
 }
 
->>>>>>> main
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -138,37 +128,16 @@ pub fn run() {
             commands::get_param,
             commands::get_ip_address,
             commands::list_presets,
-<<<<<<< HEAD
             commands::get_preset,
             commands::create_preset,
             commands::get_experiment,
-=======
-            commands::retrieve_preset,
-            commands::list_experiments,
-            commands::retrieve_experiment,
->>>>>>> main
             commands::create_experiment,
             commands::list_experiments,
             commands::get_all_experiments,
             commands::start_experiment
         ])
         .setup(|app| {
-<<<<<<< HEAD
-            let (watch_sender, watch_receiver) = watch::channel(http_server::UnityState::Idle);
-
-            let http_server = http_server::HttpServer {
-                state: watch_receiver,
-            };
-
-            app.manage(AppData::new(watch_sender));
-
-            tauri::async_runtime::spawn(http_server.run());
-
-            // println!("{:?}", commands::start_experiment(app.handle().clone(), String::from("example-experiment-1"), 0, String::from("my note hihi")) );
-
-=======
             tauri::async_runtime::spawn(setup(app.handle().clone()));
->>>>>>> main
             Ok(())
         })
         .run(tauri::generate_context!())
