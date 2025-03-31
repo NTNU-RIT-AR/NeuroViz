@@ -13,6 +13,7 @@ import ExperimentsPage from "./pages/Experiments";
 import LiveViewPage from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
 import ResultsPage from "./pages/Results";
+a;
 
 export default function App() {
   return (
@@ -24,10 +25,7 @@ export default function App() {
             <Route path="/" element={<></>} />
             <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
             <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
-            <Route
-              path={ROUTE_EXPERIMENTS}
-              element={<ExperimentsPage />}
-            />
+            <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
             <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
           </Routes>
         </div>
