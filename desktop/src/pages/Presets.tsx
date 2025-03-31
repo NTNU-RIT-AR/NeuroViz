@@ -1,5 +1,4 @@
 // Load files from the folder
-
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { retrievePreset } from "../commands";
@@ -9,6 +8,9 @@ import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import styles from "./styles/Presets.module.css";
 import Button from "../components/Button.tsx";
+
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline"
+
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -26,14 +28,14 @@ function Preset({ name }: PresetProps) {
       <p>{name} </p>
       <button className="delete">delete</button>
 
-      <button className="test">test</button>
+      <button className="test"></button>
     </div>
   );
 }
 
 // Delete a file
 // async function deleteFile(fileName: string) {
-//   await invoke('delete_file')
+//   await invoke('delete_file', {name: filename})
 // }
 
 type presetElementProps = {
@@ -42,12 +44,18 @@ type presetElementProps = {
 };
 
 function PresetElement({ name, onSelect }: presetElementProps) {
+
+
   return (
-    <div className={styles.presetElement}>
+    <div className={styles.presetElement} onClick={onSelect}>
       <p>{name}</p>
       <div className={styles.buttonsContainer}>
-        <Button onClick={onSelect}>Select</Button>
-        <Button></Button>
+        <Button onClick={onSelect} square={true}>
+          <EyeIcon className="icon" />
+        </Button>
+        <Button square={true}>
+          <TrashIcon className={`icon ${styles.trashIcon}`} />
+        </Button>
       </div>
     </div>
   );
@@ -74,6 +82,7 @@ export default function PresetsPage() {
             <PresetElement
               name={file}
               onSelect={() => {
+                invoke("get_preset")
                 retrievePreset(file).then((result) =>
                   setSelectedPreset(result)
                 );

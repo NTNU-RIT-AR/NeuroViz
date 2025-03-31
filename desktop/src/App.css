@@ -16,12 +16,13 @@
   --primary-bg: #49267925;
 
   --primary-hl-hover: rgba(var(--primary-hl), 0.5);
+  --bg: #17171e;
 
   --white: #f9f9f9;
 
   color: #eeeeee;
   /*text: #f9f9f9;*/
-  background-color: #17171e;
+  background-color: var(--bg);
 
   --spacing: 20px;
 }
@@ -89,3 +90,12 @@ a {
 }
 
 /* (Reset) end */
+
+.icon {
+  max-width: 100px;
+  max-height: 100px;
+  width: 100%;
+  height: 100%;
+  color: var(--white);
+
+}

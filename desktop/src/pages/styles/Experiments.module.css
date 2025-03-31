@@ -16,21 +16,20 @@
   border: solid var(--primary-hl) 2px;
   background-color: var(--primary-bg);
   border-radius: 10px;
-  cursor: pointer;
 
   text-align: left;
   display: flex;
   flex-direction: column;
   justify-content: center;
-
+  transition-duration: 0.4s;
+  z-index: 2;
 }
-
 
 .experimentCardTitle,
 .experimentCardContent,
 .experimentCardBottom {
   width: 100%;
-  padding: 20px;
+  padding-left: 20px;
 }
 
 .experimentCardTitle {
@@ -49,5 +48,9 @@
 }
 
 .experimentCardBottom {
-  height: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 10px;
+  padding: 10px;
 }
