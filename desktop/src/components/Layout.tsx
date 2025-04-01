@@ -1,8 +1,10 @@
+import classNames from "classnames";
 import styles from "./styles/Layout.module.css";
 
 interface LayoutProps {
   title: string;
   scrollable?: boolean;
+  className?: string;
   children: React.ReactNode;
   toolbar?: React.ReactNode;
 }
@@ -10,6 +12,7 @@ interface LayoutProps {
 export function Layout({
   title,
   scrollable = false,
+  className,
   children,
   toolbar,
 }: LayoutProps) {
@@ -21,11 +24,12 @@ export function Layout({
           <div className={styles.toolbar}>{toolbar && toolbar}</div>
         </div>
         <div
-          className={
+          className={classNames(
             scrollable
               ? styles.contentContainerScrollable
-              : styles.contentContainer
-          }
+              : styles.contentContainer,
+            className
+          )}
         >
           {children}
         </div>

@@ -2,8 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { Layout } from "../components/Layout";
 
-import { EyeIcon } from "@heroicons/react/24/outline";
-import { TrashIcon } from "@heroicons/react/24/solid";
+import { EyeIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Button from "../components/Button";
 import Popup from "../components/Popup";
 import styles from "./styles/Experiments.module.css";
@@ -51,6 +50,9 @@ function ExperimentCard({ data }: ExperimentCardProps) {
           <Button square={true}>
             <TrashIcon />
           </Button>
+          <Button square={true}>
+            <PlayIcon />
+          </Button>{" "}
         </div>
       </div>
 

@@ -45,54 +45,48 @@ impl Parameter {
     }
 }
 
-pub type ParameterValues = HashMap<ParameterKey, f32>;
-
-pub fn create_parameter_values(
-    hue: f32,
-    smoothness: f32,
-    metallic: f32,
-    emission: f32,
-) -> ParameterValues {
-    HashMap::from_iter([
-        (ParameterKey::Hue, hue),
-        (ParameterKey::Smoothness, smoothness),
-        (ParameterKey::Metallic, metallic),
-        (ParameterKey::Emission, emission),
-    ])
+#[derive(Deserialize, Serialize, Type, Default, Clone, Debug, PartialEq)]
+pub struct ParameterValues {
+    pub hue: f32,
+    pub smoothness: f32,
+    pub metallic: f32,
+    pub emission: f32,
 }
 
-// #[derive(Serialize, Deserialize, Type, Clone, Debug, Default, PartialEq)]
-// pub struct ParameterValues {
-//     pub hue: f32,
-//     pub smoothness: f32,
-//     pub metallic: f32,
-//     pub emission: f32,
-// }
+impl ParameterValues {
+    pub fn get(&self, param: ParameterKey) -> f32 {
+        match param {
+            ParameterKey::Hue => self.hue,
+            ParameterKey::Smoothness => self.smoothness,
+            ParameterKey::Metallic => self.metallic,
+            ParameterKey::Emission => self.emission,
+        }
+    }
 
-// impl ParameterValues {
-//     pub fn get(&self, param: ParameterKey) -> f32 {
-//         match param {
-//             ParameterKey::Hue => self.hue,
-//             ParameterKey::Smoothness => self.smoothness,
-//             ParameterKey::Metallic => self.metallic,
-//             ParameterKey::Emission => self.emission,
-//         }
-//     }
-//
-//     pub fn set(&mut self, param: ParameterKey, value: f32) {
-//         match param {
-//             ParameterKey::Hue => self.hue = value,
-//             ParameterKey::Smoothness => self.smoothness = value,
-//             ParameterKey::Metallic => self.metallic = value,
-//             ParameterKey::Emission => self.emission = value,
-//         }
-//     }
-// }
+    pub fn set(&mut self, param: ParameterKey, value: f32) {
+        match param {
+            ParameterKey::Hue => self.hue = value,
+            ParameterKey::Smoothness => self.smoothness = value,
+            ParameterKey::Metallic => self.metallic = value,
+            ParameterKey::Emission => self.emission = value,
+        }
+    }
+}
 
 #[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct Choice {
     pub a: String,
     pub b: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
+#[serde(tag = "experiment_type")]
+pub enum ExperimentAnswer {
+    #[serde(rename = "choice")]
+    Choice,
+
+    #[serde(rename = "rating")]
+    Rating { value: u8 },
 }
 
 #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
@@ -206,9 +200,5 @@ impl ExperimentResult {
             note,
             presets: experiment.presets.clone(),
         }
-    }
-
-    pub fn save() {
-        //TODO lagre ExperimentResult til fil
     }
 }

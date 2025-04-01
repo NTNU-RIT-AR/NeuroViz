@@ -1,16 +1,15 @@
+import { useEffect, useState } from "react";
 import Select from "react-select";
-import { ContentBox } from "../components/ContentBox";
-import { Layout } from "../components/Layout";
-import SliderCollection from "../components/SliderCollection";
-import { useEffect, useMemo, useState } from "react";
-import { capitalizeFirstLetter } from "../utils";
-import Slider from "../components/Slider";
-import { Parameter, ParameterWithValue } from "../interfaces";
 import { useImmer } from "use-immer";
 import { commands, Preset } from "../bindings.gen";
 import Button from "../components/Button";
-import styles from "./styles/LiveView.module.css";
+import { ContentBox } from "../components/ContentBox";
+import { Layout } from "../components/Layout";
 import Popup from "../components/Popup";
+import SliderCollection from "../components/SliderCollection";
+import { ParameterWithValue } from "../interfaces";
+import { capitalizeFirstLetter } from "../utils";
+import styles from "./styles/LiveView.module.css";
 
 function usePresetKeys(): string[] {
   const [presetKeys, setPresets] = useState<string[]>([]);
@@ -70,7 +69,7 @@ export default function LiveViewPage() {
     if (preset) {
       setParameters((parameters) => {
         for (const parameter of parameters) {
-          parameter.value = preset.parameters[parameter.key]!;
+          parameter.value = preset.parameters[parameter.key];
         }
       });
     }

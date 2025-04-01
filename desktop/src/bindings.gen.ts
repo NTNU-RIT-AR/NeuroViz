@@ -5,6 +5,9 @@
 
 
 export const commands = {
+async currentState() : Promise<AppState> {
+    return await TAURI_INVOKE("current_state");
+},
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
@@ -70,6 +73,24 @@ async getAllExperiments() : Promise<Experiment[]> {
 },
 async startExperiment(sluggedExperimentName: string, obeserverId: number, note: string) : Promise<null> {
     return await TAURI_INVOKE("start_experiment", { sluggedExperimentName, obeserverId, note });
+},
+/**
+ * Exit the current experiment early
+ */
+async exitExperiment() : Promise<void> {
+    await TAURI_INVOKE("exit_experiment");
+},
+/**
+ * Answer the current experiment prompt
+ */
+async answerExperiment(answer: ExperimentAnswer) : Promise<null> {
+    return await TAURI_INVOKE("answer_experiment", { answer });
+},
+/**
+ * Swap the current preset in the experiment
+ */
+async swapPreset() : Promise<null> {
+    return await TAURI_INVOKE("swap_preset");
 }
 }
 
@@ -90,7 +111,7 @@ stateEvent: "state-event"
 
 /** user-defined types **/
 
-export type AppState = { LiveView: Partial<{ [key in ParameterKey]: number }> } | { Experiment: ExperimentState }
+export type AppState = ({ kind: "live_view" } & ParameterValues) | ({ kind: "experiment" } & ExperimentState)
 export type Choice = { a: string; b: string }
 export type ConnectionEvent = { is_connected: boolean }
 export type CreateExperiment = (
@@ -112,13 +133,15 @@ export type Experiment = (
  * Choose between two options
  */
 { experiment_type: "choice"; choices: Choice[] }) & { name: string; presets: Partial<{ [key in string]: Preset }> }
+export type ExperimentAnswer = { experiment_type: "choice" } | { experiment_type: "rating"; value: number }
 export type ExperimentResult = ({ experiment_type: "rating"; ratings: OutcomeRating[] } | { experiment_type: "choice"; choices: OutcomeChoice[] }) & { name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }
 export type ExperimentState = { experiment: Experiment; experiment_result: ExperimentResult; current_index: number; choice_current_preset: CurrentPreset }
 export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }
 export type OutcomeRating = { preset: string; rank: number; time: string; duration: number }
 export type Parameter = { key: ParameterKey; name: string }
 export type ParameterKey = "hue" | "smoothness" | "metallic" | "emission"
-export type Preset = { name: string; parameters: Partial<{ [key in ParameterKey]: number }> }
+export type ParameterValues = { hue: number; smoothness: number; metallic: number; emission: number }
+export type Preset = { name: string; parameters: ParameterValues }
 export type StateEvent = { state: AppState }
 
 /** tauri-specta globals **/

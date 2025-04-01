@@ -1,15 +1,14 @@
 // Load files from the folder
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
+import { useImmer } from "use-immer";
+import { commands, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
-import styles from "./styles/Presets.module.css";
-import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import SliderCollection from "../components/SliderCollection.tsx";
-import { commands, type Preset } from "../bindings.gen.ts";
-import { useImmer } from "use-immer";
 import { ParameterWithValue } from "../interfaces.ts";
+import styles from "./styles/Presets.module.css";
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -62,7 +61,7 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
-    undefined,
+    undefined
   );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 

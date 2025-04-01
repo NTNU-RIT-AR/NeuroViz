@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import styles from "./styles/Button.module.css";
 
 type Variant = "primary" | "secondary" | "danger";
@@ -24,11 +25,11 @@ export default function Button({
   return (
     <button
       onClick={onClick}
-      className={`
-        ${styles.button} 
-        ${square ? styles.square : " "}
-      `}
-      // ${styleVariant[variant]}
+      className={classNames(
+        styles.button,
+        square && styles.square,
+        styleVariant[variant]
+      )}
     >
       {children}
     </button>

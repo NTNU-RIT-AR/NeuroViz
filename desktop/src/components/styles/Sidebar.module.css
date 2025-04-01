@@ -1,12 +1,11 @@
 .Sidebar {
-
   display: flex;
   flex-direction: column;
   justify-content: start;
 
   border-right: 1px solid var(--line);
 
-  padding: 20px
+  padding: 20px;
 }
 
 nav {
@@ -16,8 +15,7 @@ nav {
   margin-top: 12vh;
 }
 
-
-nav>.Link {
+nav > .Link {
   color: var(--text);
   font-size: 1.2rem;
 
@@ -28,10 +26,12 @@ nav>.Link {
 
   outline: none;
   vertical-align: middle;
-  transition-duration: .1s;
-}
+  transition-duration: 0.1s;
 
-.active {
-  background-color: var(--primary-bg);
-  border: solid 1.5px var(--primary-hl);
+  border: solid 1.5px rgba(0, 0, 0, 0);
+
+  &.active {
+    background-color: var(--primary-bg);
+    border: solid 1.5px var(--primary-hl);
+  }
 }

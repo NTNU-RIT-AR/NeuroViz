@@ -1,6 +1,6 @@
 {
-  "experiment_type": "rating",
-  "name": "Example experiment 2",
+  "experiment_type": "choice",
+  "name": "Example 1",
   "presets": {
     "smoothish": {
       "name": "Smoothish",
@@ -39,5 +39,18 @@
       }
     }
   },
-  "order": ["smoothish", "high-emission", "metal-looking", "very-hue"]
+  "choices": [
+    {
+      "a": "smoothish",
+      "b": "high-emission"
+    },
+    {
+      "a": "very-hue",
+      "b": "smoothish"
+    },
+    {
+      "a": "high-emission",
+      "b": "very-hue"
+    }
+  ]
 }

@@ -1,6 +1,7 @@
 # cargo-features = ["codegen-backend"]
 [package]
 name = "min-tauri-app"
+default-run = "min-tauri-app"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
@@ -39,6 +40,7 @@ futures-signals = "0.3.34"
 specta = { version = "=2.0.0-rc.22", features = ["chrono"] }
 specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+async-stream = "0.3.6"
 
 # [profile.dev]
 # debug = 0

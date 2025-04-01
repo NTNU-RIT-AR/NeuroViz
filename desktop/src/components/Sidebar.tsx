@@ -34,20 +34,14 @@ export default function Sidebar() {
   const [deviceConnected, setDeviceConnected] = useState<boolean>(false);
   const [ipAddress, setIpAddress] = useState<string>("");
 
+  console.log(deviceConnected);
+
   useEffect(() => {
     const connectionEventListener = events.connectionEvent.listen((event) => {
       setDeviceConnected(event.payload.is_connected);
     });
 
-    async function getIp() {
-      const ipAddress = await commands.getIpAddress();
-      console.log("ip address is ", ipAddress);
-
-      if (ipAddress !== "") {
-        setIpAddress(ipAddress);
-      }
-    }
-    getIp();
+    commands.getIpAddress().then(setIpAddress);
 
     return () => {
       //Remove event listeners
@@ -64,13 +58,13 @@ export default function Sidebar() {
 
   return (
     <div className={styles.Sidebar}>
-      {ipAddress !== "" && (
+      {
         <ConnectionBox
           // url={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
           qrText={JSON.stringify(qrPayload)}
           isConnected={deviceConnected}
         />
-      )}
+      }
       <nav>
         <SidebarLink to={ROUTE_LIVE_VIEW}>Live View</SidebarLink>
         <SidebarLink to={ROUTE_PRESETS}>Presets</SidebarLink>

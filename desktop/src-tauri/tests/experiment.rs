@@ -2,10 +2,12 @@ use std::collections::HashMap;
 
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
+use futures_signals::signal::Mutable;
 use min_tauri_app_lib::{
     api::http_server::{UnityEvent, UnityState},
     appdata::{AppData, AppState, ExperimentState},
-    handle_unity_events_task, http_server_task,
+    extensions::MpscReceiverExt,
+    http_server_task,
     structs::{
         create_parameter_values, Choice, CurrentPreset, Experiment, ExperimentResult,
         ExperimentType, ParameterValues, Preset,
@@ -25,6 +27,28 @@ async fn listener_random_port() -> (TcpListener, String) {
     let listening_url = format!("http://127.0.0.1:{port}");
 
     (listener, listening_url)
+}
+
+/// Task to handle Unity events, will receive events from Unity and update the app state accordingly
+pub async fn handle_unity_events_task(
+    app_state: Mutable<AppState>,
+    unity_event_receiver: mpsc::Receiver<UnityEvent>,
+) {
+    let mut stream = unity_event_receiver.into_stream();
+
+    while let Some(event) = stream.next().await {
+        let mut app_state = app_state.lock_mut();
+        let Some(experiment) = app_state.try_as_experiment_mut() else {
+            // If not in experiment state, ignore the event
+            continue;
+        };
+
+        match event {
+            UnityEvent::SwapPreset => experiment.swap_current_preset(),
+            UnityEvent::Answer(experiment_answer) => experiment.answer(experiment_answer),
+            UnityEvent::Connection { .. } => {}
+        }
+    }
 }
 
 /// Integration test for the experiment functionality, tests the AppData and HTTP server integrated
