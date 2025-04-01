@@ -1,15 +1,6 @@
 interface Parameter {
   key: string,
   name: string,
-  value: number,
-}
-
-
-interface Parameters {
-  hue: number;
-  smoothness: number;
-  metallic: number;
-  emission: number;
 }
 
 interface Choice {
@@ -36,4 +27,4 @@ type Experiment =
   };
 
 // enum Parameter =
-export type { Parameters, Preset, Experiment };
+export type { Parameter, Preset, Experiment };

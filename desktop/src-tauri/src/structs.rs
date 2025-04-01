@@ -3,37 +3,67 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq)]
-pub enum RenderParameter {
+pub enum ParameterKey {
     Hue,
     Smoothness,
     Metallic,
     Emission,
 }
 
+#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
+pub struct Parameter {
+    key: ParameterKey,
+    name: String,
+}
+
+impl Parameter {
+    pub fn all() -> Vec<Parameter> {
+        [
+            Parameter {
+                key: ParameterKey::Hue,
+                name: "Hue".to_owned(),
+            },
+            Parameter {
+                key: ParameterKey::Smoothness,
+                name: "Smoothness".to_owned(),
+            },
+            Parameter {
+                key: ParameterKey::Metallic,
+                name: "Metallic".to_owned(),
+            },
+            Parameter {
+                key: ParameterKey::Emission,
+                name: "Emission".to_owned(),
+            },
+        ]
+        .to_vec()
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
-pub struct RenderParameters {
+pub struct ParameterValues {
     pub hue: f32,
     pub smoothness: f32,
     pub metallic: f32,
     pub emission: f32,
 }
 
-impl RenderParameters {
-    pub fn get(&self, param: RenderParameter) -> f32 {
+impl ParameterValues {
+    pub fn get(&self, param: ParameterKey) -> f32 {
         match param {
-            RenderParameter::Hue => self.hue,
-            RenderParameter::Smoothness => self.smoothness,
-            RenderParameter::Metallic => self.metallic,
-            RenderParameter::Emission => self.emission,
+            ParameterKey::Hue => self.hue,
+            ParameterKey::Smoothness => self.smoothness,
+            ParameterKey::Metallic => self.metallic,
+            ParameterKey::Emission => self.emission,
         }
     }
 
-    pub fn set(&mut self, param: RenderParameter, value: f32) {
+    pub fn set(&mut self, param: ParameterKey, value: f32) {
         match param {
-            RenderParameter::Hue => self.hue = value,
-            RenderParameter::Smoothness => self.smoothness = value,
-            RenderParameter::Metallic => self.metallic = value,
-            RenderParameter::Emission => self.emission = value,
+            ParameterKey::Hue => self.hue = value,
+            ParameterKey::Smoothness => self.smoothness = value,
+            ParameterKey::Metallic => self.metallic = value,
+            ParameterKey::Emission => self.emission = value,
         }
     }
 }
@@ -47,7 +77,7 @@ pub struct Choice {
 #[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
 pub struct Preset {
     pub name: String,
-    pub parameters: RenderParameters,
+    pub parameters: ParameterValues,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -92,7 +122,7 @@ pub enum UnityExperimentType {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ExperimentPrompt {
     pub experiment_type: UnityExperimentType,
-    pub parameters: RenderParameters,
+    pub parameters: ParameterValues,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

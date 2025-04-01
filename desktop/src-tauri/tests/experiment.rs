@@ -7,8 +7,8 @@ use min_tauri_app_lib::{
     appdata::{AppData, AppState, ExperimentState},
     handle_unity_events_task, http_server_task,
     structs::{
-        Choice, CurrentPreset, Experiment, ExperimentResult, ExperimentType, Preset,
-        RenderParameters,
+        Choice, CurrentPreset, Experiment, ExperimentResult, ExperimentType, ParameterValues,
+        Preset,
     },
 };
 use tokio::{join, net::TcpListener, sync::mpsc};
@@ -64,14 +64,14 @@ async fn experiment_integration_test() {
     // Check if the initial state is sent
     assert_eq!(get_next_state().await, app_data.state.get_cloned().into());
 
-    let parameters_1 = RenderParameters {
+    let parameters_1 = ParameterValues {
         hue: 0.2,
         smoothness: 0.5,
         metallic: 0.5,
         emission: 0.5,
     };
 
-    let parameters_2 = RenderParameters {
+    let parameters_2 = ParameterValues {
         hue: 0.8,
         smoothness: 0.5,
         metallic: 0.5,

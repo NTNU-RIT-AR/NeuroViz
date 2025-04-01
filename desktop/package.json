@@ -14,12 +14,14 @@
     "@tauri-apps/api": "^2.3.0",
     "@tauri-apps/plugin-opener": "^2",
     "classnames": "^2.5.1",
+    "immer": "^10.1.1",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-qr-code": "^2.0.15",
     "react-router-dom": "^7.2.0",
     "react-select": "^5.10.1",
+    "use-immer": "^0.11.0",
     "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {

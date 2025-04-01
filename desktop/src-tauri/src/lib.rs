@@ -124,15 +124,20 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
-            commands::set_param,
-            commands::get_param,
             commands::get_ip_address,
-            commands::list_presets,
+            //
+            commands::get_parameters,
+            //
+            commands::set_live_parameter,
+            commands::get_live_parameter,
+            //
             commands::get_preset,
+            commands::list_presets,
             commands::create_preset,
+            //
             commands::get_experiment,
-            commands::create_experiment,
             commands::list_experiments,
+            commands::create_experiment,
             commands::get_all_experiments,
             commands::start_experiment
         ])

@@ -7,28 +7,11 @@ type SliderProps = {
   name: string;
   min: number;
   max: number;
+  value: number;
+  onChange: (value: number) => void
 };
 
-// TODO make Slider dummy component?
-export default function Slider({ name, min, max }: SliderProps) {
-  const [value, setValue] = useState(0.0);
-
-  useEffect(() => {
-    try {
-      invoke<number>("get_param", { parameter: name }).then(setValue);
-    } catch (e) {
-      console.log("get_param error: ", e);
-    }
-  }, []);
-
-  const handleChange = (newValue: number) => {
-    setValue(newValue);
-    try {
-      invoke("set_param", { parameter: name, value: newValue });
-    } catch (e) {
-      console.log("set_param error: ", e);
-    }
-  };
+export default function Slider({ name, min, max, value, onChange, }: SliderProps) {
 
   return (
     <div className={styles.mainContainer}>
@@ -40,11 +23,9 @@ export default function Slider({ name, min, max }: SliderProps) {
           max={max}
           step={(max - min) / 100}
           value={value}
-          onChange={(e) => {
-            handleChange(
-              Math.min(Math.max(parseFloat(e.target.value), min), max)
-            );
-          }}
+          onChange={
+            (e) => onChange(Math.min(Math.max(parseFloat(e.target.value), min), max))
+          }
         />
       </div>
       <div>
@@ -55,7 +36,7 @@ export default function Slider({ name, min, max }: SliderProps) {
           max={max}
           step={(max - min) / 100}
           value={value}
-          onChange={(e) => handleChange(parseFloat(e.target.value))}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
         />
       </div>
       <div className={styles.minMaxContainer}>

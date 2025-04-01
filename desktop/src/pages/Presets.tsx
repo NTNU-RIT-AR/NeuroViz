@@ -2,7 +2,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { retrievePreset } from "../commands";
-import { type Parameters, type Preset } from "../interfaces";
+import { type Parameter, type Preset } from "../interfaces";
 
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
@@ -10,6 +10,7 @@ import styles from "./styles/Presets.module.css";
 import Button from "../components/Button.tsx";
 
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline"
+import SliderCollection from "../components/SliderCollection.tsx";
 
 
 async function fetchFiles(): Promise<string[]> {
@@ -82,17 +83,21 @@ export default function PresetsPage() {
             <PresetElement
               name={file}
               onSelect={() => {
-                invoke("get_preset")
-                retrievePreset(file).then((result) =>
-                  setSelectedPreset(result)
-                );
+                invoke<Preset>("get_preset").then(setPreset)
               }}
             />
           ))}
         </ContentBox>
 
         {/* TODO: Show as sliders */}
-        <ContentBox>{selectedPreset}</ContentBox>
+        <ContentBox>
+          {/* {selectedPreset} */}
+          {
+            preset &&
+            <SliderCollection parameters={preset.parameters} />
+          }
+
+        </ContentBox>
       </Layout>
     </>
   );

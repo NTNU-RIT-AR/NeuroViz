@@ -4,36 +4,14 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use dirs;
+use serde::de::DeserializeOwned;
 use serde::Serialize;
 
 use crate::consts::Folder;
 
-use serde::de::DeserializeOwned;
-
-pub fn parse_from_json_file<T>(slugged_name: String, folder: Folder) -> Result<T, String>
-where
-    T: DeserializeOwned,
-{
-    let file_content = match read_from_json_file(folder, format!("{}.json", slugged_name)) {
-        Ok(content) => content,
-        Err(e) => return Err(e),
-    };
-
-    let parsed: T = match serde_json::from_str(&file_content) {
-        Ok(p) => p,
-        Err(e) => return Err(format!("Could not parse JSON file: {}", e)),
-    };
-
-    Ok(parsed)
-}
-
 pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
     //let mut path = env::current_exe().ok()?;
     //path.push("data");
-
-    // Linux    ~/.local/share/xreal_control
-    // macOS    ~/Library/Application Support\xreal_control
-    // Windows  C:\Users\Alice\AppData\Roaming\xreal_control
 
     let mut path;
 
@@ -113,4 +91,21 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
         return Err(format!("Folder does not exist"));
     }
     Ok(list)
+}
+
+pub fn parse_from_json_file<T>(slugged_name: String, folder: Folder) -> Result<T, String>
+where
+    T: DeserializeOwned,
+{
+    let file_content = match read_from_json_file(folder, format!("{}.json", slugged_name)) {
+        Ok(content) => content,
+        Err(e) => return Err(e),
+    };
+
+    let parsed: T = match serde_json::from_str(&file_content) {
+        Ok(p) => p,
+        Err(e) => return Err(format!("Could not parse JSON file: {}", e)),
+    };
+
+    Ok(parsed)
 }
