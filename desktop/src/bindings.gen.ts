@@ -63,6 +63,14 @@ async createPreset(presetName: string) : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async deletePreset(sluggedName: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_preset", { sluggedName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 /**
  * Retrieve a preset
  */
