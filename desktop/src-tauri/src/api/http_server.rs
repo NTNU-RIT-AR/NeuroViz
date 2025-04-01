@@ -16,7 +16,7 @@ use crate::{
     appdata::AppState,
     extensions::WatchReceiverExt,
     structs::{
-        ExperimentAnswer, ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType,
+        ExperimentAnswer, ExperimentPrompt, ExperimentType, ParameterValues, UnityExperimentType,
     },
 };
 
@@ -27,7 +27,7 @@ pub enum UnityState {
     Idle,
 
     #[serde(rename = "live")]
-    Live { parameters: RenderParameters },
+    Live { parameters: ParameterValues },
 
     #[serde(rename = "experiment")]
     Experiment { prompt: ExperimentPrompt },
@@ -173,8 +173,6 @@ mod tests {
         sync::{mpsc, watch},
     };
 
-    use crate::structs::UnityExperimentType;
-
     use super::*;
 
     // A helper function that spawns our axum application in the background
@@ -249,7 +247,7 @@ mod tests {
 
         // Send a live state, check if the event stream receives it
         let live = UnityState::Live {
-            parameters: RenderParameters {
+            parameters: ParameterValues {
                 hue: 0.5,
                 smoothness: 0.5,
                 metallic: 0.5,
@@ -263,7 +261,7 @@ mod tests {
         let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
                 experiment_type: UnityExperimentType::Choice,
-                parameters: RenderParameters {
+                parameters: ParameterValues {
                     hue: 0.5,
                     smoothness: 0.5,
                     metallic: 0.5,

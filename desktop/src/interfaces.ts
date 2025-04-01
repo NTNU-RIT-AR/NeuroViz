@@ -1,40 +1,43 @@
-import { Preset } from "./bindings.gen";
+import { ParameterKey, Preset } from "./bindings.gen";
 
-interface Parameter {
-  key: string;
-  name: string;
-  value: number;
+
+export interface Parameter {
+  key: ParameterKey,
+  name: string,
 }
 
-interface Parameters {
+export interface ParameterWithValue extends Parameter {
+  value: number
+}
+
+export interface Parameters {
   hue: number;
   smoothness: number;
   metallic: number;
   emission: number;
 }
 
-interface Choice {
+export interface Choice {
   a: string;
   b: string;
 }
 
-type Experiment =
+export type Experiment =
   | {
-      experiment_type: "choice";
-      name: string;
-      presets: Record<string, Preset>;
-      choices: Choice[];
-    }
+    experiment_type: "choice";
+    name: string;
+    presets: Record<string, Preset>;
+    choices: Choice[];
+  }
   | {
-      experiment_type: "rating";
-      name: string;
-      presets: Record<string, Preset>;
-    };
+    experiment_type: "rating";
+    name: string;
+    presets: Record<string, Preset>;
+  };
 
-interface QrPayload {
+export interface QrPayload {
   ip: string;
   port: number;
   secret: string;
 }
 
-export type { Experiment, Parameters, Preset, QrPayload };

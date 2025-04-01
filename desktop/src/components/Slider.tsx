@@ -1,36 +1,20 @@
-import { useEffect, useState } from "react";
-
-import { commands } from "../bindings.gen";
 import styles from "./styles/ParameterSlider.module.css";
 
 type SliderProps = {
   name: string;
   min: number;
   max: number;
+  value: number;
+  onChange: (value: number) => void;
 };
 
-// TODO make Slider dummy component?
-export default function Slider({ name, min, max }: SliderProps) {
-  const [value, setValue] = useState(0.0);
-
-  useEffect(() => {
-    // TODO remove as any
-    commands.getParam(name as any).then((response) => {
-      if (response.status === "ok") {
-        setValue(response.data);
-      } else {
-        console.error("Error fetching parameter value: ", response.error);
-      }
-    });
-  }, []);
-
-  const handleChange = (newValue: number) => {
-    setValue(newValue);
-
-    // TODO remove as any
-    commands.setParam(name as any, newValue);
-  };
-
+export default function Slider({
+  name,
+  min,
+  max,
+  value,
+  onChange,
+}: SliderProps) {
   return (
     <div className={styles.mainContainer}>
       <div className={styles.numberNameContainer}>
@@ -41,11 +25,9 @@ export default function Slider({ name, min, max }: SliderProps) {
           max={max}
           step={(max - min) / 100}
           value={value}
-          onChange={(e) => {
-            handleChange(
-              Math.min(Math.max(parseFloat(e.target.value), min), max)
-            );
-          }}
+          onChange={(e) =>
+            onChange(Math.min(Math.max(parseFloat(e.target.value), min), max))
+          }
         />
       </div>
       <div>
@@ -56,7 +38,7 @@ export default function Slider({ name, min, max }: SliderProps) {
           max={max}
           step={(max - min) / 100}
           value={value}
-          onChange={(e) => handleChange(parseFloat(e.target.value))}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
         />
       </div>
       <div className={styles.minMaxContainer}>

@@ -17,8 +17,9 @@ use extensions::MpscReceiverExt;
 use futures::StreamExt;
 use futures_signals::signal::{Mutable, ReadOnlyMutable, SignalExt};
 use specta_typescript::Typescript;
+use structs::ParameterValues;
 use tauri::{AppHandle, Manager};
-use tauri_specta::{collect_commands, collect_events, Event};
+use tauri_specta::{collect_commands, collect_events, ErrorHandlingMode, Event};
 use tokio::join;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
@@ -85,7 +86,7 @@ pub async fn handle_unity_events_task(
 async fn setup(app: AppHandle) {
     // Initialize app state
     // TODO: Maybe starting as idle would be better?
-    let app_data = AppData::new(AppState::LiveView(Default::default()));
+    let app_data = AppData::new(AppState::LiveView(ParameterValues::default()));
     app.manage(app_data.clone());
 
     // Channel for events from Unity
@@ -107,15 +108,15 @@ async fn setup(app: AppHandle) {
     let handle_unity_events =
         handle_unity_events_task(app.clone(), app_data.state.clone(), unity_event_receiver);
 
-    println!(
-        "{:?}",
-        commands::start_experiment(
-            app.clone(),
-            String::from("example-2"),
-            0,
-            String::from("my note hihi")
-        )
-    );
+    // println!(
+    //     "{:?}",
+    //     commands::start_experiment(
+    //         app.clone(),
+    //         String::from("example-2"),
+    //         0,
+    //         String::from("my note hihi")
+    //     )
+    // );
 
     // Tawsk to emit app state changes to the tauri frontend
     let emit_app_state = async move {
@@ -137,18 +138,23 @@ async fn setup(app: AppHandle) {
 
 pub fn tauri_commands() -> tauri_specta::Builder {
     tauri_specta::Builder::<tauri::Wry>::new()
+        .error_handling(ErrorHandlingMode::Throw)
         .commands(collect_commands![
             commands::current_state,
-            commands::set_param,
-            commands::get_param,
             commands::get_ip_address,
-            commands::list_presets,
+            //
+            commands::get_parameters,
+            //
+            commands::set_live_parameter,
+            commands::get_live_parameter,
+            //
             commands::get_preset,
+            commands::list_presets,
             commands::create_preset,
             commands::delete_preset,
             commands::get_experiment,
-            commands::create_experiment,
             commands::list_experiments,
+            commands::create_experiment,
             commands::get_all_experiments,
             commands::start_experiment,
             commands::exit_experiment,

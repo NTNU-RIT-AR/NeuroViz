@@ -1,20 +1,32 @@
+import { Parameter } from "../interfaces";
 import Slider from "./Slider";
 
 import styles from "./styles/SliderCollection.module.css";
 
-export default function SliderCollection() {
+export interface StateParameter extends Parameter {
+  onChange: (value: number) => void;
+  value: number;
+}
 
-  let params: string[] = ["Hue", "Smoothness", "Metallic", "Emission"];
+interface SliderCollectionProps {
+  parameters: StateParameter[];
+}
 
+export default function SliderCollection({
+  parameters,
+}: SliderCollectionProps) {
   return (
     <div className={styles.sliderCollection}>
-      {params.map((name) => (
+      {parameters.map((parameter) => (
         <Slider
-          name={name}
+          key={parameter.key}
+          name={parameter.name}
           min={0}
           max={1}
+          value={parameter.value}
+          onChange={parameter.onChange}
         ></Slider>
       ))}
     </div>
-  )
+  );
 }

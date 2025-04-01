@@ -3,7 +3,7 @@ use crate::{
     consts::Folder,
     structs::{
         CurrentPreset, Experiment, ExperimentAnswer, ExperimentResult, ExperimentResultType,
-        ExperimentType, OutcomeChoice, OutcomeRating, Preset, RenderParameters,
+        ExperimentType, OutcomeChoice, OutcomeRating, ParameterValues, Preset,
     },
 };
 use chrono::prelude::Local;
@@ -156,7 +156,7 @@ impl ExperimentState {
 #[serde(tag = "kind")]
 pub enum AppState {
     #[serde(rename = "live_view")]
-    LiveView(RenderParameters),
+    LiveView(ParameterValues),
     #[serde(rename = "experiment")]
     Experiment(ExperimentState),
 }
@@ -195,10 +195,7 @@ impl AppState {
                 result_name,
             )?;
 
-            *self = AppState::LiveView(RenderParameters {
-                // TODO Fikse med endringer fra oliver
-                ..Default::default()
-            });
+            *self = AppState::LiveView(ParameterValues::default());
         }
 
         Ok(())

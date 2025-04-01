@@ -6,9 +6,9 @@
   font-family: inherit;
   color: var(--white);
   background-color: #00000026;
-  transition: border-color 0.25s;
-
-  transition-duration: 0.3s;
+  transition:
+    border-color 0.25s,
+    transform 0.1s;
 
   cursor: pointer;
 }
