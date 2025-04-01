@@ -6,6 +6,10 @@ export interface Parameter {
   name: string,
 }
 
+export interface ParameterWithValue extends Parameter {
+  value: number
+}
+
 export interface Parameters {
   hue: number;
   smoothness: number;

@@ -8,6 +8,8 @@ import styles from "./styles/Presets.module.css";
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline"
 import SliderCollection from "../components/SliderCollection.tsx";
 import { commands, type Preset } from "../bindings.gen.ts";
+import { useImmer } from "use-immer";
+import { ParameterWithValue } from "../interfaces.ts";
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -66,6 +68,8 @@ export default function PresetsPage() {
   );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
+  const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
+
   useEffect(() => {
     commands.listPresets().then(setFiles);
   }, []);
@@ -96,10 +100,10 @@ export default function PresetsPage() {
         {/* TODO: Show as sliders */}
         <ContentBox>
           {/* {selectedPreset} */}
-          {
-            preset &&
-            <SliderCollection parameters={preset.parameters} />
-          }
+          {/* { */}
+          {/*   preset && */}
+          {/*   <SliderCollection parameters={preset.parameters} /> */}
+          {/* } */}
 
         </ContentBox>
       </Layout>

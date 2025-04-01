@@ -5,25 +5,42 @@ import SliderCollection from "../components/SliderCollection";
 import { useEffect, useMemo, useState } from "react";
 import { capitalizeFirstLetter } from "../utils";
 import Slider from "../components/Slider";
-import { Parameter } from "../interfaces";
+import { Parameter, ParameterWithValue } from "../interfaces";
 import { useImmer } from "use-immer"
-import { commands } from "../bindings.gen";
+import { commands, Preset } from "../bindings.gen";
 
-interface ParameterWithValue extends Parameter {
-  value: number
+function usePresetKeys(): string[] {
+  const [presetKeys, setPresets] = useState<string[]>([]);
+
+
+  useEffect(() => {
+    commands.listPresets().then(setPresets);
+  }, []);
+
+  return presetKeys
+}
+
+function usePreset(presetKey: string | undefined): Preset | undefined {
+  const [preset, setPreset] = useState<Preset | undefined>()
+
+  useEffect(() => {
+    if (presetKey) {
+      commands.getPreset(presetKey).then(setPreset);
+    }
+  }, [presetKey])
+
+
+  return preset
 }
 
 export default function LiveViewPage() {
-
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>();
-
-  const [presetKeys, setPresets] = useState<string[]>([]);
+  const presetKeys = usePresetKeys();
+  const [selectedPresetKey, setSelectedPresetKey] = useState<string | undefined>();
+  const preset = usePreset(selectedPresetKey);
 
   const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
 
   useEffect(() => {
-    commands.listPresets().then(setPresets);
-
     commands.getParameters().then(async (parameters) => {
       const promises = parameters.map(async (parameter) => {
         const liveParameter = await commands.getLiveParameter(parameter.key);
@@ -35,7 +52,6 @@ export default function LiveViewPage() {
 
       setParameters(await Promise.all(promises))
     });
-
   }, []);
 
   useEffect(() => {
@@ -45,19 +61,14 @@ export default function LiveViewPage() {
   }, [parameters])
 
   useEffect(() => {
-    if (selectedPreset) {
-      commands.getPreset(selectedPreset).then((preset) => {
-        console.log(selectedPreset);
-
-        setParameters((parameters) => {
-          for (const parameter of parameters) {
-            parameter.value = preset.parameters[parameter.key]!;
-          }
-        })
-      });
-
+    if (preset) {
+      setParameters((parameters) => {
+        for (const parameter of parameters) {
+          parameter.value = preset.parameters[parameter.key]!;
+        }
+      })
     }
-  }, [selectedPreset])
+  }, [preset])
 
 
   const sliderParameters = parameters.map(parameter => ({
@@ -95,7 +106,7 @@ export default function LiveViewPage() {
     <Layout title="Live View">
       <ContentBox>
 
-        <Select options={options} onChange={(option) => setSelectedPreset(option?.value)} />
+        <Select options={options} onChange={(option) => setSelectedPresetKey(option?.value)} />
 
         <SliderCollection parameters={sliderParameters} />
       </ContentBox>
