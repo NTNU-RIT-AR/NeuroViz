@@ -3,36 +3,33 @@ import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import SliderCollection from "../components/SliderCollection";
 import { useEffect, useMemo, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { capitalizeFirstLetter } from "../utils";
 import Slider from "../components/Slider";
 import { Parameter } from "../interfaces";
 import { useImmer } from "use-immer"
-
+import { commands } from "../bindings.gen";
 
 interface ParameterWithValue extends Parameter {
   value: number
 }
 
-
 export default function LiveViewPage() {
 
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>();
 
-  const [presets, setPresets] = useState<string[]>([]);
+  const [presetKeys, setPresets] = useState<string[]>([]);
 
   const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
 
   useEffect(() => {
-    invoke<string[]>("list_presets").then(setPresets);
+    commands.listPresets().then(setPresets);
 
-    invoke<Parameter[]>("get_parameters").then(async (parameters) => {
+    commands.getParameters().then(async (parameters) => {
       const promises = parameters.map(async (parameter) => {
-        const value = await invoke<number>("get_live_parameter", { parameter: parameter.key });
-
+        const liveParameter = await commands.getLiveParameter(parameter.key);
         return {
           ...parameter,
-          value
+          value: liveParameter
         }
       });
 
@@ -43,12 +40,27 @@ export default function LiveViewPage() {
 
   useEffect(() => {
     for (const parameter of parameters) {
-      invoke("set_live_param", { parameter: parameter.key, value: parameter.value })
+      commands.setLiveParameter(parameter.key, parameter.value);
     }
   }, [parameters])
 
+  useEffect(() => {
+    if (selectedPreset) {
+      commands.getPreset(selectedPreset).then((preset) => {
+        console.log(selectedPreset);
 
-  const parametersWithOnChange = parameters.map(parameter => ({
+        setParameters((parameters) => {
+          for (const parameter of parameters) {
+            parameter.value = preset.parameters[parameter.key]!;
+          }
+        })
+      });
+
+    }
+  }, [selectedPreset])
+
+
+  const sliderParameters = parameters.map(parameter => ({
     ...parameter,
 
     onChange(newValue: number) {
@@ -58,9 +70,9 @@ export default function LiveViewPage() {
     }
   }))
 
-  const options = presets.map((presetName: string) => ({
-    value: presetName,
-    label: capitalizeFirstLetter(presetName)
+  const options = presetKeys.map((presetKey: string) => ({
+    value: presetKey,
+    label: capitalizeFirstLetter(presetKey)
   }
   ));
 
@@ -85,7 +97,7 @@ export default function LiveViewPage() {
 
         <Select options={options} onChange={(option) => setSelectedPreset(option?.value)} />
 
-        <SliderCollection parameters={parametersWithOnChange} />
+        <SliderCollection parameters={sliderParameters} />
       </ContentBox>
     </Layout>
   );

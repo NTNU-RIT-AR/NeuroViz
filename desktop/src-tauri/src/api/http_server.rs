@@ -130,7 +130,7 @@ mod tests {
         sync::{mpsc, watch},
     };
 
-    use crate::structs::UnityExperimentType;
+    use crate::structs::{create_parameter_values, UnityExperimentType};
 
     use super::*;
 
@@ -206,12 +206,7 @@ mod tests {
 
         // Send a live state, check if the event stream receives it
         let live = UnityState::Live {
-            parameters: ParameterValues {
-                hue: 0.5,
-                smoothness: 0.5,
-                metallic: 0.5,
-                emission: 0.5,
-            },
+            parameters: create_parameter_values(0.5, 0.5, 0.5, 0.5),
         };
         unity_state_sender.send(live.clone()).unwrap();
         assert_eq!(get_next_state().await, live);
@@ -220,12 +215,7 @@ mod tests {
         let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
                 experiment_type: UnityExperimentType::Choice,
-                parameters: ParameterValues {
-                    hue: 0.5,
-                    smoothness: 0.5,
-                    metallic: 0.5,
-                    emission: 0.5,
-                },
+                parameters: create_parameter_values(0.5, 0.5, 0.5, 0.5),
             },
         };
 

@@ -15,8 +15,9 @@ use extensions::MpscReceiverExt;
 use futures::StreamExt;
 use futures_signals::signal::{Mutable, ReadOnlyMutable, SignalExt};
 use specta_typescript::Typescript;
+use structs::create_parameter_values;
 use tauri::{AppHandle, Manager};
-use tauri_specta::{collect_commands, collect_events, Event};
+use tauri_specta::{collect_commands, collect_events, ErrorHandlingMode, Event};
 use tokio::join;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
@@ -76,7 +77,7 @@ pub async fn handle_unity_events_task(
 async fn setup(app: AppHandle) {
     // Initialize app state
     // TODO: Maybe starting as idle would be better?
-    let app_data = AppData::new(AppState::LiveView(Default::default()));
+    let app_data = AppData::new(AppState::LiveView(create_parameter_values(0., 0., 0., 0.)));
     app.manage(app_data.clone());
 
     // Channel for events from Unity
@@ -129,6 +130,7 @@ async fn setup(app: AppHandle) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri_specta::Builder::<tauri::Wry>::new()
+        .error_handling(ErrorHandlingMode::Throw)
         .commands(collect_commands![
             commands::get_ip_address,
             //

@@ -3,11 +3,15 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::collections::HashMap;
 
-#[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq, Hash, Eq)]
 pub enum ParameterKey {
+    #[serde(rename = "hue")]
     Hue,
+    #[serde(rename = "smoothness")]
     Smoothness,
+    #[serde(rename = "metallic")]
     Metallic,
+    #[serde(rename = "emission")]
     Emission,
 }
 
@@ -41,33 +45,49 @@ impl Parameter {
     }
 }
 
-#[derive(Serialize, Deserialize, Type, Clone, Debug, Default, PartialEq)]
-pub struct ParameterValues {
-    pub hue: f32,
-    pub smoothness: f32,
-    pub metallic: f32,
-    pub emission: f32,
+pub type ParameterValues = HashMap<ParameterKey, f32>;
+
+pub fn create_parameter_values(
+    hue: f32,
+    smoothness: f32,
+    metallic: f32,
+    emission: f32,
+) -> ParameterValues {
+    HashMap::from_iter([
+        (ParameterKey::Hue, hue),
+        (ParameterKey::Smoothness, smoothness),
+        (ParameterKey::Metallic, metallic),
+        (ParameterKey::Emission, emission),
+    ])
 }
 
-impl ParameterValues {
-    pub fn get(&self, param: ParameterKey) -> f32 {
-        match param {
-            ParameterKey::Hue => self.hue,
-            ParameterKey::Smoothness => self.smoothness,
-            ParameterKey::Metallic => self.metallic,
-            ParameterKey::Emission => self.emission,
-        }
-    }
+// #[derive(Serialize, Deserialize, Type, Clone, Debug, Default, PartialEq)]
+// pub struct ParameterValues {
+//     pub hue: f32,
+//     pub smoothness: f32,
+//     pub metallic: f32,
+//     pub emission: f32,
+// }
 
-    pub fn set(&mut self, param: ParameterKey, value: f32) {
-        match param {
-            ParameterKey::Hue => self.hue = value,
-            ParameterKey::Smoothness => self.smoothness = value,
-            ParameterKey::Metallic => self.metallic = value,
-            ParameterKey::Emission => self.emission = value,
-        }
-    }
-}
+// impl ParameterValues {
+//     pub fn get(&self, param: ParameterKey) -> f32 {
+//         match param {
+//             ParameterKey::Hue => self.hue,
+//             ParameterKey::Smoothness => self.smoothness,
+//             ParameterKey::Metallic => self.metallic,
+//             ParameterKey::Emission => self.emission,
+//         }
+//     }
+//
+//     pub fn set(&mut self, param: ParameterKey, value: f32) {
+//         match param {
+//             ParameterKey::Hue => self.hue = value,
+//             ParameterKey::Smoothness => self.smoothness = value,
+//             ParameterKey::Metallic => self.metallic = value,
+//             ParameterKey::Emission => self.emission = value,
+//         }
+//     }
+// }
 
 #[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct Choice {

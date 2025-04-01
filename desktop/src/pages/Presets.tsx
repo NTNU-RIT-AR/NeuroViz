@@ -67,7 +67,7 @@ export default function PresetsPage() {
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
   useEffect(() => {
-    fetchFiles().then(setFiles);
+    commands.listPresets().then(setFiles);
   }, []);
 
   useEffect(() => {
@@ -87,13 +87,7 @@ export default function PresetsPage() {
                 fetchFiles().then(setFiles);
               }}
               onSelect={() => {
-                commands.getPreset(file).then((result) => {
-                  if (result.status === "ok") {
-                    setPreset(result.data);
-                  } else {
-                    console.error("Error fetching preset: ", result.error);
-                  }
-                });
+                commands.getPreset(file).then(setPreset);
               }}
             />
           ))}

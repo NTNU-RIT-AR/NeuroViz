@@ -5,6 +5,7 @@ import styles from "./styles/SliderCollection.module.css";
 
 export interface StateParameter extends Parameter {
   onChange: (value: number) => void
+  value: number
 }
 
 interface SliderCollectionProps {

@@ -45,7 +45,7 @@ pub fn set_live_parameter(
         .try_as_live_view_mut()
         .ok_or("Must be in live mode".to_owned())?;
 
-    live_state.set(parameter, value);
+    live_state.insert(parameter, value);
 
     Ok(())
 }
@@ -67,8 +67,8 @@ pub fn get_live_parameter(app: tauri::AppHandle, parameter: ParameterKey) -> Res
         .try_as_live_view_ref()
         .ok_or("Must be in live mode")?;
 
-    let param = live_state.get(parameter);
-    Ok(param)
+    let param = live_state.get(&parameter).unwrap();
+    Ok(*param)
 }
 
 /// List all files in a given folder
