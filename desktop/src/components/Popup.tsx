@@ -1,11 +1,12 @@
-import Backdrop from "./Backdrop"
-import styles from "./styles/Popup.module.css"
-import { XMarkIcon } from "@heroicons/react/24/outline"
+import { useState } from "react";
+import Backdrop from "./Backdrop";
+import styles from "./styles/Popup.module.css";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface PopupProps {
-  title: string,
-  children?: React.ReactNode,
-  onClose: () => void
+  title: string;
+  children?: React.ReactNode;
+  onClose: () => void;
 }
 
 export default function Popup({ children, title, onClose }: PopupProps) {
@@ -18,6 +19,6 @@ export default function Popup({ children, title, onClose }: PopupProps) {
         </div>
         {children}
       </div>
-    </Backdrop >
-  )
+    </Backdrop>
+  );
 }

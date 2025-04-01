@@ -1,19 +1,33 @@
 .title {
   font-size: 3rem;
-
-  margin: 30px;
-  margin-bottom: var(--spacing);
-
+  width: 100%;
 }
 
-
-.pageContainer {
+.layout {
   width: 100%;
   height: auto;
 
   display: flex;
   flex-direction: column;
   align-items: start;
+}
+.header {
+  display: flex;
+  width: 100%;
+  padding: 30px;
+  padding-bottom: var(--spacing);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  justify-content: end;
+}
+
+.toolbar > Button {
+  height: 40px;
 }
 
 .contentContainer,
@@ -28,7 +42,6 @@
 
 .contentContainer {
   gap: var(--spacing);
-
 }
 
 .contentContainerScrollable {

@@ -4,16 +4,17 @@ import Slider from "./Slider";
 import styles from "./styles/SliderCollection.module.css";
 
 export interface StateParameter extends Parameter {
-  onChange: (value: number) => void
-  value: number
+  onChange: (value: number) => void;
+  value: number;
 }
 
 interface SliderCollectionProps {
-  parameters: StateParameter[]
+  parameters: StateParameter[];
 }
 
-export default function SliderCollection({ parameters }: SliderCollectionProps) {
-
+export default function SliderCollection({
+  parameters,
+}: SliderCollectionProps) {
   return (
     <div className={styles.sliderCollection}>
       {parameters.map((parameter) => (
@@ -27,5 +28,5 @@ export default function SliderCollection({ parameters }: SliderCollectionProps) 
         ></Slider>
       ))}
     </div>
-  )
+  );
 }

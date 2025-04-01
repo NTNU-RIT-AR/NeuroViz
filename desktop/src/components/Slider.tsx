@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-
-import { commands } from "../bindings.gen";
 import styles from "./styles/ParameterSlider.module.css";
 
 type SliderProps = {
@@ -8,11 +5,16 @@ type SliderProps = {
   min: number;
   max: number;
   value: number;
-  onChange: (value: number) => void
+  onChange: (value: number) => void;
 };
 
-export default function Slider({ name, min, max, value, onChange, }: SliderProps) {
-
+export default function Slider({
+  name,
+  min,
+  max,
+  value,
+  onChange,
+}: SliderProps) {
   return (
     <div className={styles.mainContainer}>
       <div className={styles.numberNameContainer}>
@@ -23,8 +25,8 @@ export default function Slider({ name, min, max, value, onChange, }: SliderProps
           max={max}
           step={(max - min) / 100}
           value={value}
-          onChange={
-            (e) => onChange(Math.min(Math.max(parseFloat(e.target.value), min), max))
+          onChange={(e) =>
+            onChange(Math.min(Math.max(parseFloat(e.target.value), min), max))
           }
         />
       </div>

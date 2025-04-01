@@ -70,7 +70,11 @@ export default function ExperimentsPage() {
 
   return (
     <>
-      <Layout title="Experiments" scrollable={true}>
+      <Layout
+        title="Experiments"
+        scrollable={true}
+        toolbar={<Button onClick={() => {}}>Create Experiment</Button>}
+      >
         <div className={styles.experimentsContainer}>
           {experiments
             // .filter(
