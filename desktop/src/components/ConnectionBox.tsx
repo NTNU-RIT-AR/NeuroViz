@@ -37,22 +37,22 @@ export default function ConnectionBox({
   );
 
   return (
-    <div
-      className={`${styles.box} ${
-        isConnected ? styles.connected : styles.disconnected
-      }`}
-    >
-      {isConnected ? (
-        <>
-          <img src="src/assets/xreal-glasses.png" />
-          <p>• Connected</p>
-        </>
-      ) : (
-        <>
-          {qrCode}
-          <p>• Disconnected</p>
-        </>
-      )}
+    <div className={`${styles.box} ${isConnected ? styles.connected : styles.disconnected}`}>
+
+      {
+        isConnected ?
+          <>
+            <img src="src/assets/xreal-glasses.png" />
+            <p>Connected</p>
+          </>
+          :
+          <>
+            {qrCode}
+            <p>Disconnected</p>
+          </>
+
+      }
+
     </div>
   );
 }
