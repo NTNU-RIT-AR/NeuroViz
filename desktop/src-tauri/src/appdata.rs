@@ -3,15 +3,16 @@ use crate::{api::utils, structs::{
 }};
 use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use strum::EnumTryAs;
 use chrono::prelude::Local;
 use slug::slugify;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ExperimentState {
     pub experiment: Experiment,
     pub experiment_result: ExperimentResult,
-    pub current_index: usize,
+    pub current_index: u32,
     pub choice_current_preset: CurrentPreset,
 }
 
@@ -40,7 +41,7 @@ impl ExperimentState {
 
         let preset = match &experiment.experiment_type {
             ExperimentType::Choice { choices } => {
-                let choice = &choices[*current_index];
+                let choice = &choices[*current_index as usize];
 
                 match choice_current_preset {
                     CurrentPreset::A => experiment.presets[&choice.a].clone(),
@@ -49,7 +50,7 @@ impl ExperimentState {
             }
 
             ExperimentType::Rating { order } => {
-                let preset_name = &order[*current_index];
+                let preset_name = &order[*current_index as usize];
 
                 experiment.presets[preset_name].clone()
             }
@@ -127,7 +128,7 @@ impl ExperimentState {
  
 }
 
-#[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize)]
+#[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize, Type)]
 pub enum AppState {
     LiveView(RenderParameters),
     Experiment(ExperimentState),

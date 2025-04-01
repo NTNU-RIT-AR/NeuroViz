@@ -1,19 +1,15 @@
-use tauri::{AppHandle, Emitter};
+use serde::{Deserialize, Serialize};
+use specta::Type;
+use tauri_specta::Event;
 
 use crate::appdata::AppState;
 
-pub fn emit_connection_event(app_handle: &AppHandle) {
-    app_handle
-        .emit("connection", "A device has connected")
-        .unwrap();
+#[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
+pub struct ConnectionEvent {
+    pub is_connected: bool,
 }
 
-pub fn emit_disconnection_event(app_handle: AppHandle) {
-    app_handle
-        .emit("disconnection", "A device has disconnected")
-        .unwrap();
-}
-
-pub fn emit_app_state(app_handle: &AppHandle, app_state: AppState) {
-    app_handle.emit("state", app_state).unwrap();
+#[derive(Serialize, Deserialize, Debug, Clone, Type, Event)]
+pub struct StateEvent {
+    pub state: AppState,
 }

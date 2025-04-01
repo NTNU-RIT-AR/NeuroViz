@@ -14,6 +14,7 @@ use slug::slugify;
 use std::collections::HashMap;
 use tauri::Manager;
 
+#[specta::specta]
 #[tauri::command]
 pub fn get_ip_address() -> String {
     match local_ip() {
@@ -30,6 +31,7 @@ pub fn get_ip_address() -> String {
 
 /// Set a parameter in live view
 #[tauri::command]
+#[specta::specta]
 pub fn set_param(
     app: tauri::AppHandle,
     parameter: RenderParameter,
@@ -49,6 +51,7 @@ pub fn set_param(
 
 /// Get a parameter in live view
 #[tauri::command]
+#[specta::specta]
 pub fn get_param(app: tauri::AppHandle, parameter: RenderParameter) -> Result<f32, String> {
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.lock_ref();
@@ -63,6 +66,7 @@ pub fn get_param(app: tauri::AppHandle, parameter: RenderParameter) -> Result<f3
 
 /// List all files in a given folder
 #[tauri::command]
+#[specta::specta]
 pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
     match storage::list_files(folder) {
         Ok(files) => Ok(files),
@@ -72,7 +76,8 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
 
 /// Save current live parameters to a preset
 #[tauri::command]
-pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+#[specta::specta]
+pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
     // Parse PARAMS to JSON
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.lock_ref();
@@ -86,34 +91,34 @@ pub fn save_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), Str
 
 /// List all presets
 #[tauri::command]
+#[specta::specta]
 pub fn list_presets() -> Result<Vec<String>, String> {
     return storage::list_files(Folder::Presets);
 }
 
 /// List all experiments
 #[tauri::command]
+#[specta::specta]
 pub fn list_experiments() -> Result<Vec<String>, String> {
     return storage::list_files(Folder::Experiments);
 }
 
-//fn delete_file(file_name: String) -> Result<(), String> {
-//    let folder_path = fs::read_to_string(file_name).map_err(|e| e.to_string())?;
-//    let file_path = BaseDirectory::AppData + "/" + &file_name;
-//
-//    println!("Document path: {}", folder_path);
-//
-//    //fs::remove_file(file_path).map_err(|e| e.to_string())?;
-//    Ok(())
-//}
-
 /// Retrieve a preset by file name
 #[tauri::command]
-pub fn retrieve_preset(slugged_preset_name: String) -> Result<Preset, String> {
+#[specta::specta]
+pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
     storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn delete_preset(slugged_name: String) -> Result<(), String> {
+    storage::delete_json_file(slugged_name, Folder::Presets)
 }
 
 /// Create a new experiment
 #[tauri::command]
+#[specta::specta]
 pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
     //Derive from CreateExperiment and Preset to Experiment
     let mut experiment_presets: HashMap<String, Preset> =
@@ -143,16 +148,30 @@ pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<Strin
 
 /// Retrieve a preset
 #[tauri::command]
-pub fn retrieve_experiment(slugged_experiment_name: String) -> Result<Experiment, String> {
-    storage::parse_from_json_file::<Experiment>(slugged_experiment_name, Folder::Experiments)
+#[specta::specta]
+pub fn get_experiment(slugged_name: String) -> Result<Experiment, String> {
+    storage::parse_from_json_file::<Experiment>(slugged_name, Folder::Experiments)
 }
 
 /// Start an experiment
 #[tauri::command]
+#[specta::specta]
+pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {
+    let mut result: Vec<Experiment> = Vec::new();
+
+    let experiments = list_experiments()?;
+    for experiment in experiments {
+        result.push(get_experiment(experiment)?);
+    }
+    Ok(result)
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn start_experiment(
     app: tauri::AppHandle,
     slugged_experiment_name: String,
-    obeserver_id: u64,
+    obeserver_id: u32,
     note: String,
 ) -> Result<(), String> {
     //Instansiate ExperimentResult and Experiment for the selected experiment (so that we can eventually store the data to file)

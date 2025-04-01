@@ -8,25 +8,25 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  font-weight: 600;
 }
 
 .connected {
   color: var(--green-hl);
   border: 1px solid var(--green-hl);
   background: var(--green-bg);
-
-
+  gap: 18px;
 }
 
 .disconnected {
   color: var(--red-hl);
   border: 1px solid var(--red-hl);
   background: var(--red-bg);
-  height: 200px;
+  height: 220px;
 }
 
 img {
   width: 170px;
   margin-top: 30px;
-
 }

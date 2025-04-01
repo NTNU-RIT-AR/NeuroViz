@@ -1,13 +1,14 @@
 // Load files from the folder
-
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { retrievePreset } from "../commands";
-import { type Parameters, type Preset } from "../interfaces";
 
+import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import styles from "./styles/Presets.module.css";
+
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { commands, type Preset } from "../bindings.gen.ts";
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -25,28 +26,35 @@ function Preset({ name }: PresetProps) {
       <p>{name} </p>
       <button className="delete">delete</button>
 
-      <button className="test">test</button>
+      <button className="test"></button>
     </div>
   );
 }
 
 // Delete a file
 // async function deleteFile(fileName: string) {
-//   await invoke('delete_file')
+//   await invoke('delete_file', {name: filename})
 // }
 
 type presetElementProps = {
   name: string;
   onSelect: () => void;
+  onDelete: () => void;
 };
 
-function PresetElement({ name, onSelect }: presetElementProps) {
+function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
+
+
   return (
-    <div className={styles.presetElement}>
+    <div className={styles.presetElement} onClick={onSelect}>
       <p>{name}</p>
       <div className={styles.buttonsContainer}>
-        <button onClick={onSelect}>Select</button>
-        <button></button>
+        <Button onClick={onSelect} square={true}>
+          <EyeIcon className="icon" />
+        </Button>
+        <Button onClick={onDelete} square={true}>
+          <TrashIcon className={`icon ${styles.trashIcon}`} />
+        </Button>
       </div>
     </div>
   );
@@ -57,38 +65,43 @@ export default function PresetsPage() {
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
     undefined
   );
-  const [selectedPresetName, setSelectedPresetName] = useState<string>("");
-
-  const [preset, setPreset] = useState("");
+  const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
   useEffect(() => {
     fetchFiles().then(setFiles);
   }, []);
 
   useEffect(() => {
-    return () => {};
+    return () => { };
   }, [preset]);
+
 
   return (
     <>
-      <h1>Presets page text</h1>
-
-      <Layout>
+      <Layout title="Presets">
         <ContentBox className={styles.presetsContainer}>
           {files.map((file) => (
             <PresetElement
               name={file}
+              onDelete={async () => {
+                await commands.deletePreset(file)
+                fetchFiles().then(setFiles);
+              }}
               onSelect={() => {
-                retrievePreset(file).then((result) =>
-                  setSelectedPreset(result)
-                );
+                commands.getPreset(file).then((result) => {
+                  if (result.status === "ok") {
+                    setPreset(result.data);
+                  } else {
+                    console.error("Error fetching preset: ", result.error);
+                  }
+                });
               }}
             />
           ))}
         </ContentBox>
 
         {/* TODO: Show as sliders */}
-        <ContentBox>{selectedPreset}</ContentBox>
+        <ContentBox>{JSON.stringify(preset)}</ContentBox>
       </Layout>
     </>
   );

@@ -1,3 +1,11 @@
+import { Preset } from "./bindings.gen";
+
+interface Parameter {
+  key: string;
+  name: string;
+  value: number;
+}
+
 interface Parameters {
   hue: number;
   smoothness: number;
@@ -8,11 +16,6 @@ interface Parameters {
 interface Choice {
   a: string;
   b: string;
-}
-
-interface Preset {
-  name: string;
-  parameters: Parameters;
 }
 
 type Experiment =
@@ -28,5 +31,10 @@ type Experiment =
       presets: Record<string, Preset>;
     };
 
-// enum Parameter =
-export type { Parameters, Preset, Experiment };
+interface QrPayload {
+  ip: string;
+  port: number;
+  secret: string;
+}
+
+export type { Experiment, Parameters, Preset, QrPayload };

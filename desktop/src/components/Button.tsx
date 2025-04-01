@@ -1,13 +1,32 @@
+import styles from "./styles/Button.module.css"
+
+type Variant = "primary" | "secondary" | "danger";
+
 interface ButtonProps {
-  theme: "green" | "red" | "neutral";
-  textContent: string;
-  onClick: () => void;
+  variant?: Variant,
+  onClick?: () => void,
+  children?: React.ReactNode,
+  square?: boolean,
 }
 
-export default function Button({ theme, textContent, onClick }: ButtonProps) {
+const styleVariant: Record<Variant, string> = {
+  primary: styles.primary,
+  secondary: styles.secondary,
+  danger: styles.danger
+}
+
+export default function Button({ children, variant = "primary", onClick, square = false }: ButtonProps) {
+
   return (
-    <button onClick={onClick} className={theme}>
-      {textContent}
+    <button
+      onClick={onClick}
+      className={`
+        ${styles.button} 
+        ${square ? styles.square : " "}
+      `}
+    // ${styleVariant[variant]}
+    >
+      {children}
     </button>
   );
-}
+} 

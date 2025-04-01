@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 
+import { commands } from "../bindings.gen";
 import styles from "./styles/ParameterSlider.module.css";
 
 type SliderProps = {
@@ -14,20 +14,21 @@ export default function Slider({ name, min, max }: SliderProps) {
   const [value, setValue] = useState(0.0);
 
   useEffect(() => {
-    try {
-      invoke<number>("get_param", { parameter: name }).then(setValue);
-    } catch (e) {
-      console.log("get_param error: ", e);
-    }
+    // TODO remove as any
+    commands.getParam(name as any).then((response) => {
+      if (response.status === "ok") {
+        setValue(response.data);
+      } else {
+        console.error("Error fetching parameter value: ", response.error);
+      }
+    });
   }, []);
 
   const handleChange = (newValue: number) => {
     setValue(newValue);
-    try {
-      invoke("set_param", { parameter: name, value: newValue });
-    } catch (e) {
-      console.log("set_param error: ", e);
-    }
+
+    // TODO remove as any
+    commands.setParam(name as any, newValue);
   };
 
   return (
