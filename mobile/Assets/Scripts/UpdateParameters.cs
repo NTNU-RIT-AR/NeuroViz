@@ -39,7 +39,8 @@ namespace NeuroViz
 
             foreach (var outlineObject in outlineObjects)
             {
-                outlineObject.OutlineColor = outlineObject.OutlineColor.WithAlpha(outline);
+                var color = outlineObject.OutlineColor;
+                outlineObject.OutlineColor = new Color(color.r, color.g, color.b, outline);
             }
 
             foreach (var transparencyMaterial in transparencyMaterials)

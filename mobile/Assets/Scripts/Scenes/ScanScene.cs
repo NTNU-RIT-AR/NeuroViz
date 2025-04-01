@@ -26,10 +26,10 @@ namespace NeuroViz.Scenes
         
         private Nullable<QrPayload> foundQrPayload = null;
         
-        void OnGUI()
-        {
-            GUI.DrawTexture(screenRect, camTexture, ScaleMode.ScaleToFit);
-        }
+        // void OnGUI()
+        // {
+        //     GUI.DrawTexture(screenRect, camTexture, ScaleMode.ScaleToFit);
+        // }
         
         void OnEnable()
         {
