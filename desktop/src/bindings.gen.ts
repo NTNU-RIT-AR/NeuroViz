@@ -5,12 +5,18 @@
 
 
 export const commands = {
+async getIpAddress() : Promise<string> {
+    return await TAURI_INVOKE("get_ip_address");
+},
+async getParameters() : Promise<Parameter[]> {
+    return await TAURI_INVOKE("get_parameters");
+},
 /**
  * Set a parameter in live view
  */
-async setParam(parameter: RenderParameter, value: number) : Promise<Result<null, string>> {
+async setLiveParameter(parameter: ParameterKey, value: number) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("set_param", { parameter, value }) };
+    return { status: "ok", data: await TAURI_INVOKE("set_live_parameter", { parameter, value }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -19,23 +25,9 @@ async setParam(parameter: RenderParameter, value: number) : Promise<Result<null,
 /**
  * Get a parameter in live view
  */
-async getParam(parameter: RenderParameter) : Promise<Result<number, string>> {
+async getLiveParameter(parameter: ParameterKey) : Promise<Result<number, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("get_param", { parameter }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-async getIpAddress() : Promise<string> {
-    return await TAURI_INVOKE("get_ip_address");
-},
-/**
- * List all presets
- */
-async listPresets() : Promise<Result<string[], string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("list_presets") };
+    return { status: "ok", data: await TAURI_INVOKE("get_live_parameter", { parameter }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -47,6 +39,17 @@ async listPresets() : Promise<Result<string[], string>> {
 async getPreset(sluggedPresetName: string) : Promise<Result<Preset, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_preset", { sluggedPresetName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * List all presets
+ */
+async listPresets() : Promise<Result<string[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("list_presets") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -75,22 +78,22 @@ async getExperiment(sluggedName: string) : Promise<Result<Experiment, string>> {
 }
 },
 /**
- * Create a new experiment
+ * List all experiments
  */
-async createExperiment(experimentInitData: CreateExperiment) : Promise<Result<string, string>> {
+async listExperiments() : Promise<Result<string[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("create_experiment", { experimentInitData }) };
+    return { status: "ok", data: await TAURI_INVOKE("list_experiments") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * List all experiments
+ * Create a new experiment
  */
-async listExperiments() : Promise<Result<string[], string>> {
+async createExperiment(experimentInitData: CreateExperiment) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("list_experiments") };
+    return { status: "ok", data: await TAURI_INVOKE("create_experiment", { experimentInitData }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -134,7 +137,7 @@ stateEvent: "state-event"
 
 /** user-defined types **/
 
-export type AppState = { LiveView: RenderParameters } | { Experiment: ExperimentState }
+export type AppState = { LiveView: ParameterValues } | { Experiment: ExperimentState }
 export type Choice = { a: string; b: string }
 export type ConnectionEvent = { is_connected: boolean }
 export type CreateExperiment = (
@@ -160,9 +163,10 @@ export type ExperimentResult = ({ experiment_type: "rating"; ratings: OutcomeRat
 export type ExperimentState = { experiment: Experiment; experiment_result: ExperimentResult; current_index: number; choice_current_preset: CurrentPreset }
 export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }
 export type OutcomeRating = { preset: string; rank: number; time: string; duration: number }
-export type Preset = { name: string; parameters: RenderParameters }
-export type RenderParameter = "Hue" | "Smoothness" | "Metallic" | "Emission"
-export type RenderParameters = { hue: number; smoothness: number; metallic: number; emission: number }
+export type Parameter = { key: ParameterKey; name: string }
+export type ParameterKey = "Hue" | "Smoothness" | "Metallic" | "Emission"
+export type ParameterValues = { hue: number; smoothness: number; metallic: number; emission: number }
+export type Preset = { name: string; parameters: ParameterValues }
 export type StateEvent = { state: AppState }
 
 /** tauri-specta globals **/

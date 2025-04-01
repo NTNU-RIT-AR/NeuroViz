@@ -4,14 +4,14 @@ use specta::Type;
 use std::collections::HashMap;
 
 #[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq)]
-pub enum RenderParameter {
+pub enum ParameterKey {
     Hue,
     Smoothness,
     Metallic,
     Emission,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
 pub struct Parameter {
     key: ParameterKey,
     name: String,

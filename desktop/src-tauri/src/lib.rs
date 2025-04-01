@@ -130,8 +130,6 @@ async fn setup(app: AppHandle) {
 pub fn run() {
     let builder = tauri_specta::Builder::<tauri::Wry>::new()
         .commands(collect_commands![
-            commands::set_param,
-            commands::get_param,
             commands::get_ip_address,
             //
             commands::get_parameters,

@@ -32,6 +32,7 @@ pub fn get_ip_address() -> String {
 
 /// Set a parameter in live view
 #[tauri::command]
+#[specta::specta]
 pub fn set_live_parameter(
     app: tauri::AppHandle,
     parameter: ParameterKey,
