@@ -109,3 +109,22 @@ where
 
     Ok(parsed)
 }
+pub fn delete_json_file(slugged_name: String, folder: Folder) -> Result<(), String> {
+    let mut path = get_folder(folder)?;
+    path.push(format!("{}.json", slugged_name));
+
+    if !path.exists() {
+        return Err(format!("File not found: {}", path.display()));
+    }
+
+    fs::remove_file(&path).map_err(|e| {
+        format!(
+            "Could not delete file '{}': {}",
+            path.display(),
+            e.to_string()
+        )
+    })?;
+
+    println!("Deleted file: {}", path.display());
+    Ok(())
+}

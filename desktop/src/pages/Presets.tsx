@@ -38,9 +38,12 @@ function Preset({ name }: PresetProps) {
 type presetElementProps = {
   name: string;
   onSelect: () => void;
+  onDelete: () => void;
 };
 
-function PresetElement({ name, onSelect }: presetElementProps) {
+function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
+
+
   return (
     <div className={styles.presetElement} onClick={onSelect}>
       <p>{name}</p>
@@ -48,7 +51,7 @@ function PresetElement({ name, onSelect }: presetElementProps) {
         <Button onClick={onSelect} square={true}>
           <EyeIcon className="icon" />
         </Button>
-        <Button square={true}>
+        <Button onClick={onDelete} square={true}>
           <TrashIcon className={`icon ${styles.trashIcon}`} />
         </Button>
       </div>
@@ -68,8 +71,9 @@ export default function PresetsPage() {
   }, []);
 
   useEffect(() => {
-    return () => {};
+    return () => { };
   }, [preset]);
+
 
   return (
     <>
@@ -78,6 +82,10 @@ export default function PresetsPage() {
           {files.map((file) => (
             <PresetElement
               name={file}
+              onDelete={async () => {
+                await commands.deletePreset(file)
+                fetchFiles().then(setFiles);
+              }}
               onSelect={() => {
                 commands.getPreset(file).then((result) => {
                   if (result.status === "ok") {

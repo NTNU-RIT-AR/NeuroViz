@@ -140,7 +140,7 @@ pub fn run() {
             commands::get_preset,
             commands::list_presets,
             commands::create_preset,
-            //
+            commands::delete_preset,
             commands::get_experiment,
             commands::list_experiments,
             commands::create_experiment,
