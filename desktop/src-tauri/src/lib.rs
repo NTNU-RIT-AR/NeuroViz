@@ -136,6 +136,7 @@ pub fn run() {
             commands::list_presets,
             commands::get_preset,
             commands::create_preset,
+            commands::delete_preset,
             commands::get_experiment,
             commands::create_experiment,
             commands::list_experiments,

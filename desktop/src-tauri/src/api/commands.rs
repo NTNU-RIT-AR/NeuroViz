@@ -103,21 +103,17 @@ pub fn list_experiments() -> Result<Vec<String>, String> {
     return storage::list_files(Folder::Experiments);
 }
 
-//fn delete_file(file_name: String) -> Result<(), String> {
-//    let folder_path = fs::read_to_string(file_name).map_err(|e| e.to_string())?;
-//    let file_path = BaseDirectory::AppData + "/" + &file_name;
-//
-//    println!("Document path: {}", folder_path);
-//
-//    //fs::remove_file(file_path).map_err(|e| e.to_string())?;
-//    Ok(())
-//}
-
 /// Retrieve a preset by file name
 #[tauri::command]
 #[specta::specta]
 pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
     storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn delete_preset(slugged_name: String) -> Result<(), String> {
+    storage::delete_json_file(slugged_name, Folder::Presets)
 }
 
 /// Create a new experiment
