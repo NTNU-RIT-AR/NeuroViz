@@ -1,0 +1,13 @@
+.contentBox {
+  justify-content: space-between;
+  gap: 10px;
+  max-height: 550px;
+  overflow: hidden;
+}
+
+.contentBox > button:hover {
+  transform: scaleY(1.04) scaleX(1.01);
+}
+.contentBox > button:active {
+  transform: scaleY(0.965) scaleX(0.995);
+}

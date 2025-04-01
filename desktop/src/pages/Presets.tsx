@@ -5,7 +5,7 @@ import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import styles from "./styles/Presets.module.css";
-import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline"
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import SliderCollection from "../components/SliderCollection.tsx";
 import { commands, type Preset } from "../bindings.gen.ts";
 import { useImmer } from "use-immer";
@@ -44,8 +44,6 @@ type presetElementProps = {
 };
 
 function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
-
-
   return (
     <div className={styles.presetElement} onClick={onSelect}>
       <p>{name}</p>
@@ -64,7 +62,7 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
@@ -75,38 +73,34 @@ export default function PresetsPage() {
   }, []);
 
   useEffect(() => {
-    return () => { };
+    return () => {};
   }, [preset]);
 
-
   return (
-    <>
-      <Layout title="Presets">
-        <ContentBox className={styles.presetsContainer}>
-          {files.map((file) => (
-            <PresetElement
-              name={file}
-              onDelete={async () => {
-                await commands.deletePreset(file)
-                fetchFiles().then(setFiles);
-              }}
-              onSelect={() => {
-                commands.getPreset(file).then(setPreset);
-              }}
-            />
-          ))}
-        </ContentBox>
+    <Layout title="Presets">
+      <ContentBox className={styles.presetsContainer}>
+        {files.map((file) => (
+          <PresetElement
+            name={file}
+            onDelete={async () => {
+              await commands.deletePreset(file);
+              fetchFiles().then(setFiles);
+            }}
+            onSelect={() => {
+              commands.getPreset(file).then(setPreset);
+            }}
+          />
+        ))}
+      </ContentBox>
 
-        {/* TODO: Show as sliders */}
-        <ContentBox>
-          {/* {selectedPreset} */}
-          {/* { */}
-          {/*   preset && */}
-          {/*   <SliderCollection parameters={preset.parameters} /> */}
-          {/* } */}
-
-        </ContentBox>
-      </Layout>
-    </>
+      {/* TODO: Show as sliders */}
+      <ContentBox>
+        {/* {selectedPreset} */}
+        {/* { */}
+        {/*   preset && */}
+        {/*   <SliderCollection parameters={preset.parameters} /> */}
+        {/* } */}
+      </ContentBox>
+    </Layout>
   );
 }
