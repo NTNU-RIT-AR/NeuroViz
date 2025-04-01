@@ -1,9 +1,8 @@
 .button {
-
   border-radius: 8px;
   border: solid 2px var(--line);
 
-  padding: 8px;
+  padding: 8px 16px;
   font-family: inherit;
   color: var(--white);
   background-color: #00000026;
@@ -31,4 +30,13 @@
 
 .button:active {
   transform: scale(0.95);
+}
+
+.primary {
+}
+
+.secondary {
+}
+
+.danger {
 }

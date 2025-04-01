@@ -5,14 +5,24 @@ use crate::appdata::ExperimentState;
 use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
+use crate::structs::ExperimentAnswer;
 use crate::structs::ExperimentResult;
 use crate::structs::Preset;
 use crate::structs::RenderParameter;
+use crate::structs::RenderParameters;
 
 use local_ip_address::local_ip;
 use slug::slugify;
 use std::collections::HashMap;
 use tauri::Manager;
+
+#[specta::specta]
+#[tauri::command]
+pub fn current_state(app: tauri::AppHandle) -> AppState {
+    let app_data = app.state::<AppData>();
+
+    app_data.state.get_cloned()
+}
 
 #[specta::specta]
 #[tauri::command]
@@ -196,4 +206,36 @@ pub fn start_experiment(
 
     //Return success signal to frontend
     Ok(())
+}
+
+/// Exit the current experiment early
+#[tauri::command]
+#[specta::specta]
+pub fn exit_experiment(app: tauri::AppHandle) {
+    let app_data = app.state::<AppData>();
+
+    app_data.state.set(AppState::LiveView(RenderParameters {
+        // TODO Fikse med endringer fra oliver
+        ..Default::default()
+    }));
+}
+
+/// Answer the current experiment prompt
+#[tauri::command]
+#[specta::specta]
+pub fn answer_experiment(app: tauri::AppHandle, answer: ExperimentAnswer) -> Result<(), String> {
+    let app_data = app.state::<AppData>();
+    let mut app_state = app_data.state.lock_mut();
+
+    app_state.answer_experiment(answer)
+}
+
+/// Swap the current preset in the experiment
+#[tauri::command]
+#[specta::specta]
+pub fn swap_preset(app: tauri::AppHandle) -> Result<(), String> {
+    let app_data = app.state::<AppData>();
+    let mut app_state = app_data.state.lock_mut();
+
+    app_state.swap_current_preset()
 }

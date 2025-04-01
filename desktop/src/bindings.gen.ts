@@ -5,6 +5,9 @@
 
 
 export const commands = {
+async currentState() : Promise<AppState> {
+    return await TAURI_INVOKE("current_state");
+},
 /**
  * Set a parameter in live view
  */
@@ -122,6 +125,34 @@ async startExperiment(sluggedExperimentName: string, obeserverId: number, note: 
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Exit the current experiment early
+ */
+async exitExperiment() : Promise<void> {
+    await TAURI_INVOKE("exit_experiment");
+},
+/**
+ * Answer the current experiment prompt
+ */
+async answerExperiment(answer: ExperimentAnswer) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("answer_experiment", { answer }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Swap the current preset in the experiment
+ */
+async swapPreset() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("swap_preset") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -142,7 +173,7 @@ stateEvent: "state-event"
 
 /** user-defined types **/
 
-export type AppState = { LiveView: RenderParameters } | { Experiment: ExperimentState }
+export type AppState = ({ kind: "live_view" } & RenderParameters) | ({ kind: "experiment" } & ExperimentState)
 export type Choice = { a: string; b: string }
 export type ConnectionEvent = { is_connected: boolean }
 export type CreateExperiment = (
@@ -164,6 +195,7 @@ export type Experiment = (
  * Choose between two options
  */
 { experiment_type: "choice"; choices: Choice[] }) & { name: string; presets: Partial<{ [key in string]: Preset }> }
+export type ExperimentAnswer = { experiment_type: "choice" } | { experiment_type: "rating"; value: number }
 export type ExperimentResult = ({ experiment_type: "rating"; ratings: OutcomeRating[] } | { experiment_type: "choice"; choices: OutcomeChoice[] }) & { name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }
 export type ExperimentState = { experiment: Experiment; experiment_result: ExperimentResult; current_index: number; choice_current_preset: CurrentPreset }
 export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }

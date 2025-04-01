@@ -1,15 +1,23 @@
 use axum::{
-    extract::{State, Json},
-    response::{sse::Event, IntoResponse, Sse},
-    routing::get, Router,
+    extract::{Json, State},
+    response::{
+        sse::{Event, KeepAlive},
+        Sse,
+    },
+    routing::{get, post},
+    Router,
 };
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::{convert::Infallible, time::Duration};
-use tokio::sync::{watch, mpsc};
+use tokio::sync::{mpsc, watch};
 
 use crate::{
-    appdata::AppState, extensions::WatchReceiverExt, structs::{ExperimentAnswer, ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType}
+    appdata::AppState,
+    extensions::WatchReceiverExt,
+    structs::{
+        ExperimentAnswer, ExperimentPrompt, ExperimentType, RenderParameters, UnityExperimentType,
+    },
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -42,7 +50,9 @@ impl From<AppState> for UnityState {
     }
 }
 
+#[derive(Debug)]
 pub enum UnityEvent {
+    Connection { is_connected: bool },
     SwapPreset,
     Answer(ExperimentAnswer),
 }
@@ -60,8 +70,8 @@ impl HttpServer {
         let app = Router::new()
             .route("/state/current", get(current_state))
             .route("/state/subscribe", get(subscribe_state))
-            .route("/experiment/swap", get(swap_preset))
-            .route("/experiment/answer", get(answer_choice_experiment))
+            .route("/experiment/swap", post(swap_preset))
+            .route("/experiment/answer", post(answer_choice_experiment))
             .with_state(state);
 
         app
@@ -69,13 +79,17 @@ impl HttpServer {
 }
 
 // Answer experiment
-async fn answer_choice_experiment( 
+async fn answer_choice_experiment(
     State(http_server): State<HttpServer>,
-    Json(payload): Json<ExperimentAnswer>
-) -> impl IntoResponse {
-    println!("Got a request to /answer");
-    http_server.event_sender.send(UnityEvent::Answer(payload)).await.unwrap();
-    "success"
+    Json(payload): Json<ExperimentAnswer>,
+) {
+    println!("Got a request to answer");
+
+    http_server
+        .event_sender
+        .send(UnityEvent::Answer(payload))
+        .await
+        .unwrap();
 }
 
 // Swap preset
@@ -102,21 +116,50 @@ async fn current_state(State(http_server): State<HttpServer>) -> Json<UnityState
 async fn subscribe_state(
     State(http_server): State<HttpServer>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    // Map the stream to SSE events with JSON data
-    let stream = http_server
-        .state
-        .into_stream()
-        .map(|unity_state| {
-            // Convert the UnityState to a JSON string
-            let params = serde_json::to_string(&unity_state).unwrap();
+    http_server
+        .event_sender
+        .send(UnityEvent::Connection { is_connected: true })
+        .await
+        .unwrap();
 
-            Event::default().data(params)
-        })
-        .map(Ok);
+    // Guard to ensure we notify when the stream is closed
+    struct Guard {
+        event_sender: mpsc::Sender<UnityEvent>,
+    }
+
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            let event_sender = self.event_sender.clone();
+
+            tokio::spawn(async move {
+                event_sender
+                    .send(UnityEvent::Connection {
+                        is_connected: false,
+                    })
+                    .await
+                    .unwrap();
+            });
+        }
+    }
+
+    let mut state_stream = http_server.state.into_stream();
+
+    let stream = async_stream::stream! {
+        let _guard = Guard {
+            event_sender: http_server.event_sender.clone(),
+        };
+
+        while let Some(state) = state_stream.next().await {
+            // Send the state as an SSE event
+            yield Ok(Event::default()
+                .json_data(state)
+                .unwrap());
+        }
+    };
 
     // Create an SSE stream with a keep-alive interval of 1 second
     Sse::new(stream).keep_alive(
-        axum::response::sse::KeepAlive::new()
+        KeepAlive::new()
             .interval(Duration::from_secs(1))
             .text("keep-alive-text"),
     )

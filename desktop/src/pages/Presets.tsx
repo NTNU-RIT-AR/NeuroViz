@@ -43,8 +43,6 @@ type presetElementProps = {
 };
 
 function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
-
-
   return (
     <div className={styles.presetElement} onClick={onSelect}>
       <p>{name}</p>
@@ -72,37 +70,34 @@ export default function PresetsPage() {
   }, []);
 
   useEffect(() => {
-    return () => { };
+    return () => {};
   }, [preset]);
 
-
   return (
-    <>
-      <Layout title="Presets">
-        <ContentBox className={styles.presetsContainer}>
-          {files.map((file) => (
-            <PresetElement
-              name={file}
-              onDelete={async () => {
-                await commands.deletePreset(file)
-                fetchFiles().then(setFiles);
-              }}
-              onSelect={() => {
-                commands.getPreset(file).then((result) => {
-                  if (result.status === "ok") {
-                    setPreset(result.data);
-                  } else {
-                    console.error("Error fetching preset: ", result.error);
-                  }
-                });
-              }}
-            />
-          ))}
-        </ContentBox>
+    <Layout title="Presets">
+      <ContentBox className={styles.presetsContainer}>
+        {files.map((file) => (
+          <PresetElement
+            name={file}
+            onDelete={async () => {
+              await commands.deletePreset(file);
+              fetchFiles().then(setFiles);
+            }}
+            onSelect={() => {
+              commands.getPreset(file).then((result) => {
+                if (result.status === "ok") {
+                  setPreset(result.data);
+                } else {
+                  console.error("Error fetching preset: ", result.error);
+                }
+              });
+            }}
+          />
+        ))}
+      </ContentBox>
 
-        {/* TODO: Show as sliders */}
-        <ContentBox>{JSON.stringify(preset)}</ContentBox>
-      </Layout>
-    </>
+      {/* TODO: Show as sliders */}
+      <ContentBox>{JSON.stringify(preset)}</ContentBox>
+    </Layout>
   );
 }

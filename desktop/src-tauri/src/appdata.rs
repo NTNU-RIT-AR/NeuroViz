@@ -1,12 +1,16 @@
-use crate::{api::utils, structs::{
-    CurrentPreset, Experiment, ExperimentAnswer, ExperimentResult, ExperimentResultType, ExperimentType, OutcomeChoice, OutcomeRating, Preset, RenderParameters
-}};
+use crate::{
+    api::{storage, utils},
+    consts::Folder,
+    structs::{
+        CurrentPreset, Experiment, ExperimentAnswer, ExperimentResult, ExperimentResultType,
+        ExperimentType, OutcomeChoice, OutcomeRating, Preset, RenderParameters,
+    },
+};
+use chrono::prelude::Local;
 use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use strum::EnumTryAs;
-use chrono::prelude::Local;
-use slug::slugify;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ExperimentState {
@@ -31,7 +35,7 @@ impl ExperimentState {
 }
 
 impl ExperimentState {
-    pub fn get_current_preset(&self) -> Preset {
+    pub fn get_current_preset_key(&self) -> String {
         let Self {
             experiment,
             current_index,
@@ -39,22 +43,25 @@ impl ExperimentState {
             ..
         } = self;
 
-        let preset = match &experiment.experiment_type {
+        let preset_key = match &experiment.experiment_type {
             ExperimentType::Choice { choices } => {
                 let choice = &choices[*current_index as usize];
 
                 match choice_current_preset {
-                    CurrentPreset::A => experiment.presets[&choice.a].clone(),
-                    CurrentPreset::B => experiment.presets[&choice.b].clone(),
+                    CurrentPreset::A => choice.a.clone(),
+                    CurrentPreset::B => choice.b.clone(),
                 }
             }
 
-            ExperimentType::Rating { order } => {
-                let preset_name = &order[*current_index as usize];
-
-                experiment.presets[preset_name].clone()
-            }
+            ExperimentType::Rating { order } => order[*current_index as usize].clone(),
         };
+
+        preset_key
+    }
+
+    pub fn get_current_preset(&self) -> Preset {
+        let preset_key = self.get_current_preset_key();
+        let preset = self.experiment.presets[&preset_key].clone();
 
         preset
     }
@@ -66,72 +73,136 @@ impl ExperimentState {
         };
     }
 
-    pub fn answer(&mut self, experiment_answer: ExperimentAnswer){
-        match experiment_answer {
-            ExperimentAnswer::Choice => self.answer_choice(),
-            ExperimentAnswer::Rating { value } => self.answer_rating(value)
-        }
+    pub fn answer(&mut self, experiment_answer: ExperimentAnswer) -> Result<bool, String> {
+        let is_done = match experiment_answer {
+            ExperimentAnswer::Choice => self.answer_choice()?,
+            ExperimentAnswer::Rating { value } => self.answer_rating(value)?,
+        };
 
         self.current_index += 1;
+
+        Ok(is_done)
     }
 
-    fn answer_rating(&mut self, value: u8) {
-        if let ExperimentType::Rating {order} = &mut self.experiment.experiment_type {
-                
-            if let ExperimentResultType::Rating { ratings } = &mut self.experiment_result.experiment_type {
-                let duration;
+    fn answer_rating(&mut self, value: u8) -> Result<bool, String> {
+        let ExperimentType::Rating { order } = &mut self.experiment.experiment_type else {
+            return Err("Not a rating experiment".to_string());
+        };
 
-                if self.current_index > 0 {
-                    duration = utils::get_duration_since(ratings[self.current_index - 1].time);
-                } else {
-                    duration = utils::get_duration_since(self.experiment_result.time);
-                }
+        let ExperimentResultType::Rating { ratings } = &mut self.experiment_result.experiment_type
+        else {
+            return Err("Not a rating experiment".to_string());
+        };
 
-                let outcome = OutcomeRating {preset: order[self.current_index].clone(), rank: value, time: Local::now(), duration};
-                
-                ratings.push(outcome);
+        let is_first_prompt = self.current_index == 0;
+        let duration = match is_first_prompt {
+            true => utils::get_duration_since(self.experiment_result.time),
+            false => utils::get_duration_since(ratings[self.current_index as usize - 1].time),
+        };
 
-                //TODO handle when experiment is over
-                if order.len() == self.current_index+1 {
-                    
-                } 
-            }
-        }
+        let outcome = OutcomeRating {
+            preset: order[self.current_index as usize].clone(),
+            rank: value,
+            time: Local::now(),
+            duration,
+        };
+
+        ratings.push(outcome);
+
+        let is_done = order.len() == self.current_index as usize + 1;
+
+        Ok(is_done)
     }
 
-    fn answer_choice(&mut self) {
-        let selected_name = slugify(self.get_current_preset().name.clone());
-    
-        if let ExperimentType::Choice { choices: choices_experiment } = &mut self.experiment.experiment_type {
-            if let ExperimentResultType::Choice { choices } = &mut self.experiment_result.experiment_type {
-                
-                let outcome = OutcomeChoice {
-                    a: choices_experiment[self.current_index].a.clone(),
-                    b: choices_experiment[self.current_index].b.clone(),
-                    selected: selected_name,
-                    time: Local::now(),
-                    duration_on_a: 0.0,
-                    duration_on_b: 0.0,
-                    duration: 0.0,
-                };
-    
-                choices.push(outcome);
+    fn answer_choice(&mut self) -> Result<bool, String> {
+        let selected_preset_key = self.get_current_preset_key();
 
-                //TODO handle when experiment is over
-                if choices_experiment.len() == self.current_index+1 {
-                    
-                } 
-            }
-        }
+        let ExperimentType::Choice {
+            choices: choices_experiment,
+        } = &mut self.experiment.experiment_type
+        else {
+            // Not a choice experiment, do nothing
+            return Err("Not a choice experiment".to_string());
+        };
+
+        let ExperimentResultType::Choice { choices } = &mut self.experiment_result.experiment_type
+        else {
+            // Not a choice experiment, do nothing
+            return Err("Not a choice experiment".to_string());
+        };
+
+        let choice = &choices_experiment[self.current_index as usize];
+
+        let outcome = OutcomeChoice {
+            a: choice.a.clone(),
+            b: choice.b.clone(),
+            selected: selected_preset_key,
+            time: Local::now(),
+            // TODO duration
+            duration_on_a: 0.0,
+            duration_on_b: 0.0,
+            duration: 0.0,
+        };
+
+        choices.push(outcome);
+
+        let is_done = choices_experiment.len() == self.current_index as usize + 1;
+
+        Ok(is_done)
     }
-    
- 
 }
 
 #[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize, Type)]
+#[serde(tag = "kind")]
 pub enum AppState {
+    #[serde(rename = "live_view")]
     LiveView(RenderParameters),
+    #[serde(rename = "experiment")]
     Experiment(ExperimentState),
+}
+
+impl AppState {
+    pub fn swap_current_preset(&mut self) -> Result<(), String> {
+        let AppState::Experiment(experiment_state) = self else {
+            return Err("Not in experiment mode".to_string());
+        };
+
+        experiment_state.swap_current_preset();
+
+        Ok(())
+    }
+
+    pub fn answer_experiment(&mut self, experiment_answer: ExperimentAnswer) -> Result<(), String> {
+        let AppState::Experiment(experiment_state) = self else {
+            return Err("Not in experiment mode".to_string());
+        };
+
+        let is_done = experiment_state.answer(experiment_answer)?;
+
+        if is_done {
+            // Experiment is over, save the result
+            println!("Experiment is done, saving result");
+
+            let result_name = format!(
+                "{}-{}",
+                Local::now().format("%Y-%m-%d_%H-%M-%S"),
+                experiment_state.experiment.name,
+            );
+
+            storage::create_and_write_to_json_file(
+                &experiment_state.experiment_result,
+                Folder::Results,
+                result_name,
+            )?;
+
+            *self = AppState::LiveView(RenderParameters {
+                // TODO Fikse med endringer fra oliver
+                ..Default::default()
+            });
+        }
+
+        Ok(())
+    }
 }
 
 /// A handle to all the state of the app.

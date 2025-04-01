@@ -7,7 +7,7 @@
   --green-hl: #34ff82;
   --green-bg: #4ced8a40;
 
-  --red-hl: #e43333;
+  --red-hl: #e34141;
   --red-bg: #b5565640;
 
   --line: #554c66;
@@ -97,5 +97,4 @@ a {
   width: 100%;
   height: 100%;
   color: var(--white);
-
 }

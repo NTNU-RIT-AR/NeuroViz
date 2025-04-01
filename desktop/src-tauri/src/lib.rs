@@ -5,7 +5,9 @@ pub mod consts;
 pub mod extensions;
 pub mod structs;
 
-use api::events::StateEvent;
+use std::path::PathBuf;
+
+use api::events::{ConnectionEvent, StateEvent};
 use api::http_server::{HttpServer, UnityEvent};
 use api::{commands, events};
 use appdata::{AppData, AppState};
@@ -54,6 +56,7 @@ pub async fn http_server_task(
 
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
 pub async fn handle_unity_events_task(
+    app_handle: AppHandle,
     app_state: Mutable<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
@@ -61,14 +64,20 @@ pub async fn handle_unity_events_task(
 
     while let Some(event) = stream.next().await {
         let mut app_state = app_state.lock_mut();
-        let Some(experiment) = app_state.try_as_experiment_mut() else {
-            // Not in experiment mode, ignore
-            continue;
-        };
 
         match event {
-            UnityEvent::SwapPreset => experiment.swap_current_preset(),
-            UnityEvent::Answer(experiment_answer) => experiment.answer(experiment_answer),
+            UnityEvent::SwapPreset => {
+                let _ = app_state.swap_current_preset();
+            }
+
+            UnityEvent::Answer(experiment_answer) => {
+                let _ = app_state.answer_experiment(experiment_answer);
+            }
+
+            UnityEvent::Connection { is_connected } => {
+                dbg!("Received connection event: {}", is_connected);
+                ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
+            }
         }
     }
 }
@@ -96,13 +105,13 @@ async fn setup(app: AppHandle) {
 
     // Task to update the app state based on Unity events
     let handle_unity_events =
-        handle_unity_events_task(app_data.state.clone(), unity_event_receiver);
+        handle_unity_events_task(app.clone(), app_data.state.clone(), unity_event_receiver);
 
     println!(
         "{:?}",
         commands::start_experiment(
             app.clone(),
-            String::from("example-experiment-1"),
+            String::from("example-2"),
             0,
             String::from("my note hihi")
         )
@@ -124,14 +133,12 @@ async fn setup(app: AppHandle) {
 
     // Run all tasks concurrently
     join!(http_server, handle_unity_events, emit_app_state);
-
-    
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-    let builder = tauri_specta::Builder::<tauri::Wry>::new()
+pub fn tauri_commands() -> tauri_specta::Builder {
+    tauri_specta::Builder::<tauri::Wry>::new()
         .commands(collect_commands![
+            commands::current_state,
             commands::set_param,
             commands::get_param,
             commands::get_ip_address,
@@ -144,13 +151,29 @@ pub fn run() {
             commands::list_experiments,
             commands::get_all_experiments,
             commands::start_experiment,
+            commands::exit_experiment,
+            commands::answer_experiment,
+            commands::swap_preset
         ])
-        .events(collect_events![events::ConnectionEvent, events::StateEvent,]);
+        .events(collect_events![events::ConnectionEvent, events::StateEvent,])
+}
+
+pub fn generate_typescript_types(builder: &tauri_specta::Builder) {
+    let path = PathBuf::from("../src/bindings.gen.ts");
+
+    builder
+        .export(Typescript::default(), &path)
+        .expect("Failed to export typescript bindings");
+
+    println!("Generated TypeScript types at {:?}", path);
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    let builder = tauri_commands();
 
     #[cfg(debug_assertions)]
-    builder
-        .export(Typescript::default(), "../src/bindings.gen.ts")
-        .expect("Failed to export typescript bindings");
+    generate_typescript_types(&builder);
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())

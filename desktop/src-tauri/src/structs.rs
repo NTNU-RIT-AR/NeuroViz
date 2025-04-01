@@ -45,7 +45,7 @@ pub struct Choice {
     pub b: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type, PartialEq)]
 #[serde(tag = "experiment_type")]
 pub enum ExperimentAnswer {
     #[serde(rename = "choice")]
@@ -166,9 +166,5 @@ impl ExperimentResult {
             note,
             presets: experiment.presets.clone(),
         }
-    }
-
-    pub fn save() {
-        //TODO lagre ExperimentResult til fil
     }
 }
