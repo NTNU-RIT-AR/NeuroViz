@@ -2,23 +2,14 @@
   inputs = {
     nixpkgs.url = "nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
-    rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
+  outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ rust-overlay.overlays.default ];
-        };
-
-        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
-      in
+      let pkgs = import nixpkgs { inherit system; }; in
       {
         devShell = pkgs.mkShell {
           packages = with pkgs; [
-            toolchain
             pkg-config
             curl
             wget

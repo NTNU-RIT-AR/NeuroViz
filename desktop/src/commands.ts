@@ -15,7 +15,7 @@ async function getIpAddress(): Promise<string> {
 async function retrievePreset(
   sluggedPresetName: string
 ): Promise<string | undefined> {
-  return await invoke("retrieve_preset", {
+  return await invoke("get_preset", {
     sluggedPresetName,
   })
     .then((result) => {

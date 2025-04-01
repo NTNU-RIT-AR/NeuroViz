@@ -10,4 +10,5 @@
   background: #00000026;
   border: solid 1px var(--line);
   border-radius: 10px;
+  overflow: scroll;
 }
