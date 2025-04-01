@@ -1,6 +1,15 @@
+import { Preset } from "./bindings.gen";
+
 interface Parameter {
   key: string,
   name: string,
+}
+
+interface Parameters {
+  hue: number;
+  smoothness: number;
+  metallic: number;
+  emission: number;
 }
 
 interface Choice {
@@ -8,23 +17,23 @@ interface Choice {
   b: string;
 }
 
-interface Preset {
-  name: string;
-  parameters: Parameter[];
-}
-
 type Experiment =
   | {
-    experiment_type: "choice";
-    name: string;
-    presets: Record<string, Preset>;
-    choices: Choice[];
-  }
+      experiment_type: "choice";
+      name: string;
+      presets: Record<string, Preset>;
+      choices: Choice[];
+    }
   | {
-    experiment_type: "rating";
-    name: string;
-    presets: Record<string, Preset>;
-  };
+      experiment_type: "rating";
+      name: string;
+      presets: Record<string, Preset>;
+    };
 
-// enum Parameter =
-export type { Parameter, Preset, Experiment };
+interface QrPayload {
+  ip: string;
+  port: number;
+  secret: string;
+}
+
+export type { Experiment, Parameters, Preset, QrPayload };

@@ -5,15 +5,18 @@ pub mod consts;
 pub mod extensions;
 pub mod structs;
 
-use api::commands;
+use api::events::StateEvent;
 use api::http_server::{HttpServer, UnityEvent};
+use api::{commands, events};
 use appdata::{AppData, AppState};
 use consts::HTTP_SERVER_PORT;
 
 use extensions::MpscReceiverExt;
 use futures::StreamExt;
 use futures_signals::signal::{Mutable, ReadOnlyMutable, SignalExt};
-use tauri::{AppHandle, Emitter, Manager};
+use specta_typescript::Typescript;
+use tauri::{AppHandle, Manager};
+use tauri_specta::{collect_commands, collect_events, Event};
 use tokio::join;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
@@ -101,7 +104,11 @@ async fn setup(app: AppHandle) {
 
         while let Some(new_state) = app_state_stream.next().await {
             println!("Emitting new state: {:?}", new_state);
-            app.emit("state", new_state).unwrap();
+            StateEvent {
+                state: new_state.clone(),
+            }
+            .emit(&app)
+            .unwrap();
         }
     };
 
@@ -121,9 +128,10 @@ async fn setup(app: AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
+    let builder = tauri_specta::Builder::<tauri::Wry>::new()
+        .commands(collect_commands![
+            commands::set_param,
+            commands::get_param,
             commands::get_ip_address,
             //
             commands::get_parameters,
@@ -139,9 +147,21 @@ pub fn run() {
             commands::list_experiments,
             commands::create_experiment,
             commands::get_all_experiments,
-            commands::start_experiment
+            commands::start_experiment,
         ])
-        .setup(|app| {
+        .events(collect_events![events::ConnectionEvent, events::StateEvent,]);
+
+    #[cfg(debug_assertions)]
+    builder
+        .export(Typescript::default(), "../src/bindings.gen.ts")
+        .expect("Failed to export typescript bindings");
+
+    tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(builder.invoke_handler())
+        .setup(move |app| {
+            builder.mount_events(app);
+
             tauri::async_runtime::spawn(setup(app.handle().clone()));
             Ok(())
         })

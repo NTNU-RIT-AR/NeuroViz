@@ -30,6 +30,14 @@ jobs:
           packages: libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
           version: 1.0
 
-      - name: Run tests
+      - name: Run desktop tests
         working-directory: ./desktop/src-tauri
         run: cargo test --verbose
+
+      - name: install frontend dependencies
+        working-directory: ./desktop
+        run: npm install
+
+      - name: Run frontend build
+        working-directory: ./desktop
+        run: npm run build

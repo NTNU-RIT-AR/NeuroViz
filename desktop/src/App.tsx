@@ -24,10 +24,7 @@ export default function App() {
             <Route path="/" element={<></>} />
             <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
             <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
-            <Route
-              path={ROUTE_EXPERIMENTS}
-              element={<ExperimentsPage />}
-            />
+            <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
             <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
           </Routes>
         </div>

@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 
+import { commands } from "../bindings.gen";
 import styles from "./styles/ParameterSlider.module.css";
 
 type SliderProps = {

@@ -1,9 +1,10 @@
 use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
+use specta::Type;
 use std::collections::HashMap;
 
-#[derive(Deserialize, Serialize, Clone, Copy, Debug, PartialEq)]
-pub enum ParameterKey {
+#[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq)]
+pub enum RenderParameter {
     Hue,
     Smoothness,
     Metallic,
@@ -40,7 +41,7 @@ impl Parameter {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[derive(Serialize, Deserialize, Type, Clone, Debug, Default, PartialEq)]
 pub struct ParameterValues {
     pub hue: f32,
     pub smoothness: f32,
@@ -68,19 +69,19 @@ impl ParameterValues {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct Choice {
     pub a: String,
     pub b: String,
 }
 
-#[derive(Deserialize, Serialize, Clone, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
 pub struct Preset {
     pub name: String,
     pub parameters: ParameterValues,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct OutcomeChoice {
     pub a: String,
     pub b: String,
@@ -91,7 +92,7 @@ pub struct OutcomeChoice {
     pub duration: f64,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct OutcomeRating {
     pub preset: String,
     pub rank: u8,
@@ -99,7 +100,7 @@ pub struct OutcomeRating {
     pub duration: f64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
 #[serde(tag = "experiment_type")]
 pub enum ExperimentType {
     /// Rating between 1-5
@@ -125,7 +126,7 @@ pub struct ExperimentPrompt {
     pub parameters: ParameterValues,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Type, Clone)]
 #[serde(tag = "experiment_type")]
 pub enum ExperimentResultType {
     #[serde(rename = "rating")]
@@ -134,7 +135,7 @@ pub enum ExperimentResultType {
     Choice { choices: Vec<OutcomeChoice> },
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
 pub struct Experiment {
     #[serde(flatten)]
     pub experiment_type: ExperimentType,
@@ -142,7 +143,7 @@ pub struct Experiment {
     pub presets: HashMap<String, Preset>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize, Type)]
 pub struct CreateExperiment {
     #[serde(flatten)]
     pub experiment_type: ExperimentType,
@@ -150,18 +151,18 @@ pub struct CreateExperiment {
     pub presets: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct ExperimentResult {
     #[serde(flatten)]
     pub experiment_type: ExperimentResultType,
     pub name: String,
     pub time: DateTime<Local>,
-    pub observer_id: u64,
+    pub observer_id: u32,
     pub note: String,
     pub presets: HashMap<String, Preset>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, PartialEq, Eq)]
 pub enum CurrentPreset {
     A,
     B,
@@ -169,7 +170,7 @@ pub enum CurrentPreset {
 
 impl ExperimentResult {
     //TODO lage funksjon for å avslutte eksperimentet. Når man avslutter så lagres det til fil i korresponderende folder
-    pub fn new(experiment: &Experiment, observer_id: u64, note: String) -> Self {
+    pub fn new(experiment: &Experiment, observer_id: u32, note: String) -> Self {
         Self {
             experiment_type: match experiment.experiment_type {
                 ExperimentType::Choice { .. } => ExperimentResultType::Choice {

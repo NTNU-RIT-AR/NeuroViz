@@ -1,17 +1,13 @@
 // Load files from the folder
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { retrievePreset } from "../commands";
-import { type Parameter, type Preset } from "../interfaces";
-
+import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import styles from "./styles/Presets.module.css";
-import Button from "../components/Button.tsx";
-
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline"
 import SliderCollection from "../components/SliderCollection.tsx";
-
+import { commands, type Preset } from "../bindings.gen.ts";
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -45,8 +41,6 @@ type presetElementProps = {
 };
 
 function PresetElement({ name, onSelect }: presetElementProps) {
-
-
   return (
     <div className={styles.presetElement} onClick={onSelect}>
       <p>{name}</p>
@@ -64,7 +58,9 @@ function PresetElement({ name, onSelect }: presetElementProps) {
 
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined);
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
+    undefined
+  );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
   useEffect(() => {
@@ -72,7 +68,7 @@ export default function PresetsPage() {
   }, []);
 
   useEffect(() => {
-    return () => { };
+    return () => {};
   }, [preset]);
 
   return (
@@ -83,7 +79,13 @@ export default function PresetsPage() {
             <PresetElement
               name={file}
               onSelect={() => {
-                invoke<Preset>("get_preset").then(setPreset)
+                commands.getPreset(file).then((result) => {
+                  if (result.status === "ok") {
+                    setPreset(result.data);
+                  } else {
+                    console.error("Error fetching preset: ", result.error);
+                  }
+                });
               }}
             />
           ))}

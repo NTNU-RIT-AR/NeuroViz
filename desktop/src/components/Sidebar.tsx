@@ -1,15 +1,14 @@
-import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { getIpAddress } from "../commands.ts";
+import { commands, events } from "../bindings.gen.ts";
 import {
-  DEEPLINK,
   ROUTE_EXPERIMENTS,
   ROUTE_LIVE_VIEW,
   ROUTE_PRESETS,
   ROUTE_RESULTS,
+  UNITY_API_PORT,
 } from "../const.ts";
-import { useAppNavigate } from "./../NavigationProvider.tsx";
+import { QrPayload } from "../interfaces.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
 import styles from "./styles/Sidebar.module.css";
 
@@ -35,25 +34,13 @@ export default function Sidebar() {
   const [deviceConnected, setDeviceConnected] = useState<boolean>(false);
   const [ipAddress, setIpAddress] = useState<string>("");
 
-  const navigate = useAppNavigate();
-
   useEffect(() => {
-    const connectionEventListener = listen<string>("connection", (event) => {
-      console.log("Device connected", event.payload);
-      setDeviceConnected(true);
-      navigate(ROUTE_LIVE_VIEW);
+    const connectionEventListener = events.connectionEvent.listen((event) => {
+      setDeviceConnected(event.payload.is_connected);
     });
 
-    const disconnectionEventListener = listen<string>(
-      "disconnection",
-      (event) => {
-        console.log("Device disconnected", event.payload);
-        setDeviceConnected(false);
-      }
-    );
-
     async function getIp() {
-      const ipAddress = await getIpAddress();
+      const ipAddress = await commands.getIpAddress();
       console.log("ip address is ", ipAddress);
 
       if (ipAddress !== "") {
@@ -65,16 +52,22 @@ export default function Sidebar() {
     return () => {
       //Remove event listeners
       connectionEventListener.then((unlisten) => unlisten());
-      disconnectionEventListener.then((unlisten) => unlisten());
     };
   }, []);
+
+  const qrPayload: QrPayload = {
+    ip: ipAddress,
+    port: UNITY_API_PORT,
+    // TODO: Use password protection
+    secret: "",
+  };
 
   return (
     <div className={styles.Sidebar}>
       {ipAddress !== "" && (
         <ConnectionBox
           // url={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
-          url={DEEPLINK + ipAddress}
+          qrText={JSON.stringify(qrPayload)}
           isConnected={deviceConnected}
         />
       )}
