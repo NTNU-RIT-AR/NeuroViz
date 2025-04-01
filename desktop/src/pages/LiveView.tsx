@@ -36,26 +36,27 @@ export default function LiveViewPage() {
         }
       });
 
-
       setParameters(await Promise.all(promises))
     });
 
   }, []);
+
+  useEffect(() => {
+    for (const parameter of parameters) {
+      invoke("set_live_param", { parameter: parameter.key, value: parameter.value })
+    }
+  }, [parameters])
 
 
   const parametersWithOnChange = parameters.map(parameter => ({
     ...parameter,
 
     onChange(newValue: number) {
-      invoke("set_live_parameter", { parameter: parameter.key, value: newValue })
-
-
       setParameters(parameters => {
         parameters.find(p => p.key == parameter.key)!.value = newValue;
       })
     }
   }))
-
 
   const options = presets.map((presetName: string) => ({
     value: presetName,
@@ -83,8 +84,6 @@ export default function LiveViewPage() {
       <ContentBox>
 
         <Select options={options} onChange={(option) => setSelectedPreset(option?.value)} />
-
-
 
         <SliderCollection parameters={parametersWithOnChange} />
       </ContentBox>
