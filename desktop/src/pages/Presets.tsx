@@ -1,14 +1,15 @@
 // Load files from the folder
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import styles from "./styles/Presets.module.css";
-
-import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline"
+import SliderCollection from "../components/SliderCollection.tsx";
 import { commands, type Preset } from "../bindings.gen.ts";
+import { useImmer } from "use-immer";
+import { ParameterWithValue } from "../interfaces.ts";
 
 async function fetchFiles(): Promise<string[]> {
   try {
@@ -67,8 +68,10 @@ export default function PresetsPage() {
   );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
+  const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
+
   useEffect(() => {
-    fetchFiles().then(setFiles);
+    commands.listPresets().then(setFiles);
   }, []);
 
   useEffect(() => {
@@ -88,20 +91,21 @@ export default function PresetsPage() {
                 fetchFiles().then(setFiles);
               }}
               onSelect={() => {
-                commands.getPreset(file).then((result) => {
-                  if (result.status === "ok") {
-                    setPreset(result.data);
-                  } else {
-                    console.error("Error fetching preset: ", result.error);
-                  }
-                });
+                commands.getPreset(file).then(setPreset);
               }}
             />
           ))}
         </ContentBox>
 
         {/* TODO: Show as sliders */}
-        <ContentBox>{JSON.stringify(preset)}</ContentBox>
+        <ContentBox>
+          {/* {selectedPreset} */}
+          {/* { */}
+          {/*   preset && */}
+          {/*   <SliderCollection parameters={preset.parameters} /> */}
+          {/* } */}
+
+        </ContentBox>
       </Layout>
     </>
   );

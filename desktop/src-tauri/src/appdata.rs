@@ -1,5 +1,5 @@
 use crate::structs::{
-    CurrentPreset, Experiment, ExperimentResult, ExperimentType, Preset, RenderParameters,
+    CurrentPreset, Experiment, ExperimentResult, ExperimentType, ParameterValues, Preset,
 };
 use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
@@ -67,7 +67,7 @@ impl ExperimentState {
 
 #[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize, Type)]
 pub enum AppState {
-    LiveView(RenderParameters),
+    LiveView(ParameterValues),
     Experiment(ExperimentState),
 }
 

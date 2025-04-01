@@ -1,13 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { Layout } from "../components/Layout";
-import { Experiment } from "../interfaces";
 
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import Button from "../components/Button";
 import Popup from "../components/Popup";
 import styles from "./styles/Experiments.module.css";
+import { commands, Experiment } from "../bindings.gen";
 
 enum FilterState {
   All = "All",
@@ -64,6 +64,7 @@ export default function ExperimentsPage() {
   const [filter, setFilter] = useState<FilterState>(FilterState.All);
 
   useEffect(() => {
+    commands.getAllExperiments().then(setExperiments);
     invoke<Experiment[]>("get_all_experiments").then(setExperiments);
   }, []);
 

@@ -6,8 +6,9 @@ use crate::consts::Folder;
 use crate::structs::CreateExperiment;
 use crate::structs::Experiment;
 use crate::structs::ExperimentResult;
+use crate::structs::Parameter;
+use crate::structs::ParameterKey;
 use crate::structs::Preset;
-use crate::structs::RenderParameter;
 
 use local_ip_address::local_ip;
 use slug::slugify;
@@ -32,9 +33,9 @@ pub fn get_ip_address() -> String {
 /// Set a parameter in live view
 #[tauri::command]
 #[specta::specta]
-pub fn set_param(
+pub fn set_live_parameter(
     app: tauri::AppHandle,
-    parameter: RenderParameter,
+    parameter: ParameterKey,
     value: f32,
 ) -> Result<(), String> {
     let app_data = app.state::<AppData>();
@@ -44,15 +45,21 @@ pub fn set_param(
         .try_as_live_view_mut()
         .ok_or("Must be in live mode".to_owned())?;
 
-    live_state.set(parameter, value);
+    live_state.insert(parameter, value);
 
     Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_parameters() -> Vec<Parameter> {
+    Parameter::all()
 }
 
 /// Get a parameter in live view
 #[tauri::command]
 #[specta::specta]
-pub fn get_param(app: tauri::AppHandle, parameter: RenderParameter) -> Result<f32, String> {
+pub fn get_live_parameter(app: tauri::AppHandle, parameter: ParameterKey) -> Result<f32, String> {
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.lock_ref();
 
@@ -60,8 +67,8 @@ pub fn get_param(app: tauri::AppHandle, parameter: RenderParameter) -> Result<f3
         .try_as_live_view_ref()
         .ok_or("Must be in live mode")?;
 
-    let param = live_state.get(parameter);
-    Ok(param)
+    let param = live_state.get(&parameter).unwrap();
+    Ok(*param)
 }
 
 /// List all files in a given folder
