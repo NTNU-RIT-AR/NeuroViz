@@ -1,9 +1,10 @@
-interface Parameter {
-  key: string,
-  name: string,
-  value: number,
-}
+import { Preset } from "./bindings.gen";
 
+interface Parameter {
+  key: string;
+  name: string;
+  value: number;
+}
 
 interface Parameters {
   hue: number;
@@ -17,23 +18,18 @@ interface Choice {
   b: string;
 }
 
-interface Preset {
-  name: string;
-  parameters: Parameter[];
-}
-
 type Experiment =
   | {
-    experiment_type: "choice";
-    name: string;
-    presets: Record<string, Preset>;
-    choices: Choice[];
-  }
+      experiment_type: "choice";
+      name: string;
+      presets: Record<string, Preset>;
+      choices: Choice[];
+    }
   | {
-    experiment_type: "rating";
-    name: string;
-    presets: Record<string, Preset>;
-  };
+      experiment_type: "rating";
+      name: string;
+      presets: Record<string, Preset>;
+    };
 
 interface QrPayload {
   ip: string;

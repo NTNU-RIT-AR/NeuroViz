@@ -1,63 +1,62 @@
+import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
-import { fetchExperiments, retrieveExperiment } from "../commands";
 import { Layout } from "../components/Layout";
 import { Experiment } from "../interfaces";
-import { invoke } from "@tauri-apps/api/core";
 
-import styles from "./styles/Experiments.module.css"
-import Backdrop from "../components/Backdrop";
-import Button from "../components/Button";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { TrashIcon } from "@heroicons/react/24/solid";
-import { ContentBox } from "../components/ContentBox";
+import Button from "../components/Button";
 import Popup from "../components/Popup";
+import styles from "./styles/Experiments.module.css";
 
 enum FilterState {
   All = "All",
   Published = "Published",
-  Draft = "Draft"
+  Draft = "Draft",
 }
 
 interface ViewExperimentProps {
-  data: Experiment
-  setShow: React.Dispatch<React.SetStateAction<boolean>>
+  data: Experiment;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function ViewExperiment({ data, setShow }: ViewExperimentProps) {
   let close = () => {
     setShow(false);
-  }
+  };
   return (
     <Popup title={data.name} onClose={close}>
       <h3>{data.name}</h3>
-    </Popup >
-  )
+    </Popup>
+  );
 }
 
 interface ExperimentCardProps {
-  data: Experiment,
+  data: Experiment;
 }
 function ExperimentCard({ data }: ExperimentCardProps) {
   const [show, setShow] = useState(false);
   return (
     <>
-      <div className={styles.experimentCard} >
+      <div className={styles.experimentCard}>
         <h3 className={styles.experimentCardTitle}>{data.name}</h3>
         <div className={styles.experimentCardContent}>
           <p>Type: {data.experiment_type}</p>
         </div>
         <div className={styles.experimentCardBottom}>
-          <Button square={true} onClick={() => setShow(true)}> <EyeIcon className="icon" /></Button>
-          <Button square={true}><TrashIcon /></Button>
-        </div >
-      </div >
+          <Button square={true} onClick={() => setShow(true)}>
+            {" "}
+            <EyeIcon className="icon" />
+          </Button>
+          <Button square={true}>
+            <TrashIcon />
+          </Button>
+        </div>
+      </div>
 
-      {
-        show &&
-        <ViewExperiment data={data} setShow={setShow} />
-      }
+      {show && <ViewExperiment data={data} setShow={setShow} />}
     </>
-  )
+  );
 }
 
 export default function ExperimentsPage() {
@@ -72,21 +71,16 @@ export default function ExperimentsPage() {
     <>
       <Layout title="Experiments" scrollable={true}>
         <div className={styles.experimentsContainer}>
-          {
-            experiments
-              // .filter(
-              //   (experiment) => (
-              //     experiment
-              //   )
-              // )
-              .map(
-                (experiment) => (
-                  <ExperimentCard data={experiment} />
-                )
-              )
-          }
+          {experiments
+            // .filter(
+            //   (experiment) => (
+            //     experiment
+            //   )
+            // )
+            .map((experiment) => (
+              <ExperimentCard data={experiment} />
+            ))}
         </div>
-
       </Layout>
 
       {/* {viewCreateExperiment && <CreateExperimentForm />} */}
