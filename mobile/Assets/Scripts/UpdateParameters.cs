@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using Sirenix.OdinInspector;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace NeuroViz
@@ -9,21 +7,21 @@ namespace NeuroViz
     {
         private static readonly int SeeThrough = Shader.PropertyToID("_SeeThrough");
 
-        [TitleGroup("Properties")]
-        [OnValueChanged(nameof(HandlePropertiesEdited))]
-        [PropertyRange(0, 1)]
+        [Header("Properties")]
+        // [OnValueChanged(nameof(HandlePropertiesEdited))]
+        // [PropertyRange(0, 1)]
         [SerializeField] public float transparency;
 
-        [OnValueChanged(nameof(HandlePropertiesEdited))]
-        [PropertyRange(0, 1)]
+        // [OnValueChanged(nameof(HandlePropertiesEdited))]
+        // [PropertyRange(0, 1)]
         [SerializeField] public float outline;
 
-        [OnValueChanged(nameof(HandlePropertiesEdited))]
-        [PropertyRange(0, 1)]
+        // [OnValueChanged(nameof(HandlePropertiesEdited))]
+        // [PropertyRange(0, 1)]
         [SerializeField] public float seeThrough;
 
 
-        [TitleGroup("Objects")]
+        [Header("Objects")]
         [SerializeField] private List<Outline> outlineObjects;
 
         [SerializeField] private List<Material> transparencyMaterials;

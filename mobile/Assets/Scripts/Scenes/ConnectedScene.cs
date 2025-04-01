@@ -7,8 +7,6 @@ using EvtSource;
 using JetBrains.Annotations;
 using NeuroViz;
 using NeuroViz.Scenes.Connected;
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using UnityEngine;
 
 public class RenderParameters
@@ -116,15 +114,12 @@ namespace NeuroViz.Scenes
         [SerializeField] public int port;
         [SerializeField] public string secret;
 
-        [TitleGroup("Scenes")] [SerializeField] [Required] [ChildGameObjectsOnly]
-        private GameObject idleScene;
+        [Header("Scenes")]
+        [SerializeField] private GameObject idleScene;
 
-        [SerializeField] [Required] [ChildGameObjectsOnly]
-        private GameObject liveScene;
+        [SerializeField] private GameObject liveScene;
 
-        [SerializeField] [Required] [ChildGameObjectsOnly]
-        private GameObject experimentScene;
-
+        [SerializeField] private GameObject experimentScene;
 
         private EventSourceReader eventSource;
         private UnityState state = new UnityState.Idle();

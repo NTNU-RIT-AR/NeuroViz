@@ -1,15 +1,10 @@
-﻿using System;
-using Sirenix.OdinInspector;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace NeuroViz.Scenes.Connected
 {
     public class LiveScene : MonoBehaviour
     {
-        [Required]
         [SerializeField] private ConnectedScene connectedScene;
-
-        [Required]
         [SerializeField] private UpdateParameters updateParameters;
 
         private UnityState.Live state;
