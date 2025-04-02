@@ -2,27 +2,27 @@
   "experiment_type": "choice",
   "choices": [
     {
-      "a": "config-1",
-      "b": "config-2",
-      "selected": "config-1",
+      "a": "preset-1",
+      "b": "preset-2",
+      "selected": "preset-1",
       "time": "2025-04-01T20:10:45.396015776-04:00",
       "duration_on_a": 0.0,
       "duration_on_b": 0.0,
       "duration": 0.0
     },
     {
-      "a": "config-4",
-      "b": "config-1",
-      "selected": "config-1",
+      "a": "preset-4",
+      "b": "preset-1",
+      "selected": "preset-1",
       "time": "2025-04-01T20:10:50.137179980-04:00",
       "duration_on_a": 0.0,
       "duration_on_b": 0.0,
       "duration": 0.0
     },
     {
-      "a": "config-2",
-      "b": "config-4",
-      "selected": "config-2",
+      "a": "preset-2",
+      "b": "preset-4",
+      "selected": "preset-2",
       "time": "2025-04-01T20:10:55.269582869-04:00",
       "duration_on_a": 0.0,
       "duration_on_b": 0.0,
@@ -34,32 +34,32 @@
   "observer_id": 0,
   "note": "note!",
   "presets": {
-    "config-2": {
-      "name": "Config 2",
+    "preset-2": {
+      "name": "Preset 2",
       "parameters": {
         "transparency": 0.3,
         "see_through": 0.4,
         "outline": 0.6
       }
     },
-    "config-3": {
-      "name": "Config 3",
+    "preset-3": {
+      "name": "Preset 3",
       "parameters": {
         "transparency": 0.1,
         "see_through": 0.5,
         "outline": 0.7
       }
     },
-    "config-1": {
-      "name": "Config 1",
+    "preset-1": {
+      "name": "Preset 1",
       "parameters": {
         "transparency": 0.5,
         "see_through": 0.2,
         "outline": 0.8
       }
     },
-    "config-4": {
-      "name": "Config 4",
+    "preset-4": {
+      "name": "Preset 4",
       "parameters": {
         "transparency": 0.9,
         "see_through": 0.3,
