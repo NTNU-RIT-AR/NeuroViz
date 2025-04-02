@@ -39,7 +39,7 @@ pub fn create_and_write_to_json_file(
     folder: Folder,
     filename: String,
 ) -> Result<(), String> {
-    let json = serde_json::to_string(contents)
+    let json = serde_json::to_string_pretty(contents)
         .map_err(|err| format!("Could not serialize to JSON\n {}", err.to_string()))?;
 
     let mut path = get_folder(folder).unwrap();

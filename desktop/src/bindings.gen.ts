@@ -66,10 +66,10 @@ async createExperiment(experimentInitData: CreateExperiment) : Promise<string> {
     return await TAURI_INVOKE("create_experiment", { experimentInitData });
 },
 /**
- * Start an experiment
+ * Get all experiments
  */
-async getAllExperiments() : Promise<Experiment[]> {
-    return await TAURI_INVOKE("get_all_experiments");
+async getExperiments() : Promise<WithKey<Experiment>[]> {
+    return await TAURI_INVOKE("get_experiments");
 },
 async startExperiment(sluggedExperimentName: string, obeserverId: number, note: string) : Promise<null> {
     return await TAURI_INVOKE("start_experiment", { sluggedExperimentName, obeserverId, note });
@@ -139,10 +139,11 @@ export type ExperimentState = { experiment: Experiment; experiment_result: Exper
 export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }
 export type OutcomeRating = { preset: string; rank: number; time: string; duration: number }
 export type Parameter = { key: ParameterKey; name: string }
-export type ParameterKey = "hue" | "smoothness" | "metallic" | "emission"
-export type ParameterValues = { hue: number; smoothness: number; metallic: number; emission: number }
+export type ParameterKey = "transparency" | "see_through" | "outline"
+export type ParameterValues = { transparency: number; see_through: number; outline: number }
 export type Preset = { name: string; parameters: ParameterValues }
 export type StateEvent = { state: AppState }
+export type WithKey<T> = { key: string; value: T }
 
 /** tauri-specta globals **/
 

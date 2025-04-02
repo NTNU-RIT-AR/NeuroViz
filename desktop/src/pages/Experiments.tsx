@@ -1,12 +1,11 @@
-import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { EyeIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { commands, Experiment, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
 import Popup from "../components/Popup";
 import styles from "./styles/Experiments.module.css";
-import { commands, Experiment } from "../bindings.gen";
 
 enum FilterState {
   All = "All",
@@ -31,16 +30,17 @@ function ViewExperiment({ data, setShow }: ViewExperimentProps) {
 }
 
 interface ExperimentCardProps {
-  data: Experiment;
+  experiment: WithKey<Experiment>;
 }
-function ExperimentCard({ data }: ExperimentCardProps) {
+
+function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
   const [show, setShow] = useState(false);
   return (
     <>
       <div className={styles.experimentCard}>
-        <h3 className={styles.experimentCardTitle}>{data.name}</h3>
+        <h3 className={styles.experimentCardTitle}>{experiment.value.name}</h3>
         <div className={styles.experimentCardContent}>
-          <p>Type: {data.experiment_type}</p>
+          <p>Type: {experiment.value.experiment_type}</p>
         </div>
         <div className={styles.experimentCardBottom}>
           <Button square={true} onClick={() => setShow(true)}>
@@ -50,24 +50,29 @@ function ExperimentCard({ data }: ExperimentCardProps) {
           <Button square={true}>
             <TrashIcon />
           </Button>
-          <Button square={true}>
+          <Button
+            square={true}
+            onClick={() => {
+              // TODO: Observer id and note
+              commands.startExperiment(experiment.key, 0, "note!");
+            }}
+          >
             <PlayIcon />
-          </Button>{" "}
+          </Button>
         </div>
       </div>
 
-      {show && <ViewExperiment data={data} setShow={setShow} />}
+      {show && <ViewExperiment data={experiment.value} setShow={setShow} />}
     </>
   );
 }
 
 export default function ExperimentsPage() {
-  const [experiments, setExperiments] = useState<Experiment[]>([]);
+  const [experiments, setExperiments] = useState<WithKey<Experiment>[]>([]);
   const [filter, setFilter] = useState<FilterState>(FilterState.All);
 
   useEffect(() => {
-    commands.getAllExperiments().then(setExperiments);
-    invoke<Experiment[]>("get_all_experiments").then(setExperiments);
+    commands.getExperiments().then(setExperiments);
   }, []);
 
   return (
@@ -85,7 +90,7 @@ export default function ExperimentsPage() {
             //   )
             // )
             .map((experiment) => (
-              <ExperimentCard data={experiment} />
+              <ExperimentCard experiment={experiment} />
             ))}
         </div>
       </Layout>

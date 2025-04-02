@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { match } from "ts-pattern";
 import { commands, ExperimentState } from "../bindings.gen";
 import Button from "../components/Button";
@@ -20,8 +21,9 @@ function handleExit() {
 export function ActiveExperiment(props: ActiveExperimentProps) {
   const { experimentState } = props;
   const { presets } = experimentState.experiment;
-
   const prompt = experimentState.current_index;
+
+  const [sliderValue, setSldierValue] = useState(1);
 
   const actions = match(experimentState.experiment)
     .with({ experiment_type: "choice" }, (experiment) => {
@@ -37,8 +39,9 @@ export function ActiveExperiment(props: ActiveExperimentProps) {
         .exhaustive();
 
       return (
-        <>
-          <p>Currently showing {selectedPreset.name}</p>
+        <div>
+          <p>Currently showing preset "{selectedPreset.name}"</p>
+
           <div style={{ display: "flex", gap: 16 }}>
             <Button onClick={() => commands.swapPreset()}>Swap</Button>
             <Button
@@ -49,17 +52,45 @@ export function ActiveExperiment(props: ActiveExperimentProps) {
               Choose {selectedPreset.name}
             </Button>
           </div>
-        </>
+        </div>
       );
     })
     .with({ experiment_type: "rating" }, (experiment) => {
       const presetKey = experiment.order[experimentState.current_index];
 
-      const preset = presets[presetKey];
+      const preset = presets[presetKey]!;
 
       // TODO star rating
 
-      return null;
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <p>Currently showing preset "{preset.name}"</p>
+
+          <div style={{ display: "flex", gap: 16, paddingBottom: 8 }}>
+            <input
+              type="range"
+              min={1}
+              max={5}
+              step={1}
+              value={sliderValue}
+              onChange={(e) => setSldierValue(parseInt(e.currentTarget.value))}
+            />
+
+            <span>{sliderValue}</span>
+          </div>
+
+          <Button
+            onClick={() =>
+              commands.answerExperiment({
+                experiment_type: "rating",
+                value: sliderValue,
+              })
+            }
+          >
+            Submit rating
+          </Button>
+        </div>
+      );
     })
     .exhaustive();
 

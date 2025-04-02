@@ -1,6 +1,5 @@
 // Load files from the folder
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 import { commands, type Preset } from "../bindings.gen.ts";
@@ -10,14 +9,6 @@ import { Layout } from "../components/Layout";
 import { ParameterWithValue } from "../interfaces.ts";
 import styles from "./styles/Presets.module.css";
 
-async function fetchFiles(): Promise<string[]> {
-  try {
-    return await invoke("list_presets");
-  } catch (e) {
-    console.log("could not fetch files: ", e);
-    return Promise.resolve([]);
-  }
-}
 type PresetProps = { name: string };
 
 function Preset({ name }: PresetProps) {
@@ -30,11 +21,6 @@ function Preset({ name }: PresetProps) {
     </div>
   );
 }
-
-// Delete a file
-// async function deleteFile(fileName: string) {
-//   await invoke('delete_file', {name: filename})
-// }
 
 type presetElementProps = {
   name: string;
@@ -83,7 +69,7 @@ export default function PresetsPage() {
             name={file}
             onDelete={async () => {
               await commands.deletePreset(file);
-              fetchFiles().then(setFiles);
+              commands.listPresets().then(setFiles);
             }}
             onSelect={() => {
               commands.getPreset(file).then(setPreset);

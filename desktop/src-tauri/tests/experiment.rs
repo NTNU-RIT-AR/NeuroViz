@@ -9,8 +9,8 @@ use min_tauri_app_lib::{
     extensions::MpscReceiverExt,
     http_server_task,
     structs::{
-        create_parameter_values, Choice, CurrentPreset, Experiment, ExperimentResult,
-        ExperimentType, ParameterValues, Preset,
+        Choice, CurrentPreset, Experiment, ExperimentResult, ExperimentType, ParameterValues,
+        Preset,
     },
 };
 use tokio::{join, net::TcpListener, sync::mpsc};
@@ -38,14 +38,12 @@ pub async fn handle_unity_events_task(
 
     while let Some(event) = stream.next().await {
         let mut app_state = app_state.lock_mut();
-        let Some(experiment) = app_state.try_as_experiment_mut() else {
-            // If not in experiment state, ignore the event
-            continue;
-        };
 
         match event {
-            UnityEvent::SwapPreset => experiment.swap_current_preset(),
-            UnityEvent::Answer(experiment_answer) => experiment.answer(experiment_answer),
+            UnityEvent::SwapPreset => app_state.swap_current_preset().unwrap(),
+            UnityEvent::Answer(experiment_answer) => {
+                app_state.answer_experiment(experiment_answer).unwrap()
+            }
             UnityEvent::Connection { .. } => {}
         }
     }
@@ -88,8 +86,17 @@ async fn experiment_integration_test() {
     // Check if the initial state is sent
     assert_eq!(get_next_state().await, app_data.state.get_cloned().into());
 
-    let parameters_1 = create_parameter_values(0.2, 0.5, 0.5, 0.5);
-    let parameters_2 = create_parameter_values(0.8, 0.5, 0.5, 0.5);
+    let parameters_1 = ParameterValues {
+        transparency: 0.5,
+        see_through: 0.5,
+        outline: 0.5,
+    };
+
+    let parameters_2 = ParameterValues {
+        transparency: 0.7,
+        see_through: 0.7,
+        outline: 0.7,
+    };
 
     // Start an experiment
     let experiment = Experiment {

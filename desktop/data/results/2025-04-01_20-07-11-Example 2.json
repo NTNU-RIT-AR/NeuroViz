@@ -1,6 +1,35 @@
 {
   "experiment_type": "rating",
+  "ratings": [
+    {
+      "preset": "config_a",
+      "rank": 5,
+      "time": "2025-04-01T20:07:00.682055455-04:00",
+      "duration": 3.659645404
+    },
+    {
+      "preset": "config_b",
+      "rank": 5,
+      "time": "2025-04-01T20:07:04.799350045-04:00",
+      "duration": 4.117234123
+    },
+    {
+      "preset": "config_c",
+      "rank": 5,
+      "time": "2025-04-01T20:07:07.639714007-04:00",
+      "duration": 2.840293419
+    },
+    {
+      "preset": "config_d",
+      "rank": 5,
+      "time": "2025-04-01T20:07:11.020352738-04:00",
+      "duration": 3.380579999
+    }
+  ],
   "name": "Example 2",
+  "time": "2025-04-01T20:06:57.022345685-04:00",
+  "observer_id": 0,
+  "note": "note!",
   "presets": {
     "config_a": {
       "name": "Config A",
@@ -34,6 +63,5 @@
         "outline": 0.5
       }
     }
-  },
-  "order": ["config_a", "config_b", "config_c", "config_d"]
+  }
 }

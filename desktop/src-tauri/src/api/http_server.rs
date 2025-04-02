@@ -247,12 +247,7 @@ mod tests {
 
         // Send a live state, check if the event stream receives it
         let live = UnityState::Live {
-            parameters: ParameterValues {
-                hue: 0.5,
-                smoothness: 0.5,
-                metallic: 0.5,
-                emission: 0.5,
-            },
+            parameters: ParameterValues::default(),
         };
         unity_state_sender.send(live.clone()).unwrap();
         assert_eq!(get_next_state().await, live);
@@ -261,12 +256,7 @@ mod tests {
         let experiment = UnityState::Experiment {
             prompt: ExperimentPrompt {
                 experiment_type: UnityExperimentType::Choice,
-                parameters: ParameterValues {
-                    hue: 0.5,
-                    smoothness: 0.5,
-                    metallic: 0.5,
-                    emission: 0.5,
-                },
+                parameters: ParameterValues::default(),
             },
         };
 

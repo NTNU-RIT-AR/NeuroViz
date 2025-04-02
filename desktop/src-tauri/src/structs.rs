@@ -5,14 +5,12 @@ use std::collections::HashMap;
 
 #[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq, Hash, Eq)]
 pub enum ParameterKey {
-    #[serde(rename = "hue")]
-    Hue,
-    #[serde(rename = "smoothness")]
-    Smoothness,
-    #[serde(rename = "metallic")]
-    Metallic,
-    #[serde(rename = "emission")]
-    Emission,
+    #[serde(rename = "transparency")]
+    Transparency,
+    #[serde(rename = "see_through")]
+    SeeThrough,
+    #[serde(rename = "outline")]
+    Outline,
 }
 
 #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
@@ -25,20 +23,16 @@ impl Parameter {
     pub fn all() -> Vec<Parameter> {
         [
             Parameter {
-                key: ParameterKey::Hue,
-                name: "Hue".to_owned(),
+                key: ParameterKey::Transparency,
+                name: "Transparency".to_owned(),
             },
             Parameter {
-                key: ParameterKey::Smoothness,
-                name: "Smoothness".to_owned(),
+                key: ParameterKey::SeeThrough,
+                name: "See through".to_owned(),
             },
             Parameter {
-                key: ParameterKey::Metallic,
-                name: "Metallic".to_owned(),
-            },
-            Parameter {
-                key: ParameterKey::Emission,
-                name: "Emission".to_owned(),
+                key: ParameterKey::Outline,
+                name: "Outline".to_owned(),
             },
         ]
         .to_vec()
@@ -47,28 +41,25 @@ impl Parameter {
 
 #[derive(Deserialize, Serialize, Type, Default, Clone, Debug, PartialEq)]
 pub struct ParameterValues {
-    pub hue: f32,
-    pub smoothness: f32,
-    pub metallic: f32,
-    pub emission: f32,
+    pub transparency: f32,
+    pub see_through: f32,
+    pub outline: f32,
 }
 
 impl ParameterValues {
     pub fn get(&self, param: ParameterKey) -> f32 {
         match param {
-            ParameterKey::Hue => self.hue,
-            ParameterKey::Smoothness => self.smoothness,
-            ParameterKey::Metallic => self.metallic,
-            ParameterKey::Emission => self.emission,
+            ParameterKey::Transparency => self.transparency,
+            ParameterKey::SeeThrough => self.see_through,
+            ParameterKey::Outline => self.outline,
         }
     }
 
     pub fn set(&mut self, param: ParameterKey, value: f32) {
         match param {
-            ParameterKey::Hue => self.hue = value,
-            ParameterKey::Smoothness => self.smoothness = value,
-            ParameterKey::Metallic => self.metallic = value,
-            ParameterKey::Emission => self.emission = value,
+            ParameterKey::Transparency => self.transparency = value,
+            ParameterKey::SeeThrough => self.see_through = value,
+            ParameterKey::Outline => self.outline = value,
         }
     }
 }
