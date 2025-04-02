@@ -140,10 +140,15 @@ pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_all_presets() -> Result<Vec<Preset>, String> {
+pub fn get_all_presets() -> Result<Vec<WithKey<Preset>>, String> {
     list_presets()?
         .into_iter()
-        .map(|preset| get_preset(preset))
+        .map(|preset| {
+            Ok(WithKey {
+                key: preset.clone(),
+                value: get_preset(preset)?,
+            })
+        })
         .try_collect()
 }
 

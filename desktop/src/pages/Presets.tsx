@@ -2,7 +2,7 @@
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
-import { commands, type Preset } from "../bindings.gen.ts";
+import { commands, WithKey, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
@@ -46,43 +46,65 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
 }
 
 export default function PresetsPage() {
-  const [files, setFiles] = useState<string[]>([]);
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
-    undefined,
-  );
-  const [preset, setPreset] = useState<Preset | undefined>(undefined);
+  const [presets, setPresets] = useState<WithKey<Preset>[]>([]);
+  const [selectedPreset, setSelectedPreset] = useState<
+    WithKey<Preset> | undefined
+  >(undefined);
 
   const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
 
   useEffect(() => {
-    commands.listPresets().then(setFiles);
+    commands.getAllPresets().then(setPresets);
+    commands.getParameters().then((parameters) =>
+      setParameters(
+        parameters.map((parameter) => ({
+          ...parameter,
+          value: 0,
+        })),
+      ),
+    );
   }, []);
 
   useEffect(() => {
-    return () => {};
-  }, [preset]);
+    if (selectedPreset) {
+      setParameters((parameters) => {
+        for (const parameter of parameters) {
+          parameter.value = selectedPreset.value.parameters[parameter.key];
+        }
+      });
+    }
+  }, [selectedPreset]);
 
   return (
     <Layout title="Presets">
       <ContentBox className={styles.presetsContainer}>
-        {files.map((file) => (
+        {presets.map((preset) => (
           <PresetElement
-            name={file}
+            name={preset.value.name}
             onDelete={async () => {
-              await commands.deletePreset(file);
-              commands.listPresets().then(setFiles);
+              // if (selectedPreset === preset.value) {
+              //   setSelectedPreset(undefined);
+              // }
+              await commands.deletePreset(preset.key);
+              //TODO: just remove from frontend state, instead of fetching
+              commands.getAllPresets().then(setPresets);
             }}
             onSelect={() => {
-              commands.getPreset(file).then(setPreset);
+              setSelectedPreset(preset);
             }}
           />
         ))}
       </ContentBox>
 
-      {/* TODO: Show as sliders */}
       <ContentBox>
-        {/* {selectedPreset} */}
-        {/* {preset && <SliderCollection parameters={preset.parameters} />} */}
+        {selectedPreset && (
+          <SliderCollection
+            parameters={parameters.map((parameter) => ({
+              ...parameter,
+              onChange: (_: number) => {},
+            }))}
+          />
+        )}
       </ContentBox>
     </Layout>
   );

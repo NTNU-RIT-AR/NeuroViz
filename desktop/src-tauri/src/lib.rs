@@ -149,6 +149,7 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::get_live_parameter,
             //
             commands::get_preset,
+            commands::get_all_presets,
             commands::list_presets,
             commands::create_preset,
             commands::delete_preset,
