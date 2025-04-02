@@ -9,15 +9,8 @@ import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import { ParameterWithValue } from "../interfaces.ts";
 import styles from "./styles/Presets.module.css";
+import SliderCollection from "../components/SliderCollection.tsx";
 
-async function fetchFiles(): Promise<string[]> {
-  try {
-    return await invoke("list_presets");
-  } catch (e) {
-    console.log("could not fetch files: ", e);
-    return Promise.resolve([]);
-  }
-}
 type PresetProps = { name: string };
 
 function Preset({ name }: PresetProps) {
@@ -30,11 +23,6 @@ function Preset({ name }: PresetProps) {
     </div>
   );
 }
-
-// Delete a file
-// async function deleteFile(fileName: string) {
-//   await invoke('delete_file', {name: filename})
-// }
 
 type presetElementProps = {
   name: string;
@@ -61,7 +49,7 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
@@ -83,7 +71,7 @@ export default function PresetsPage() {
             name={file}
             onDelete={async () => {
               await commands.deletePreset(file);
-              fetchFiles().then(setFiles);
+              commands.listPresets().then(setFiles);
             }}
             onSelect={() => {
               commands.getPreset(file).then(setPreset);
@@ -95,10 +83,7 @@ export default function PresetsPage() {
       {/* TODO: Show as sliders */}
       <ContentBox>
         {/* {selectedPreset} */}
-        {/* { */}
-        {/*   preset && */}
-        {/*   <SliderCollection parameters={preset.parameters} /> */}
-        {/* } */}
+        {/* {preset && <SliderCollection parameters={preset.parameters} />} */}
       </ContentBox>
     </Layout>
   );
