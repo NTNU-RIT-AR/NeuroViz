@@ -140,6 +140,7 @@ async fn experiment_integration_test() {
         .unwrap();
 
     // Check if the experiment state is sent
+    let _unity_state = get_next_state().await;
     let unity_state = get_next_state().await;
     assert_eq!(unity_state, app_data.state.borrow().clone().into());
 
