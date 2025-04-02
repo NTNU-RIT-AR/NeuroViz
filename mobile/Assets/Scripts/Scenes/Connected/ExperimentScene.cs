@@ -2,12 +2,12 @@
 
 namespace NeuroViz.Scenes.Connected
 {
-    public class LiveScene : MonoBehaviour
+    public class ExperimentScene : MonoBehaviour
     {
         [SerializeField] private ConnectedScene connectedScene;
         [SerializeField] private UpdateParameters updateParameters;
 
-        private UnityState.Live state;
+        private UnityState.Experiment state;
 
         // Opacity
         // Border
@@ -17,9 +17,9 @@ namespace NeuroViz.Scenes.Connected
 
         private void OnEnable()
         {
-            if (connectedScene.State is UnityState.Live live)
+            if (connectedScene.State is UnityState.Experiment experiment)
             {
-                state = live;
+                state = experiment;
             }
 
             connectedScene.OnStateChanged += HandleStateChange;
@@ -32,14 +32,16 @@ namespace NeuroViz.Scenes.Connected
 
         private void HandleStateChange(UnityState state)
         {
-            if (state is UnityState.Live live)
+            if (state is UnityState.Experiment experiment)
             {
-                this.state = live;
+                this.state = experiment;
             }
 
-            updateParameters.transparency = this.state.Parameters.Transparency;
-            updateParameters.seeThrough = this.state.Parameters.SeeThrough;
-            updateParameters.outline = this.state.Parameters.Outline;
+            var prompt = this.state.Prompt;
+
+            updateParameters.transparency = prompt.Parameters.Transparency;
+            updateParameters.seeThrough = prompt.Parameters.SeeThrough;
+            updateParameters.outline = prompt.Parameters.Outline;
             updateParameters.HandlePropertiesEdited();
         }
     }

@@ -11,10 +11,9 @@ using UnityEngine;
 
 public class RenderParameters
 {
-    public float Hue { get; set; }
-    public float Smoothness { get; set; }
-    public float Metallic { get; set; }
-    public float Emission { get; set; }
+    public float Transparency { get; set; }
+    public float SeeThrough { get; set; }
+    public float Outline { get; set; }
 }
 
 public struct Preset
@@ -68,7 +67,7 @@ public enum ExperimentType
 public struct ExperimentPrompt
 {
     public ExperimentType ExperimentType { get; set; }
-    public Preset Preset { get; set; }
+    public RenderParameters Parameters { get; set; }
 }
 
 public static class UnityStateKind
@@ -151,13 +150,13 @@ namespace NeuroViz.Scenes
         {
             try
             {
-                Debug.LogWarning($"{e.Event} : {e.Message}");
+                // Debug.LogWarning($"{e.Event} : {e.Message}");
 
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, };
 
                 state = JsonSerializer.Deserialize<UnityState>(e.Message, options);
 
-                Debug.Log(ObjectDumper.Dump(state));
+                // Debug.Log(ObjectDumper.Dump(state));
                 SetActiveSubScene(state);
                 OnStateChanged?.Invoke(state);
             }
