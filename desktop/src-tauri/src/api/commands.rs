@@ -9,7 +9,6 @@ use crate::structs::Experiment;
 use crate::structs::ExperimentAnswer;
 use crate::structs::ExperimentResult;
 use crate::structs::Parameter;
-use crate::structs::ParameterKey;
 use crate::structs::ParameterValues;
 use crate::structs::Preset;
 
@@ -57,6 +56,79 @@ pub fn get_parameters() -> Vec<Parameter> {
     Parameter::all()
 }
 
+#[tauri::command]
+#[specta::specta]
+pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, String> {
+    storage::read_files(Folder::Presets).await
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+    // Parse PARAMS to JSON
+    let app_data = app.state::<AppData>();
+
+    let parameters = {
+        let app_state = app_data.state.borrow();
+
+        app_state
+            .try_as_live_view_ref()
+            .ok_or("Must be in live mode".to_owned())?
+            .clone()
+    };
+
+    storage::create_file(preset_name, parameters, Folder::Presets).await
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_preset(key: String) -> Result<(), String> {
+    storage::delete_file(key, Folder::Presets).await
+}
+
+/// Get all experiments
+#[tauri::command]
+#[specta::specta]
+pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
+    storage::read_files(Folder::Experiments).await
+}
+
+#[tauri::command]
+#[specta::specta]
+pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
+    //Derive from CreateExperiment and Preset to Experiment
+    let mut experiment_presets: HashMap<String, Preset> =
+        HashMap::with_capacity(experiment_init_data.presets.len());
+
+    for preset_name in experiment_init_data.presets {
+        experiment_presets.insert(
+            slugify(preset_name.clone()),
+            storage::read_file::<Preset>(slugify(preset_name), Folder::Presets).await?,
+        );
+    }
+
+    let experiment: Experiment = Experiment {
+        experiment_type: experiment_init_data.experiment_type,
+        name: experiment_init_data.name,
+        presets: experiment_presets,
+    };
+
+    //Generate file name <SLUG OF EXPERIMENT NAME>
+    let file_name = slugify(&experiment.name);
+
+    //Create and write to JSON file
+    storage::create_file(file_name, &experiment, Folder::Experiments).await?;
+    //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
+    Ok(String::from("Experiment created successfully"))
+}
+
+/// Delete an experiment
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_experiment(key: String) -> Result<(), String> {
+    storage::delete_file(key, Folder::Experiments).await
+}
+
 /// Get all parameters in live view
 #[tauri::command]
 #[specta::specta]
@@ -89,114 +161,6 @@ pub fn set_live_parameters(
 
         Ok(())
     })
-}
-
-/// Set a parameter in live view
-#[tauri::command]
-#[specta::specta]
-pub fn set_live_parameter(
-    app: tauri::AppHandle,
-    parameter: ParameterKey,
-    value: f32,
-) -> Result<(), String> {
-    let app_data = app.state::<AppData>();
-
-    app_data.state.send_modify_with(|app_state| {
-        let live_state = app_state
-            .try_as_live_view_mut()
-            .ok_or("Must be in live mode".to_owned())?;
-
-        live_state.set(parameter, value);
-
-        Ok(())
-    })
-}
-
-#[tauri::command]
-#[specta::specta]
-pub fn get_live_parameter(app: tauri::AppHandle, parameter: ParameterKey) -> Result<f32, String> {
-    let app_data = app.state::<AppData>();
-
-    app_data.state.send_modify_with(|app_state| {
-        let live_state = app_state
-            .try_as_live_view_mut()
-            .ok_or("Must be in live mode".to_owned())?;
-
-        Ok(live_state.get(parameter))
-    })
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
-    // Parse PARAMS to JSON
-    let app_data = app.state::<AppData>();
-
-    let parameters = {
-        let app_state = app_data.state.borrow();
-
-        app_state
-            .try_as_live_view_ref()
-            .ok_or("Must be in live mode".to_owned())?
-            .clone()
-    };
-
-    storage::create_file(preset_name, parameters, Folder::Presets).await
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, String> {
-    storage::read_files(Folder::Presets).await
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn delete_preset(key: String) -> Result<(), String> {
-    storage::delete_file(key, Folder::Presets).await
-}
-
-/// Get all experiments
-#[tauri::command]
-#[specta::specta]
-pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
-    storage::read_files(Folder::Experiments).await
-}
-
-/// Delete an experiment
-#[tauri::command]
-#[specta::specta]
-pub async fn delete_experiment(key: String) -> Result<(), String> {
-    storage::delete_file(key, Folder::Experiments).await
-}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
-    //Derive from CreateExperiment and Preset to Experiment
-    let mut experiment_presets: HashMap<String, Preset> =
-        HashMap::with_capacity(experiment_init_data.presets.len());
-
-    for preset_name in experiment_init_data.presets {
-        experiment_presets.insert(
-            slugify(preset_name.clone()),
-            storage::read_file::<Preset>(slugify(preset_name), Folder::Presets).await?,
-        );
-    }
-
-    let experiment: Experiment = Experiment {
-        experiment_type: experiment_init_data.experiment_type,
-        name: experiment_init_data.name,
-        presets: experiment_presets,
-    };
-
-    //Generate file name <SLUG OF EXPERIMENT NAME>
-    let file_name = slugify(&experiment.name);
-
-    //Create and write to JSON file
-    storage::create_file(file_name, &experiment, Folder::Experiments).await?;
-    //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
-    Ok(String::from("Experiment created successfully"))
 }
 
 #[tauri::command]
