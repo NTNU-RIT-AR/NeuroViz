@@ -7,10 +7,11 @@ use crate::{
     },
 };
 use chrono::prelude::Local;
-use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use strum::EnumTryAs;
+use tauri::async_runtime::block_on;
+use tokio::sync::watch;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ExperimentState {
@@ -189,11 +190,11 @@ impl AppState {
                 experiment_state.experiment.name,
             );
 
-            storage::create_and_write_to_json_file(
+            block_on(storage::create_file(
+                result_name,
                 &experiment_state.experiment_result,
                 Folder::Results,
-                result_name,
-            )?;
+            ))?;
 
             *self = AppState::LiveView(ParameterValues::default());
         }
@@ -205,13 +206,13 @@ impl AppState {
 /// A handle to all the state of the app.
 #[derive(Clone)]
 pub struct AppData {
-    pub state: Mutable<AppState>,
+    pub state: watch::Sender<AppState>,
 }
 
 impl AppData {
     pub fn new(state: AppState) -> Self {
         Self {
-            state: Mutable::new(state),
+            state: watch::Sender::new(state),
         }
     }
 }

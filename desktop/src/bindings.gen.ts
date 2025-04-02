@@ -5,26 +5,20 @@
 
 
 export const commands = {
+async currentState() : Promise<AppState> {
+    return await TAURI_INVOKE("current_state");
+},
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
 async getParameters() : Promise<Parameter[]> {
     return await TAURI_INVOKE("get_parameters");
 },
-/**
- * Set a parameter in live view
- */
-async setLiveParameter(parameter: ParameterKey, value: number) : Promise<null> {
-    return await TAURI_INVOKE("set_live_parameter", { parameter, value });
-},
-async getLiveParameter(parameter: ParameterKey) : Promise<number> {
-    return await TAURI_INVOKE("get_live_parameter", { parameter });
+async getPresets() : Promise<WithKey<Preset>[]> {
+    return await TAURI_INVOKE("get_presets");
 },
 async createPreset(presetName: string) : Promise<null> {
     return await TAURI_INVOKE("create_preset", { presetName });
-},
-async getPresets() : Promise<WithKey<Preset>[]> {
-    return await TAURI_INVOKE("get_presets");
 },
 async deletePreset(key: string) : Promise<null> {
     return await TAURI_INVOKE("delete_preset", { key });
@@ -39,10 +33,22 @@ async createExperiment(experimentInitData: CreateExperiment) : Promise<string> {
     return await TAURI_INVOKE("create_experiment", { experimentInitData });
 },
 /**
- * Get all experiments
+ * Delete an experiment
  */
-async getExperiments() : Promise<WithKey<Experiment>[]> {
-    return await TAURI_INVOKE("get_experiments");
+async deleteExperiment(key: string) : Promise<null> {
+    return await TAURI_INVOKE("delete_experiment", { key });
+},
+/**
+ * Set all parameters in live view
+ */
+async setLiveParameters(parameters: ParameterValues) : Promise<null> {
+    return await TAURI_INVOKE("set_live_parameters", { parameters });
+},
+/**
+ * Get all parameters in live view
+ */
+async getLiveParameters() : Promise<ParameterValues> {
+    return await TAURI_INVOKE("get_live_parameters");
 },
 async startExperiment(sluggedExperimentName: string, obeserverId: number, note: string) : Promise<null> {
     return await TAURI_INVOKE("start_experiment", { sluggedExperimentName, obeserverId, note });
