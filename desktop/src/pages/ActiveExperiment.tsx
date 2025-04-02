@@ -104,6 +104,11 @@ export function ActiveExperiment(props: ActiveExperimentProps) {
       title={`${experimentType} experiment: ${experimentState.experiment.name}`}
       scrollable
       className={styles.container}
+      toolbar={
+        <Button variant="danger" onClick={handleExit}>
+          Exit
+        </Button>
+      }
     >
       <div
         style={{
@@ -113,9 +118,6 @@ export function ActiveExperiment(props: ActiveExperimentProps) {
           paddingBottom: 16,
         }}
       >
-        <Button variant="danger" onClick={handleExit}>
-          Exit
-        </Button>
         <h1 style={{ display: "inline-block", paddingLeft: 16, lineHeight: 1 }}>
           Question {experimentState.current_index + 1}
         </h1>

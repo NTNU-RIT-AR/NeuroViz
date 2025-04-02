@@ -12,7 +12,6 @@ use crate::structs::ParameterKey;
 use crate::structs::ParameterValues;
 use crate::structs::Preset;
 
-use itertools::Itertools;
 use local_ip_address::local_ip;
 use serde::Deserialize;
 use serde::Serialize;
