@@ -8,6 +8,7 @@ import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import { ParameterWithValue } from "../interfaces.ts";
 import styles from "./styles/Presets.module.css";
+import SliderCollection from "../components/SliderCollection.tsx";
 
 type PresetProps = { name: string };
 
@@ -47,7 +48,7 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
 export default function PresetsPage() {
   const [files, setFiles] = useState<string[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [preset, setPreset] = useState<Preset | undefined>(undefined);
 
@@ -81,10 +82,7 @@ export default function PresetsPage() {
       {/* TODO: Show as sliders */}
       <ContentBox>
         {/* {selectedPreset} */}
-        {/* { */}
-        {/*   preset && */}
-        {/*   <SliderCollection parameters={preset.parameters} /> */}
-        {/* } */}
+        {/* {preset && <SliderCollection parameters={preset.parameters} />} */}
       </ContentBox>
     </Layout>
   );

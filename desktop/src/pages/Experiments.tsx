@@ -43,13 +43,14 @@ function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
           <p>Type: {experiment.value.experiment_type}</p>
         </div>
         <div className={styles.experimentCardBottom}>
+          <Button square={true}>
+            <TrashIcon className="icon" />
+          </Button>
+
           <Button square={true} onClick={() => setShow(true)}>
-            {" "}
             <EyeIcon className="icon" />
           </Button>
-          <Button square={true}>
-            <TrashIcon />
-          </Button>
+
           <Button
             square={true}
             onClick={() => {
@@ -57,7 +58,7 @@ function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
               commands.startExperiment(experiment.key, 0, "note!");
             }}
           >
-            <PlayIcon />
+            <PlayIcon className="icon" />
           </Button>
         </div>
       </div>

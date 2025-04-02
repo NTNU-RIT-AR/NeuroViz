@@ -140,6 +140,15 @@ pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
 
 #[tauri::command]
 #[specta::specta]
+pub fn get_all_presets() -> Result<Vec<Preset>, String> {
+    list_presets()?
+        .into_iter()
+        .map(|preset| get_preset(preset))
+        .try_collect()
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn delete_preset(slugged_name: String) -> Result<(), String> {
     storage::delete_json_file(slugged_name, Folder::Presets)
 }

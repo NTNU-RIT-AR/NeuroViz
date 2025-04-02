@@ -42,7 +42,7 @@ pub fn create_and_write_to_json_file(
     let json = serde_json::to_string_pretty(contents)
         .map_err(|err| format!("Could not serialize to JSON\n {}", err.to_string()))?;
 
-    let mut path = get_folder(folder).unwrap();
+    let mut path = get_folder(folder)?;
     path.push(format!("{}.json", filename));
 
     // TODO: Se om vi kan fikse bedre error handling
