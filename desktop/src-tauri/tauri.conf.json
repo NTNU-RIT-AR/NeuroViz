@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "min-tauri-app",
+  "productName": "NeuroViz",
   "version": "0.1.0",
-  "identifier": "com.min-tauri-app.app",
+  "identifier": "com.NeuroViz.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Xreal Air Control Application",
+        "title": "NeuroViz Controller",
         "width": 800,
         "height": 600
       }
