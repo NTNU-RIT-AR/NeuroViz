@@ -2,32 +2,32 @@
   "experiment_type": "rating",
   "name": "Example 2",
   "presets": {
-    "config_a": {
-      "name": "Config A",
+    "preset_a": {
+      "name": "Preset A",
       "parameters": {
         "transparency": 0.1,
         "see_through": 0.2,
         "outline": 0.3
       }
     },
-    "config_b": {
-      "name": "Config B",
+    "preset_b": {
+      "name": "Preset B",
       "parameters": {
         "transparency": 0.4,
         "see_through": 0.5,
         "outline": 0.6
       }
     },
-    "config_c": {
-      "name": "Config C",
+    "preset_c": {
+      "name": "Preset C",
       "parameters": {
         "transparency": 0.7,
         "see_through": 0.8,
         "outline": 0.9
       }
     },
-    "config_d": {
-      "name": "Config D",
+    "preset_d": {
+      "name": "Preset D",
       "parameters": {
         "transparency": 0.9,
         "see_through": 0.1,
@@ -35,5 +35,5 @@
       }
     }
   },
-  "order": ["config_a", "config_b", "config_c", "config_d"]
+  "order": ["preset_a", "preset_b", "preset_c", "preset_d"]
 }
