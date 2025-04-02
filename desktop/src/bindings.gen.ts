@@ -5,9 +5,6 @@
 
 
 export const commands = {
-async currentState() : Promise<AppState> {
-    return await TAURI_INVOKE("current_state");
-},
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
@@ -20,48 +17,24 @@ async getParameters() : Promise<Parameter[]> {
 async setLiveParameter(parameter: ParameterKey, value: number) : Promise<null> {
     return await TAURI_INVOKE("set_live_parameter", { parameter, value });
 },
-/**
- * Get a parameter in live view
- */
 async getLiveParameter(parameter: ParameterKey) : Promise<number> {
     return await TAURI_INVOKE("get_live_parameter", { parameter });
 },
-/**
- * Retrieve a preset by file name
- */
-async getPreset(sluggedPresetName: string) : Promise<Preset> {
-    return await TAURI_INVOKE("get_preset", { sluggedPresetName });
-},
-/**
- * List all presets
- */
-async listPresets() : Promise<string[]> {
-    return await TAURI_INVOKE("list_presets");
-},
-/**
- * Save current live parameters to a preset
- */
 async createPreset(presetName: string) : Promise<null> {
     return await TAURI_INVOKE("create_preset", { presetName });
 },
-async deletePreset(sluggedName: string) : Promise<null> {
-    return await TAURI_INVOKE("delete_preset", { sluggedName });
+async getPresets() : Promise<WithKey<Preset>[]> {
+    return await TAURI_INVOKE("get_presets");
+},
+async deletePreset(key: string) : Promise<null> {
+    return await TAURI_INVOKE("delete_preset", { key });
 },
 /**
- * Retrieve a preset
+ * Get all experiments
  */
-async getExperiment(sluggedName: string) : Promise<Experiment> {
-    return await TAURI_INVOKE("get_experiment", { sluggedName });
+async getExperiments() : Promise<WithKey<Experiment>[]> {
+    return await TAURI_INVOKE("get_experiments");
 },
-/**
- * List all experiments
- */
-async listExperiments() : Promise<string[]> {
-    return await TAURI_INVOKE("list_experiments");
-},
-/**
- * Create a new experiment
- */
 async createExperiment(experimentInitData: CreateExperiment) : Promise<string> {
     return await TAURI_INVOKE("create_experiment", { experimentInitData });
 },

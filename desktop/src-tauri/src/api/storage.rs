@@ -4,10 +4,15 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use dirs;
+use futures::TryStreamExt;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+use tokio_stream::wrappers::ReadDirStream;
+use tokio_stream::StreamExt;
 
 use crate::consts::Folder;
+
+use super::commands::WithKey;
 
 pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
     //let mut path = env::current_exe().ok()?;
@@ -93,6 +98,46 @@ pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
     Ok(list)
 }
 
+pub async fn get_files<T: DeserializeOwned>(folder: Folder) -> Result<Vec<WithKey<T>>, String> {
+    let path = get_folder(folder).map_err(|e| format!("Could not open folder: {}", e))?;
+
+    if !path.is_dir() {
+        return Err(format!("Folder does not exist"));
+    }
+
+    let mut dir = tokio::fs::read_dir(path)
+        .await
+        .map_err(|_| "Couldnt read directory".to_string())?;
+
+    let mut results = vec![];
+
+    while let Some(entry) = dir.next_entry().await.map_err(|e| e.to_string())? {
+        let file_content = tokio::fs::read_to_string(entry.path())
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let deserialized = serde_json::from_str::<T>(&file_content)
+            .map_err(|e| format!("Could not deserialize JSON: {}", e))?;
+
+        let path = entry.path();
+
+        let file_without_extension = path
+            .file_stem()
+            .ok_or_else(|| format!("Could not get file stem from path: {:?}", entry.path()))?;
+
+        let file_without_extension = file_without_extension
+            .to_str()
+            .ok_or_else(|| format!("Could not convert OsStr to str"))?;
+
+        results.push(WithKey {
+            key: file_without_extension.to_owned(),
+            value: deserialized,
+        });
+    }
+
+    Ok(results)
+}
+
 pub fn parse_from_json_file<T>(slugged_name: String, folder: Folder) -> Result<T, String>
 where
     T: DeserializeOwned,
@@ -109,7 +154,7 @@ where
 
     Ok(parsed)
 }
-pub fn delete_json_file(slugged_name: String, folder: Folder) -> Result<(), String> {
+pub fn delete_file(slugged_name: String, folder: Folder) -> Result<(), String> {
     let mut path = get_folder(folder)?;
     path.push(format!("{}.json", slugged_name));
 

@@ -17,15 +17,14 @@ use local_ip_address::local_ip;
 use serde::Deserialize;
 use serde::Serialize;
 use slug::slugify;
-use specta::Flatten;
 use specta::Type;
 use std::collections::HashMap;
 use tauri::Manager;
 
 #[derive(Deserialize, Serialize, Type)]
-pub struct WithKey<T: Type + Flatten> {
-    key: String,
-    value: T,
+pub struct WithKey<T> {
+    pub key: String,
+    pub value: T,
 }
 
 #[specta::specta]
@@ -51,6 +50,12 @@ pub fn get_ip_address() -> String {
     }
 }
 
+#[tauri::command]
+#[specta::specta]
+pub fn get_parameters() -> Vec<Parameter> {
+    Parameter::all()
+}
+
 /// Set a parameter in live view
 #[tauri::command]
 #[specta::specta]
@@ -73,13 +78,6 @@ pub fn set_live_parameter(
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_parameters() -> Vec<Parameter> {
-    Parameter::all()
-}
-
-/// Get a parameter in live view
-#[tauri::command]
-#[specta::specta]
 pub fn get_live_parameter(app: tauri::AppHandle, parameter: ParameterKey) -> Result<f32, String> {
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.lock_ref();
@@ -92,17 +90,6 @@ pub fn get_live_parameter(app: tauri::AppHandle, parameter: ParameterKey) -> Res
     Ok(param)
 }
 
-/// List all files in a given folder
-#[tauri::command]
-#[specta::specta]
-pub fn list_files(folder: Folder) -> Result<Vec<String>, String> {
-    match storage::list_files(folder) {
-        Ok(files) => Ok(files),
-        Err(e) => Err(format!("could not generate file list: {}", e)),
-    }
-}
-
-/// Save current live parameters to a preset
 #[tauri::command]
 #[specta::specta]
 pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
@@ -117,43 +104,25 @@ pub fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), S
     storage::create_and_write_to_json_file(parameters, Folder::Presets, preset_name)
 }
 
-/// List all presets
 #[tauri::command]
 #[specta::specta]
-pub fn list_presets() -> Result<Vec<String>, String> {
-    return storage::list_files(Folder::Presets);
-}
-
-/// List all experiments
-#[tauri::command]
-#[specta::specta]
-pub fn list_experiments() -> Result<Vec<String>, String> {
-    return storage::list_files(Folder::Experiments);
-}
-
-/// Retrieve a preset by file name
-#[tauri::command]
-#[specta::specta]
-pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
-    storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
+pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, String> {
+    storage::get_files(Folder::Presets).await
 }
 
 #[tauri::command]
 #[specta::specta]
-pub fn get_all_presets() -> Result<Vec<Preset>, String> {
-    list_presets()?
-        .into_iter()
-        .map(|preset| get_preset(preset))
-        .try_collect()
+pub fn delete_preset(key: String) -> Result<(), String> {
+    storage::delete_file(key, Folder::Presets)
 }
 
+/// Get all experiments
 #[tauri::command]
 #[specta::specta]
-pub fn delete_preset(slugged_name: String) -> Result<(), String> {
-    storage::delete_json_file(slugged_name, Folder::Presets)
+pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
+    storage::get_files(Folder::Experiments).await
 }
 
-/// Create a new experiment
 #[tauri::command]
 #[specta::specta]
 pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
@@ -181,34 +150,6 @@ pub fn create_experiment(experiment_init_data: CreateExperiment) -> Result<Strin
     storage::create_and_write_to_json_file(&experiment, Folder::Experiments, file_name)?;
     //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
     Ok(String::from("Experiment created successfully"))
-}
-
-/// Retrieve a preset
-#[tauri::command]
-#[specta::specta]
-pub fn get_experiment(slugged_name: String) -> Result<Experiment, String> {
-    storage::parse_from_json_file::<Experiment>(slugged_name, Folder::Experiments)
-}
-
-/// Get all experiments
-#[tauri::command]
-#[specta::specta]
-pub fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
-    let experiment_keys = list_experiments()?;
-
-    let experiments_with_key = experiment_keys
-        .into_iter()
-        .map(|experiment_key| -> Result<WithKey<Experiment>, String> {
-            let experiment = get_experiment(experiment_key.clone())?;
-
-            Ok(WithKey {
-                key: experiment_key,
-                value: experiment,
-            })
-        })
-        .try_collect()?;
-
-    Ok(experiments_with_key)
 }
 
 #[tauri::command]

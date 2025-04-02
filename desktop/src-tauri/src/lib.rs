@@ -140,20 +140,16 @@ pub fn tauri_commands() -> tauri_specta::Builder {
     tauri_specta::Builder::<tauri::Wry>::new()
         .error_handling(ErrorHandlingMode::Throw)
         .commands(collect_commands![
-            commands::current_state,
             commands::get_ip_address,
-            //
             commands::get_parameters,
             //
             commands::set_live_parameter,
             commands::get_live_parameter,
             //
-            commands::get_preset,
-            commands::list_presets,
             commands::create_preset,
+            commands::get_presets,
             commands::delete_preset,
-            commands::get_experiment,
-            commands::list_experiments,
+            commands::get_experiments,
             commands::create_experiment,
             commands::get_experiments,
             commands::start_experiment,
