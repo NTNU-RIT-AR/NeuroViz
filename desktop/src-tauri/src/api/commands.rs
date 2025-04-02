@@ -12,6 +12,7 @@ use crate::structs::ParameterKey;
 use crate::structs::ParameterValues;
 use crate::structs::Preset;
 
+use itertools::Itertools;
 use local_ip_address::local_ip;
 use slug::slugify;
 use std::collections::HashMap;
@@ -125,6 +126,15 @@ pub fn list_experiments() -> Result<Vec<String>, String> {
 #[specta::specta]
 pub fn get_preset(slugged_preset_name: String) -> Result<Preset, String> {
     storage::parse_from_json_file::<Preset>(slugged_preset_name, Folder::Presets)
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_all_presets() -> Result<Vec<Preset>, String> {
+    list_presets()?
+        .into_iter()
+        .map(|preset| get_preset(preset))
+        .try_collect()
 }
 
 #[tauri::command]
