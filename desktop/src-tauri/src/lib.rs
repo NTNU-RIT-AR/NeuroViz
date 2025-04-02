@@ -155,7 +155,7 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::get_experiment,
             commands::list_experiments,
             commands::create_experiment,
-            commands::get_all_experiments,
+            commands::get_experiments,
             commands::start_experiment,
             commands::exit_experiment,
             commands::answer_experiment,

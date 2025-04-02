@@ -1,6 +1,5 @@
 // Load files from the folder
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 import { commands, type Preset } from "../bindings.gen.ts";

@@ -1,9 +1,0 @@
-{
-  "name": "Metal looking",
-  "parameters": {
-    "hue": 0.2,
-    "smoothness": 0.4,
-    "metallic": 1.0,
-    "emission": 0.95
-  }
-}

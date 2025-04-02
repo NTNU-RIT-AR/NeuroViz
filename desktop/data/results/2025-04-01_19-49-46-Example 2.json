@@ -1,0 +1,67 @@
+{
+  "experiment_type": "rating",
+  "ratings": [
+    {
+      "preset": "config_a",
+      "rank": 1,
+      "time": "2025-04-01T19:49:46.355246527-04:00",
+      "duration": 1.654507958
+    },
+    {
+      "preset": "config_b",
+      "rank": 1,
+      "time": "2025-04-01T19:49:46.549538337-04:00",
+      "duration": 0.19424319
+    },
+    {
+      "preset": "config_c",
+      "rank": 1,
+      "time": "2025-04-01T19:49:46.769734314-04:00",
+      "duration": 0.220165853
+    },
+    {
+      "preset": "config_d",
+      "rank": 1,
+      "time": "2025-04-01T19:49:46.949308317-04:00",
+      "duration": 0.179545894
+    }
+  ],
+  "name": "Example 2",
+  "time": "2025-04-01T19:49:44.700676556-04:00",
+  "observer_id": 0,
+  "note": "note!",
+  "presets": {
+    "config_b": {
+      "name": "Config B",
+      "parameters": {
+        "transparency": 0.4,
+        "see_through": 0.5,
+        "outline": 0.6
+      }
+    },
+    "config_c": {
+      "name": "Config C",
+      "parameters": {
+        "transparency": 0.7,
+        "see_through": 0.8,
+        "outline": 0.9
+      }
+    },
+    "config_d": {
+      "name": "Config D",
+      "parameters": {
+        "transparency": 0.9,
+        "see_through": 0.1,
+        "outline": 0.5
+      }
+    },
+    "config_a": {
+      "name": "Config A",
+      "parameters": {
+        "transparency": 0.1,
+        "see_through": 0.2,
+        "outline": 0.3
+      }
+    }
+  }
+}

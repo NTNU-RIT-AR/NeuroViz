@@ -2,55 +2,51 @@
   "experiment_type": "choice",
   "name": "Example 1",
   "presets": {
-    "smoothish": {
-      "name": "Smoothish",
+    "config-1": {
+      "name": "Config 1",
       "parameters": {
-        "hue": 0.0,
-        "smoothness": 1.0,
-        "metallic": 0.0,
-        "emission": 0.1
+        "transparency": 0.5,
+        "see_through": 0.2,
+        "outline": 0.8
       }
     },
-    "high-emission": {
-      "name": "High emission",
+    "config-2": {
+      "name": "Config 2",
       "parameters": {
-        "hue": 0.2,
-        "smoothness": 0.2,
-        "metallic": 0.5,
-        "emission": 1.0
+        "transparency": 0.3,
+        "see_through": 0.4,
+        "outline": 0.6
       }
     },
-    "metal-looking": {
-      "name": "Metal looking",
+    "config-3": {
+      "name": "Config 3",
       "parameters": {
-        "hue": 0.2,
-        "smoothness": 0.4,
-        "metallic": 1.0,
-        "emission": 0.95
+        "transparency": 0.1,
+        "see_through": 0.5,
+        "outline": 0.7
       }
     },
-    "very-hue": {
-      "name": "Very hue",
+    "config-4": {
+      "name": "Config 4",
       "parameters": {
-        "hue": 1.0,
-        "smoothness": 1.0,
-        "metallic": 0.0,
-        "emission": 0.1
+        "transparency": 0.9,
+        "see_through": 0.3,
+        "outline": 0.4
       }
     }
   },
   "choices": [
     {
-      "a": "smoothish",
-      "b": "high-emission"
+      "a": "config-1",
+      "b": "config-2"
     },
     {
-      "a": "very-hue",
-      "b": "smoothish"
+      "a": "config-4",
+      "b": "config-1"
     },
     {
-      "a": "high-emission",
-      "b": "very-hue"
+      "a": "config-2",
+      "b": "config-4"
     }
   ]
 }

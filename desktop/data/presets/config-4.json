@@ -1,0 +1,8 @@
+{
+  "name": "Config 4",
+  "parameters": {
+    "transparency": 0.9,
+    "see_through": 0.3,
+    "outline": 0.4
+  }
+}

@@ -8,7 +8,7 @@
     "build:types": "cd src-tauri && cargo run --bin generate_types",
     "build": "npm run build:types && tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "npm i && tauri"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

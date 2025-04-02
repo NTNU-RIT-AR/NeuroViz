@@ -14,9 +14,19 @@ use crate::structs::Preset;
 
 use itertools::Itertools;
 use local_ip_address::local_ip;
+use serde::Deserialize;
+use serde::Serialize;
 use slug::slugify;
+use specta::Flatten;
+use specta::Type;
 use std::collections::HashMap;
 use tauri::Manager;
+
+#[derive(Deserialize, Serialize, Type)]
+pub struct WithKey<T: Type + Flatten> {
+    key: String,
+    value: T,
+}
 
 #[specta::specta]
 #[tauri::command]
@@ -180,17 +190,25 @@ pub fn get_experiment(slugged_name: String) -> Result<Experiment, String> {
     storage::parse_from_json_file::<Experiment>(slugged_name, Folder::Experiments)
 }
 
-/// Start an experiment
+/// Get all experiments
 #[tauri::command]
 #[specta::specta]
-pub fn get_all_experiments() -> Result<Vec<Experiment>, String> {
-    let mut result: Vec<Experiment> = Vec::new();
+pub fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
+    let experiment_keys = list_experiments()?;
 
-    let experiments = list_experiments()?;
-    for experiment in experiments {
-        result.push(get_experiment(experiment)?);
-    }
-    Ok(result)
+    let experiments_with_key = experiment_keys
+        .into_iter()
+        .map(|experiment_key| -> Result<WithKey<Experiment>, String> {
+            let experiment = get_experiment(experiment_key.clone())?;
+
+            Ok(WithKey {
+                key: experiment_key,
+                value: experiment,
+            })
+        })
+        .try_collect()?;
+
+    Ok(experiments_with_key)
 }
 
 #[tauri::command]
