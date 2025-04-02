@@ -94,6 +94,7 @@ export default function LiveViewPage() {
     <Layout title="Live View">
       <ContentBox className={styles.contentBox}>
         <Select
+          className={styles.select}
           options={options}
           onChange={(option) => setSelectedPresetKey(option?.value)}
         />

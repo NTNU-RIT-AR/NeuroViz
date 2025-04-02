@@ -11,3 +11,8 @@
 .contentBox > button:active {
   transform: scaleY(0.965) scaleX(0.995);
 }
+
+.select * {
+  color: black;
+  cursor: pointer;
+}
