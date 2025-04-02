@@ -120,7 +120,13 @@ export default function LiveViewPage() {
             title="Enter preset name"
           >
             <input placeholder="preset-name" />
-            <Button>Save</Button>
+            <Button
+              onClick={() => {
+                setShowPresetCreationPopup(false);
+              }}
+            >
+              Save
+            </Button>
           </Popup>
         )}
       </ContentBox>
