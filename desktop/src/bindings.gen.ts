@@ -32,6 +32,9 @@ async getLiveParameter(parameter: ParameterKey) : Promise<number> {
 async getPreset(sluggedPresetName: string) : Promise<Preset> {
     return await TAURI_INVOKE("get_preset", { sluggedPresetName });
 },
+async getAllPresets() : Promise<WithKey<Preset>[]> {
+    return await TAURI_INVOKE("get_all_presets");
+},
 /**
  * List all presets
  */
