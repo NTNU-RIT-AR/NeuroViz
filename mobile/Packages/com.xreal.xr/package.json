@@ -1,0 +1,46 @@
+{
+  "name": "com.xreal.xr",
+  "displayName": "XERAL XR Plugin",
+  "version": "3.0.0-pre.4",
+  "unity": "2021.3",
+  "description": "XREAL XR Plugin",
+  "keywords": [
+    "vr",
+    "xr",
+    "ar",
+    "mr",
+    "XREAL",
+    "reality",
+    "xreditorsubsystem"
+  ],
+  "dependencies": {
+    "com.unity.xr.management": "4.4.1",
+    "com.unity.xr.core-utils": "2.2.0"
+  },
+  "samples": [
+    {
+      "displayName": "Interaction Basics",
+      "description": "Assets to streamline the setup of basic rendering and interactions using controllers and hand gestures, compatible with the XR Interaction Toolkit. This includes prefabs and demo scenes to get you started with XREAL SDK integration.\n<i>Dependencies:</i>\n • <a href=\"com.unity3d.kharma:upmpackage/com.unity.xr.interaction.toolkit\">XR Interaction Toolkit</a>",
+      "path": "Samples~/Interaction Basics"
+    },
+    {
+      "displayName": "AR Features",
+      "description": "Sample scene and other assets to demonstrate the integration of AR features supported by the XREAL SDK with AR Foundation. This includes Plane Detection, Image Tracking, Spatial Anchors, and Depth Meshing.\n<i>Dependencies:</i>\n • <a href=\"com.unity3d.kharma:upmpackage/com.unity.xr.arfoundation\">AR Foundation</a>",
+      "path": "Samples~/AR Features"
+    },
+    {
+      "displayName": "Camera Features",
+      "description": "A set of scenes demonstrating how to access and use the RGB camera for live feeds, recording, and capturing images in AR applications using the XREAL SDK.",
+      "path": "Samples~/Camera Features"
+    },
+    {
+      "displayName": "MarkerTracking",
+      "description": "A sample scene demonstrating how to implement XREAL Markers - interactive image tracking cards with magnetic sliders. Shows the basic usage of marker detection, tracking states, and how to integrate these interactive cards into your AR applications using the XREAL SDK.\n<i>Dependencies:</i>\n • <a href=\"com.unity3d.kharma:upmpackage/com.unity.xr.arfoundation\">AR Foundation</a>",
+      "path": "Samples~/MarkerTracking"
+    }
+  ],
+  "author": {
+    "name": "XREAL"
+  },
+  "_fingerprint": "ee75e1479685d5801dd2d98475ea63e6"
+}

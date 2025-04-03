@@ -320,9 +320,9 @@
       "url": "https://packages.unity.com"
     },
     "com.xreal.xr": {
-      "version": "file:C:/Users/teevik/Downloads/com.xreal.xr.tar.gz",
+      "version": "file:com.xreal.xr",
       "depth": 0,
-      "source": "local-tarball",
+      "source": "embedded",
       "dependencies": {
         "com.unity.xr.management": "4.4.1",
         "com.unity.xr.core-utils": "2.2.0"

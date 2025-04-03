@@ -1,0 +1,55 @@
+{
+    "name": "Unity.XR.XREAL",
+    "rootNamespace": "",
+    "references": [
+        "Unity.XR.Management",
+        "Unity.XR.Management.Editor",
+        "Unity.InputSystem",
+        "Unity.XR.Hands",
+        "Unity.XR.ARSubsystems",
+        "Unity.XR.Interaction.Toolkit",
+        "Unity.XR.ARFoundation",
+        "Unity.XR.CoreUtils",
+        "Unity.RenderPipelines.Universal.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "UNITY_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.unity.xr.hands",
+            "expression": "",
+            "define": "XR_HANDS"
+        },
+        {
+            "name": "com.unity.xr.arfoundation",
+            "expression": "",
+            "define": "XR_ARFOUNDATION"
+        },
+        {
+            "name": "com.unity.xr.interaction.toolkit",
+            "expression": "",
+            "define": "XR_INTERACTION"
+        },
+        {
+            "name": "com.xreal.xr.enterprise",
+            "expression": "",
+            "define": "XREAL_ENTERPRISE"
+        },
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": "UNITY_URP"
+        }
+    ],
+    "noEngineReferences": false
+}

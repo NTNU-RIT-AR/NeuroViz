@@ -1,0 +1,20 @@
+{
+  "name": "XREAL XR Plugin",
+  "version": "3.0.0-pre.4",
+  "libraryName": "XREALXRPlugin",
+  "displays": [
+    {
+      "id": "XREAL Display"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "XREAL Head Tracking"
+    }
+  ],
+  "meshings": [
+    {
+      "id": "XREAL Meshing"
+    }
+  ]
+}

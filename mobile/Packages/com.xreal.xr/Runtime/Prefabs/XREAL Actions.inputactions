@@ -1,0 +1,127 @@
+{
+    "name": "XREAL Actions",
+    "maps": [
+        {
+            "name": "XREAL Buttons",
+            "id": "507278ca-1279-4d22-9899-200a379d0604",
+            "actions": [
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "ff57ec8d-beb4-42f2-bda8-a88323463c8f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold,Press(behavior=1)",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Trigger",
+                    "type": "Button",
+                    "id": "e7f9af9e-1373-4743-b306-066faeb1bd47",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Touchpad",
+                    "type": "Value",
+                    "id": "b6becb84-b283-44e3-8796-ebda6a729b70",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "App",
+                    "type": "Button",
+                    "id": "cf04b53b-2fb8-4435-8626-71c18fabae18",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c9dfd81e-e92f-4402-89f0-68b1c70a0fb7",
+                    "path": "<XREALController>/MenuButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "978412bc-4cb3-4ae5-a1bf-60584eae271a",
+                    "path": "<XRSimulatedController>/menuButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cd91fe5f-7f47-4e94-a592-afbf6bb02740",
+                    "path": "<XREALController>/TriggerButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Trigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eca41d65-053e-4ac0-ac01-b94ff98e733e",
+                    "path": "<XRSimulatedController>/triggerButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Trigger",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f8bbba63-f1d4-4d9e-b154-fa6068d3f24e",
+                    "path": "<XREALController>/Primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Touchpad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "208b152d-ed46-4558-a441-ed6c789e70c3",
+                    "path": "<XRSimulatedController>/primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Touchpad",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "00c94b80-e24c-4294-bd90-67f314ec6ae0",
+                    "path": "<XREALController>/ButtonId0",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "App",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

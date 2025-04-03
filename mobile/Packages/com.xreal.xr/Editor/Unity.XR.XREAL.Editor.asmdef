@@ -1,0 +1,40 @@
+{
+    "name": "Unity.XR.XREAL.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2b1cc58b5fab727499169f06e9336a3b",
+        "GUID:e40ba710768534012815d3193fa296cb",
+        "GUID:f9fe0089ec81f4079af78eb2287a6163",
+        "GUID:4ddd23ea56a3a40f0aa0036d1624a53e",
+        "GUID:92703082f92b41ba80f0d6912de66115",
+        "GUID:8b0c2853a940d4fd9979bac438eb5bf3",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.arfoundation",
+            "expression": "",
+            "define": "XR_ARFOUNDATION"
+        },
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "UNITY_INPUT_SYSTEM"
+        },
+        {
+            "name": "com.xreal.xr.enterprise",
+            "expression": "",
+            "define": "XREAL_ENTERPRISE"
+        }
+    ],
+    "noEngineReferences": false
+}
