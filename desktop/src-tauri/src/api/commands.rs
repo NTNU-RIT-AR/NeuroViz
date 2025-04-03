@@ -72,6 +72,7 @@ pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, AppError> {
 pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), AppError> {
     // Parse PARAMS to JSON
     let app_data = app.state::<AppData>();
+    let preset_key = slugify(&preset_name);
 
     let parameters = {
         let app_state = app_data.state.borrow();
@@ -82,7 +83,12 @@ pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result
             .clone()
     };
 
-    storage::create_file(preset_name, parameters, Folder::Presets).await?;
+    let preset = Preset {
+        name: preset_name,
+        parameters,
+    };
+
+    storage::create_file(preset_key, preset, Folder::Presets).await?;
 
     Ok(())
 }

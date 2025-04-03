@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { useImmer } from "use-immer";
 import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
@@ -20,12 +20,12 @@ function useLiveParameters() {
     parameters.map((parameter) => ({
       ...parameter,
       value: initialLiveParameters[parameter.key],
-    }))
+    })),
   );
 
   useEffect(() => {
     const parameters = Object.fromEntries(
-      parameterStates.map((parameter) => [parameter.key, parameter.value])
+      parameterStates.map((parameter) => [parameter.key, parameter.value]),
     ) as Record<ParameterKey, number>;
 
     commands.setLiveParameters(parameters);
@@ -56,23 +56,24 @@ function useLiveParameters() {
 
 /// Fetches the presets and lets the user select one
 function useSelectPreset() {
-  const presets = useCommand(commands.getPresets).data;
+  const presets = useCommand(commands.getPresets);
 
   const [selectedPresetKey, setSelectedPresetKey] = useState<
     string | undefined
   >(undefined);
 
-  const selectedPreset = presets.find(
-    (preset) => preset.key === selectedPresetKey
+  const selectedPreset = presets.data.find(
+    (preset) => preset.key === selectedPresetKey,
   );
 
-  const options = presets.map((preset) => ({
+  const options = presets.data.map((preset) => ({
     value: preset.key,
     label: preset.value.name,
   }));
 
   return {
     selected: selectedPreset,
+    refetch: presets.refetch,
     options,
 
     onChange(presetKey: string | undefined) {
@@ -94,6 +95,8 @@ export default function LiveViewPage() {
 
     if (selectedPreset) liveParameters.set(selectedPreset.value.parameters);
   }, [selectPreset.selected]);
+
+  const presetNameRef = useRef<HTMLInputElement>(null);
 
   return (
     <Layout title="Live View">
@@ -119,9 +122,15 @@ export default function LiveViewPage() {
             }}
             title="Enter preset name"
           >
-            <input placeholder="preset-name" />
+            <input placeholder="preset-name" ref={presetNameRef} />
             <Button
-              onClick={() => {
+              onClick={async () => {
+                await commands
+                  .createPreset(presetNameRef.current!.value)
+                  // TODO better error handling
+                  .catch(alert);
+
+                selectPreset.refetch();
                 setShowPresetCreationPopup(false);
               }}
             >
