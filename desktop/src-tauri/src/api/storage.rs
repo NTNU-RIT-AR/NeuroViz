@@ -30,7 +30,6 @@ pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
 
     fs::create_dir_all(&path).map_err(|e| format!("Could not create directory: {}", e))?;
 
-    println!("data dir: {}", path.display());
     Ok(path)
 }
 

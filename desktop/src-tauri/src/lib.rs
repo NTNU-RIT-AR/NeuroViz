@@ -123,7 +123,6 @@ async fn setup(app: AppHandle) {
         let mut app_state_stream = app_data.state.signal_cloned().to_stream();
 
         while let Some(new_state) = app_state_stream.next().await {
-            println!("Emitting new state: {:?}", new_state);
             StateEvent {
                 state: new_state.clone(),
             }
