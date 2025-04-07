@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use anyhow::{bail, Context};
 use dirs;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -9,7 +10,7 @@ use tokio::io::AsyncWriteExt;
 use super::commands::WithKey;
 use crate::consts::Folder;
 
-pub async fn get_folder(folder: Folder) -> Result<PathBuf, String> {
+pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
     //let mut path = env::current_exe().ok()?;
     //path.push("data");
 
@@ -24,13 +25,13 @@ pub async fn get_folder(folder: Folder) -> Result<PathBuf, String> {
         path = desktop_dir.join("data");
     } else {
         // release mode
-        path = dirs::executable_dir().ok_or_else(|| format!("Could not get executable dir"))?;
+        path = dirs::executable_dir().context("Could not get executable dir")?;
     }
     path.push(folder.to_string());
 
     fs::create_dir_all(&path)
         .await
-        .map_err(|e| format!("Could not create directory: {}", e))?;
+        .context("Could not create directory")?;
 
     println!("data dir: {}", path.display());
     Ok(path)
@@ -40,70 +41,67 @@ pub async fn create_file(
     key: String,
     contents: impl Serialize,
     folder: Folder,
-) -> Result<(), String> {
+) -> anyhow::Result<()> {
     let file_name = format!("{}.json", key);
     let path = get_folder(folder).await?.join(file_name);
 
-    let json = serde_json::to_string_pretty(&contents)
-        .map_err(|err| format!("Could not serialize to JSON: {}", err.to_string()))?;
+    let json = serde_json::to_string_pretty(&contents).context("Could not serialize to JSON")?;
 
-    let mut file = File::create_new(path).await.map_err(|err| {
-        format!(
-            "File with this name exist already (?)\n {}",
-            err.to_string()
-        )
-    })?;
+    let mut file = File::create_new(path)
+        .await
+        .context("File with this name exist already")?;
 
     file.write_all(json.as_bytes())
         .await
-        .map_err(|err| format!("Could not write to file\n {}", err.to_string()))
+        .context("Could not write to file")
 }
 
-pub async fn read_file<T: DeserializeOwned>(key: String, folder: Folder) -> Result<T, String> {
+pub async fn read_file<T: DeserializeOwned>(key: String, folder: Folder) -> anyhow::Result<T> {
     let file_name = format!("{}.json", key);
     let path = get_folder(folder).await?.join(file_name);
 
     let file_content = fs::read_to_string(&path)
         .await
-        .map_err(|e| format!("Could not read file: {}", e))?;
+        .context("Could not read file")?;
 
-    let deserialized = serde_json::from_str::<T>(&file_content).map_err(|e| e.to_string())?;
+    let deserialized =
+        serde_json::from_str::<T>(&file_content).context("Could not deserialize JSON")?;
 
     Ok(deserialized)
 }
 
-pub async fn read_files<T: DeserializeOwned>(folder: Folder) -> Result<Vec<WithKey<T>>, String> {
-    let path = get_folder(folder)
-        .await
-        .map_err(|e| format!("Could not open folder: {}", e))?;
+pub async fn read_files<T: DeserializeOwned>(folder: Folder) -> anyhow::Result<Vec<WithKey<T>>> {
+    let path = get_folder(folder).await.context("Could not open folder")?;
 
     if !path.is_dir() {
-        return Err(format!("Folder does not exist"));
+        bail!("Folder does not exist");
     }
 
     let mut dir = fs::read_dir(path)
         .await
-        .map_err(|_| "Couldnt read directory".to_string())?;
+        .context("Could not read directory")?;
 
     let mut results = vec![];
 
-    while let Some(entry) = dir.next_entry().await.map_err(|e| e.to_string())? {
-        let file_content = fs::read_to_string(entry.path())
-            .await
-            .map_err(|e| e.to_string())?;
+    while let Some(entry) = dir
+        .next_entry()
+        .await
+        .context("Failed to read directory entry")?
+    {
+        let file_content = fs::read_to_string(entry.path()).await?;
 
         let deserialized = serde_json::from_str::<T>(&file_content)
-            .map_err(|e| format!("Could not deserialize JSON: {}", e))?;
+            .context("Failed to deserialize JSON content")?;
 
         let path = entry.path();
 
         let file_without_extension = path
             .file_stem()
-            .ok_or_else(|| format!("Could not get file stem from path: {:?}", entry.path()))?;
+            .context("Could not get file stem from path")?;
 
         let file_without_extension = file_without_extension
             .to_str()
-            .ok_or_else(|| format!("Could not convert OsStr to str"))?;
+            .context("Could not convert OsStr to str")?;
 
         results.push(WithKey {
             key: file_without_extension.to_owned(),
@@ -114,17 +112,13 @@ pub async fn read_files<T: DeserializeOwned>(folder: Folder) -> Result<Vec<WithK
     Ok(results)
 }
 
-pub async fn delete_file(key: String, folder: Folder) -> Result<(), String> {
+pub async fn delete_file(key: String, folder: Folder) -> anyhow::Result<()> {
     let file_name = format!("{}.json", key);
     let path = get_folder(folder).await?.join(file_name);
 
-    fs::remove_file(&path).await.map_err(|e| {
-        format!(
-            "Could not delete file '{}': {}",
-            path.display(),
-            e.to_string()
-        )
-    })?;
+    fs::remove_file(&path)
+        .await
+        .context("Could not delete file")?;
 
     Ok(())
 }

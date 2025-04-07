@@ -12,6 +12,7 @@ use crate::structs::Parameter;
 use crate::structs::ParameterValues;
 use crate::structs::Preset;
 
+use anyhow::Context;
 use local_ip_address::local_ip;
 use serde::Deserialize;
 use serde::Serialize;
@@ -19,6 +20,8 @@ use slug::slugify;
 use specta::Type;
 use std::collections::HashMap;
 use tauri::Manager;
+
+use super::command_error::AppError;
 
 #[derive(Deserialize, Serialize, Type)]
 pub struct WithKey<T> {
@@ -58,44 +61,58 @@ pub fn get_parameters() -> Vec<Parameter> {
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, String> {
-    storage::read_files(Folder::Presets).await
+pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, AppError> {
+    let presets = storage::read_files(Folder::Presets).await?;
+
+    Ok(presets)
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), String> {
+pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result<(), AppError> {
     // Parse PARAMS to JSON
     let app_data = app.state::<AppData>();
+    let preset_key = slugify(&preset_name);
 
     let parameters = {
         let app_state = app_data.state.borrow();
 
         app_state
             .try_as_live_view_ref()
-            .ok_or("Must be in live mode".to_owned())?
+            .context("Must be in live mode")?
             .clone()
     };
 
-    storage::create_file(preset_name, parameters, Folder::Presets).await
+    let preset = Preset {
+        name: preset_name,
+        parameters,
+    };
+
+    storage::create_file(preset_key, preset, Folder::Presets).await?;
+
+    Ok(())
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn delete_preset(key: String) -> Result<(), String> {
-    storage::delete_file(key, Folder::Presets).await
+pub async fn delete_preset(key: String) -> Result<(), AppError> {
+    storage::delete_file(key, Folder::Presets).await?;
+
+    Ok(())
 }
 
 /// Get all experiments
 #[tauri::command]
 #[specta::specta]
-pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
-    storage::read_files(Folder::Experiments).await
+pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, AppError> {
+    let experiments = storage::read_files(Folder::Experiments).await?;
+
+    Ok(experiments)
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, String> {
+pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, AppError> {
     //Derive from CreateExperiment and Preset to Experiment
     let mut experiment_presets: HashMap<String, Preset> =
         HashMap::with_capacity(experiment_init_data.presets.len());
@@ -125,20 +142,22 @@ pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result
 /// Delete an experiment
 #[tauri::command]
 #[specta::specta]
-pub async fn delete_experiment(key: String) -> Result<(), String> {
-    storage::delete_file(key, Folder::Experiments).await
+pub async fn delete_experiment(key: String) -> Result<(), AppError> {
+    storage::delete_file(key, Folder::Experiments).await?;
+
+    Ok(())
 }
 
 /// Get all parameters in live view
 #[tauri::command]
 #[specta::specta]
-pub fn get_live_parameters(app: tauri::AppHandle) -> Result<ParameterValues, String> {
+pub fn get_live_parameters(app: tauri::AppHandle) -> Result<ParameterValues, AppError> {
     let app_data = app.state::<AppData>();
     let app_state = app_data.state.borrow();
 
     let live_state = app_state
         .try_as_live_view_ref()
-        .ok_or("Must be in live mode".to_owned())?;
+        .context("Must be in live mode")?;
 
     Ok(live_state.clone())
 }
@@ -149,13 +168,13 @@ pub fn get_live_parameters(app: tauri::AppHandle) -> Result<ParameterValues, Str
 pub fn set_live_parameters(
     app: tauri::AppHandle,
     parameters: ParameterValues,
-) -> Result<(), String> {
+) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
 
     app_data.state.send_modify_with(|app_state| {
         let live_state = app_state
             .try_as_live_view_mut()
-            .ok_or("Must be in live mode".to_owned())?;
+            .context("Must be in live mode")?;
 
         *live_state = parameters;
 
@@ -170,17 +189,10 @@ pub async fn start_experiment(
     slugged_experiment_name: String,
     obeserver_id: u32,
     note: String,
-) -> Result<(), String> {
-    //Instansiate ExperimentResult and Experiment for the selected experiment (so that we can eventually store the data to file)
-    let experiment: Experiment = match storage::read_file::<Experiment>(
-        slugged_experiment_name,
-        Folder::Experiments,
-    )
-    .await
-    {
-        Ok(e) => e,
-        Err(e) => return Err(e),
-    };
+) -> Result<(), AppError> {
+    let experiment =
+        storage::read_file::<Experiment>(slugged_experiment_name, Folder::Experiments).await?;
+
     let experiment_result: ExperimentResult =
         ExperimentResult::new(&experiment, obeserver_id, note);
 
@@ -195,7 +207,6 @@ pub async fn start_experiment(
         )))
         .unwrap();
 
-    //Return success signal to frontend
     Ok(())
 }
 
@@ -217,21 +228,25 @@ pub fn exit_experiment(app: tauri::AppHandle) {
 /// Answer the current experiment prompt
 #[tauri::command]
 #[specta::specta]
-pub fn answer_experiment(app: tauri::AppHandle, answer: ExperimentAnswer) -> Result<(), String> {
+pub fn answer_experiment(app: tauri::AppHandle, answer: ExperimentAnswer) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
 
     app_data
         .state
-        .send_modify_with(|state| state.answer_experiment(answer))
+        .send_modify_with(|state| state.answer_experiment(answer))?;
+
+    Ok(())
 }
 
 /// Swap the current preset in the experiment
 #[tauri::command]
 #[specta::specta]
-pub fn swap_preset(app: tauri::AppHandle) -> Result<(), String> {
+pub fn swap_preset(app: tauri::AppHandle) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
 
     app_data
         .state
-        .send_modify_with(|state| state.swap_current_preset())
+        .send_modify_with(|state| state.swap_current_preset())?;
+
+    Ok(())
 }
