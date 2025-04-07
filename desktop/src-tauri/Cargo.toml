@@ -36,7 +36,6 @@ futures = "0.3.31"
 slug = "0.1"
 chrono = { version = "0.4.40", features = ["serde"] }
 strum = { version = "0.27.1", features = ["derive"] }
-futures-signals = "0.3.34"
 specta = { version = "=2.0.0-rc.22", features = ["chrono"] }
 specta-typescript = "0.0.9"
 tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
