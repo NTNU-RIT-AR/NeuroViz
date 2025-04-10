@@ -13,9 +13,9 @@ use api::{commands, events};
 use appdata::{AppData, AppState};
 use consts::HTTP_SERVER_PORT;
 
-use extensions::MpscReceiverExt;
+use extensions::{MpscReceiverExt, WatchReceiverExt};
 use futures::StreamExt;
-use futures_signals::signal::{Mutable, ReadOnlyMutable, SignalExt};
+use specta_typescript::formatter::prettier;
 use specta_typescript::Typescript;
 use structs::ParameterValues;
 use tauri::{AppHandle, Manager};
@@ -27,11 +27,12 @@ use tokio::sync::{mpsc, watch};
 /// Runs the HTTP server, and also transforms the app state into a Unity state
 pub async fn http_server_task(
     listener: TcpListener,
-    app_state: ReadOnlyMutable<AppState>,
+    app_state_receiver: watch::Receiver<AppState>,
     unity_event_sender: mpsc::Sender<UnityEvent>,
 ) {
     // Channel for unity state
-    let (unity_state_sender, unity_state_receiver) = watch::channel(app_state.get_cloned().into());
+    let (unity_state_sender, unity_state_receiver) =
+        watch::channel(app_state_receiver.borrow().clone().into());
 
     let http_server = HttpServer {
         state: unity_state_receiver,
@@ -40,7 +41,7 @@ pub async fn http_server_task(
 
     // Task to update the unity state based on app state changes
     let update_unity_state = async move {
-        let mut app_state_stream = app_state.signal_cloned().to_stream();
+        let mut app_state_stream = app_state_receiver.into_stream();
 
         // Whenever app_state changes, convert it to UnityState and send it the channel
         while let Some(state) = app_state_stream.next().await {
@@ -58,28 +59,27 @@ pub async fn http_server_task(
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
 pub async fn handle_unity_events_task(
     app_handle: AppHandle,
-    app_state: Mutable<AppState>,
+    app_state_sender: watch::Sender<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
     let mut stream = unity_event_receiver.into_stream();
 
     while let Some(event) = stream.next().await {
-        let mut app_state = app_state.lock_mut();
-
-        match event {
+        // let mut app_state = app_state.lock_mut();
+        app_state_sender.send_modify(|state| match event {
             UnityEvent::SwapPreset => {
-                let _ = app_state.swap_current_preset();
+                let _ = state.swap_current_preset();
             }
 
             UnityEvent::Answer(experiment_answer) => {
-                let _ = app_state.answer_experiment(experiment_answer);
+                let _ = state.answer_experiment(experiment_answer);
             }
 
             UnityEvent::Connection { is_connected } => {
                 dbg!("Received connection event: {}", is_connected);
                 ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
             }
-        }
+        });
     }
 }
 
@@ -100,7 +100,7 @@ async fn setup(app: AppHandle) {
     // Task that runs http server
     let http_server = http_server_task(
         listener,
-        app_data.state.read_only(),
+        app_data.state.subscribe(),
         unity_event_sender.clone(),
     );
 
@@ -120,7 +120,7 @@ async fn setup(app: AppHandle) {
 
     // Tawsk to emit app state changes to the tauri frontend
     let emit_app_state = async move {
-        let mut app_state_stream = app_data.state.signal_cloned().to_stream();
+        let mut app_state_stream = app_data.state.subscribe().into_stream();
 
         while let Some(new_state) = app_state_stream.next().await {
             StateEvent {
@@ -139,23 +139,22 @@ pub fn tauri_commands() -> tauri_specta::Builder {
     tauri_specta::Builder::<tauri::Wry>::new()
         .error_handling(ErrorHandlingMode::Throw)
         .commands(collect_commands![
+            // App data
             commands::current_state,
             commands::get_ip_address,
-            //
             commands::get_parameters,
-            //
-            commands::set_live_parameter,
-            commands::get_live_parameter,
-            //
-            commands::get_preset,
-            commands::get_all_presets,
-            commands::list_presets,
+            // CRUD presets
+            commands::get_presets,
             commands::create_preset,
             commands::delete_preset,
-            commands::get_experiment,
-            commands::list_experiments,
-            commands::create_experiment,
+            // CRUD experiments
             commands::get_experiments,
+            commands::create_experiment,
+            commands::delete_experiment,
+            // Live view
+            commands::set_live_parameters,
+            commands::get_live_parameters,
+            // Actvie experiment
             commands::start_experiment,
             commands::exit_experiment,
             commands::answer_experiment,
@@ -168,7 +167,7 @@ pub fn generate_typescript_types(builder: &tauri_specta::Builder) {
     let path = PathBuf::from("../src/bindings.gen.ts");
 
     builder
-        .export(Typescript::default(), &path)
+        .export(Typescript::default().formatter(prettier), &path)
         .expect("Failed to export typescript bindings");
 
     println!("Generated TypeScript types at {:?}", path);
