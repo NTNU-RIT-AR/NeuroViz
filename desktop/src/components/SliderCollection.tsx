@@ -4,7 +4,7 @@ import Slider from "./Slider";
 import styles from "./styles/SliderCollection.module.css";
 
 export interface StateParameter extends Parameter {
-  onChange?: (value: number) => void;
+  onChange: (value: number) => void;
   value: number;
 }
 
@@ -24,7 +24,7 @@ export default function SliderCollection({
           min={0}
           max={1}
           value={parameter.value}
-          onChange={parameter.onChange ?? (() => {})}
+          onChange={parameter.onChange}
         ></Slider>
       ))}
     </div>

@@ -1,12 +1,14 @@
+// Load files from the folder
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useImmer } from "use-immer";
 import { commands, WithKey, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
-import SliderCollection from "../components/SliderCollection.tsx";
-import { useCommand } from "../hooks.ts";
+import { ParameterWithValue } from "../interfaces.ts";
 import styles from "./styles/Presets.module.css";
+import SliderCollection from "../components/SliderCollection.tsx";
 
 type PresetProps = { name: string };
 
@@ -43,48 +45,66 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
   );
 }
 
-interface PresetPreviewProps {
-  preset: Preset;
-}
-
-function PresetPreview(props: PresetPreviewProps) {
-  const { preset } = props;
-  const parameters = useCommand(commands.getParameters).data;
-
-  const parameterStates = parameters.map((parameter) => ({
-    ...parameter,
-    value: preset.parameters[parameter.key],
-  }));
-
-  return <SliderCollection parameters={parameterStates} />;
-}
-
 export default function PresetsPage() {
-  const presets = useCommand(commands.getPresets);
-
+  const [presets, setPresets] = useState<WithKey<Preset>[]>([]);
   const [selectedPreset, setSelectedPreset] = useState<
     WithKey<Preset> | undefined
   >(undefined);
 
-  async function deletePreset(presetKey: string) {
-    await commands.deletePreset(presetKey);
-    presets.refetch();
-  }
+  const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
+
+  useEffect(() => {
+    commands.getAllPresets().then(setPresets);
+    commands.getParameters().then((parameters) =>
+      setParameters(
+        parameters.map((parameter) => ({
+          ...parameter,
+          value: 0,
+        })),
+      ),
+    );
+  }, []);
+
+  useEffect(() => {
+    if (selectedPreset) {
+      setParameters((parameters) => {
+        for (const parameter of parameters) {
+          parameter.value = selectedPreset.value.parameters[parameter.key];
+        }
+      });
+    }
+  }, [selectedPreset]);
 
   return (
     <Layout title="Presets">
       <ContentBox className={styles.presetsContainer}>
-        {presets.data.map((preset) => (
+        {presets.map((preset) => (
           <PresetElement
             name={preset.value.name}
-            onDelete={() => deletePreset(preset.key)}
-            onSelect={() => setSelectedPreset(preset)}
+            onDelete={async () => {
+              // if (selectedPreset === preset.value) {
+              //   setSelectedPreset(undefined);
+              // }
+              await commands.deletePreset(preset.key);
+              //TODO: just remove from frontend state, instead of fetching
+              commands.getAllPresets().then(setPresets);
+            }}
+            onSelect={() => {
+              setSelectedPreset(preset);
+            }}
           />
         ))}
       </ContentBox>
 
       <ContentBox>
-        {selectedPreset && <PresetPreview preset={selectedPreset.value} />}
+        {selectedPreset && (
+          <SliderCollection
+            parameters={parameters.map((parameter) => ({
+              ...parameter,
+              onChange: (_: number) => {},
+            }))}
+          />
+        )}
       </ContentBox>
     </Layout>
   );

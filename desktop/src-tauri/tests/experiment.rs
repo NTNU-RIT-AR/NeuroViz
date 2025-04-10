@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
+use futures_signals::signal::Mutable;
 use min_tauri_app_lib::{
     api::http_server::{UnityEvent, UnityState},
     appdata::{AppData, AppState, ExperimentState},
@@ -12,11 +13,7 @@ use min_tauri_app_lib::{
         Preset,
     },
 };
-use tokio::{
-    join,
-    net::TcpListener,
-    sync::{mpsc, watch},
-};
+use tokio::{join, net::TcpListener, sync::mpsc};
 
 /// Helper function to create a TCP listener on a random port
 async fn listener_random_port() -> (TcpListener, String) {
@@ -34,19 +31,21 @@ async fn listener_random_port() -> (TcpListener, String) {
 
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
 pub async fn handle_unity_events_task(
-    app_state_sender: watch::Sender<AppState>,
+    app_state: Mutable<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
     let mut stream = unity_event_receiver.into_stream();
 
     while let Some(event) = stream.next().await {
-        app_state_sender.send_modify(|state| match event {
-            UnityEvent::SwapPreset => state.swap_current_preset().unwrap(),
+        let mut app_state = app_state.lock_mut();
+
+        match event {
+            UnityEvent::SwapPreset => app_state.swap_current_preset().unwrap(),
             UnityEvent::Answer(experiment_answer) => {
-                state.answer_experiment(experiment_answer).unwrap()
+                app_state.answer_experiment(experiment_answer).unwrap()
             }
             UnityEvent::Connection { .. } => {}
-        });
+        }
     }
 }
 
@@ -60,7 +59,7 @@ async fn experiment_integration_test() {
 
     let http_server = http_server_task(
         listener,
-        app_data.state.subscribe(),
+        app_data.state.read_only(),
         unity_event_sender.clone(),
     );
     let handle_unity_events =
@@ -85,10 +84,7 @@ async fn experiment_integration_test() {
     };
 
     // Check if the initial state is sent
-    assert_eq!(
-        get_next_state().await,
-        app_data.state.borrow().clone().into()
-    );
+    assert_eq!(get_next_state().await, app_data.state.get_cloned().into());
 
     let parameters_1 = ParameterValues {
         transparency: 0.5,
@@ -133,21 +129,19 @@ async fn experiment_integration_test() {
 
     app_data
         .state
-        .send(AppState::Experiment(ExperimentState::new(
+        .replace(AppState::Experiment(ExperimentState::new(
             experiment,
             experiment_result,
-        )))
-        .unwrap();
+        )));
 
     // Check if the experiment state is sent
-    let _unity_state = get_next_state().await;
     let unity_state = get_next_state().await;
-    assert_eq!(unity_state, app_data.state.borrow().clone().into());
+    assert_eq!(unity_state, app_data.state.get_cloned().into());
 
     let get_current_preset = || {
         app_data
             .state
-            .borrow()
+            .lock_ref()
             .try_as_experiment_ref()
             .unwrap()
             .choice_current_preset
@@ -163,7 +157,7 @@ async fn experiment_integration_test() {
 
     // Check state is in sync
     let unity_state = get_next_state().await;
-    assert_eq!(unity_state, app_data.state.borrow().clone().into());
+    assert_eq!(unity_state, app_data.state.get_cloned().into());
 
     // Check if the current preset is swapped
     assert_eq!(get_current_preset(), CurrentPreset::B);
