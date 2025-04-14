@@ -12,15 +12,6 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use strum::EnumTryAs;
 
-// pub struct SharedExperimentState {
-//    pub experiment_key: String,
-//   pub result_key: String,
-// }
-
-// pub struct ChoiceExperimentState {
-//     pub choice_current_preset: CurrentPreset,
-// }
-
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ExperimentState {
     pub experiment_key: String,
