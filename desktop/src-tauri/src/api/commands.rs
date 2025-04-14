@@ -220,26 +220,31 @@ pub fn get_experiments() -> Result<Vec<WithKey<Experiment>>, String> {
 #[specta::specta]
 pub fn start_experiment(
     app: tauri::AppHandle,
-    slugged_experiment_name: String,
+    experiment_key: String,
+    result_name: String,
     obeserver_id: u32,
     note: String,
 ) -> Result<(), String> {
+    let result_key = slugify(&result_name);
+
     //Instansiate ExperimentResult and Experiment for the selected experiment (so that we can eventually store the data to file)
     let experiment: Experiment = match storage::parse_from_json_file::<Experiment>(
-        slugged_experiment_name,
+        experiment_key.clone(),
         Folder::Experiments,
     ) {
         Ok(e) => e,
         Err(e) => return Err(e),
     };
     let experiment_result: ExperimentResult =
-        ExperimentResult::new(&experiment, obeserver_id, note);
+        ExperimentResult::new(&experiment, result_name, obeserver_id, note);
 
     // Update the AppState in AppData to be in "ExperimentMode"
     let app_data = app.state::<AppData>();
     let app_state = &app_data.state;
 
     app_state.set(AppState::Experiment(ExperimentState::new(
+        experiment_key,
+        result_key,
         experiment,
         experiment_result,
     )));

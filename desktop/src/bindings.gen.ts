@@ -74,8 +74,8 @@ async createExperiment(experimentInitData: CreateExperiment) : Promise<string> {
 async getExperiments() : Promise<WithKey<Experiment>[]> {
     return await TAURI_INVOKE("get_experiments");
 },
-async startExperiment(sluggedExperimentName: string, obeserverId: number, note: string) : Promise<null> {
-    return await TAURI_INVOKE("start_experiment", { sluggedExperimentName, obeserverId, note });
+async startExperiment(experimentKey: string, resultName: string, obeserverId: number, note: string) : Promise<null> {
+    return await TAURI_INVOKE("start_experiment", { experimentKey, resultName, obeserverId, note });
 },
 /**
  * Exit the current experiment early
@@ -138,7 +138,7 @@ export type Experiment = (
 { experiment_type: "choice"; choices: Choice[] }) & { name: string; presets: Partial<{ [key in string]: Preset }> }
 export type ExperimentAnswer = { experiment_type: "choice" } | { experiment_type: "rating"; value: number }
 export type ExperimentResult = ({ experiment_type: "rating"; ratings: OutcomeRating[] } | { experiment_type: "choice"; choices: OutcomeChoice[] }) & { name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }
-export type ExperimentState = { experiment: Experiment; experiment_result: ExperimentResult; current_index: number; choice_current_preset: CurrentPreset }
+export type ExperimentState = { experiment_key: string; result_key: string; experiment: Experiment; experiment_result: ExperimentResult; current_index: number; choice_current_preset: CurrentPreset }
 export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }
 export type OutcomeRating = { preset: string; rank: number; time: string; duration: number }
 export type Parameter = { key: ParameterKey; name: string }

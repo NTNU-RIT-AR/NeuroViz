@@ -1,0 +1,67 @@
+{
+  "name": "TODO name",
+  "time": "2025-04-14T19:30:04.579465248-04:00",
+  "observer_id": 0,
+  "note": "note!",
+  "presets": {
+    "preset_a": {
+      "name": "Preset A",
+      "parameters": {
+        "transparency": 0.1,
+        "see_through": 0.2,
+        "outline": 0.3
+      }
+    },
+    "preset_b": {
+      "name": "Preset B",
+      "parameters": {
+        "transparency": 0.4,
+        "see_through": 0.5,
+        "outline": 0.6
+      }
+    },
+    "preset_d": {
+      "name": "Preset D",
+      "parameters": {
+        "transparency": 0.9,
+        "see_through": 0.1,
+        "outline": 0.5
+      }
+    },
+    "preset_c": {
+      "name": "Preset C",
+      "parameters": {
+        "transparency": 0.7,
+        "see_through": 0.8,
+        "outline": 0.9
+      }
+    }
+  },
+  "experiment_type": "rating",
+  "ratings": [
+    {
+      "preset": "preset_a",
+      "rank": 2,
+      "time": "2025-04-14T19:30:06.913035218-04:00",
+      "duration": 2.333516534
+    },
+    {
+      "preset": "preset_b",
+      "rank": 4,
+      "time": "2025-04-14T19:30:07.783971723-04:00",
+      "duration": 0.870914993
+    },
+    {
+      "preset": "preset_c",
+      "rank": 2,
+      "time": "2025-04-14T19:30:08.635973374-04:00",
+      "duration": 0.851974933
+    },
+    {
+      "preset": "preset_d",
+      "rank": 4,
+      "time": "2025-04-14T19:30:09.416437025-04:00",
+      "duration": 0.780450801
+    }
+  ]
+}

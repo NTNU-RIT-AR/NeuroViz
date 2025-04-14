@@ -26,7 +26,7 @@ pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
         // release mode
         path = dirs::executable_dir().ok_or_else(|| format!("Could not get executable dir"))?;
     }
-    path.push(folder.to_string());
+    path.push(folder.path());
 
     fs::create_dir_all(&path).map_err(|e| format!("Could not create directory: {}", e))?;
 

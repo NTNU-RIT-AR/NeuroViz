@@ -54,8 +54,8 @@ function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
           <Button
             square={true}
             onClick={() => {
-              // TODO: Observer id and note
-              commands.startExperiment(experiment.key, 0, "note!");
+              // TODO: Result name, observer id and note
+              commands.startExperiment(experiment.key, "TODO name", 0, "note!");
             }}
           >
             <PlayIcon className="icon" />

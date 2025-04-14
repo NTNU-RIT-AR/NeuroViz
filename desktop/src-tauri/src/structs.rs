@@ -142,10 +142,10 @@ pub enum ExperimentResultType {
 
 #[derive(Debug, Serialize, Deserialize, Type, Clone)]
 pub struct Experiment {
-    #[serde(flatten)]
-    pub experiment_type: ExperimentType,
     pub name: String,
     pub presets: HashMap<String, Preset>,
+    #[serde(flatten)]
+    pub experiment_type: ExperimentType,
 }
 
 #[derive(Serialize, Deserialize, Type)]
@@ -158,13 +158,13 @@ pub struct CreateExperiment {
 
 #[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct ExperimentResult {
-    #[serde(flatten)]
-    pub experiment_type: ExperimentResultType,
     pub name: String,
     pub time: DateTime<Local>,
     pub observer_id: u32,
     pub note: String,
     pub presets: HashMap<String, Preset>,
+    #[serde(flatten)]
+    pub experiment_type: ExperimentResultType,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, PartialEq, Eq)]
@@ -175,7 +175,7 @@ pub enum CurrentPreset {
 
 impl ExperimentResult {
     //TODO lage funksjon for å avslutte eksperimentet. Når man avslutter så lagres det til fil i korresponderende folder
-    pub fn new(experiment: &Experiment, observer_id: u32, note: String) -> Self {
+    pub fn new(experiment: &Experiment, name: String, observer_id: u32, note: String) -> Self {
         Self {
             experiment_type: match experiment.experiment_type {
                 ExperimentType::Choice { .. } => ExperimentResultType::Choice {
@@ -185,7 +185,7 @@ impl ExperimentResult {
                     ratings: Vec::new(),
                 },
             },
-            name: experiment.name.clone(),
+            name,
             observer_id,
             time: Local::now(),
             note,
