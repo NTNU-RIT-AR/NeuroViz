@@ -191,6 +191,7 @@ impl AppState {
                 experiment_state.experiment.name,
             );
 
+            // TODO move this out to make AppState pure?
             block_on(storage::create_file(
                 result_name,
                 &experiment_state.experiment_result,

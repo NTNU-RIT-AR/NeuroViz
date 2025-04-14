@@ -25,7 +25,7 @@ use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
 
 /// Runs the HTTP server, and also transforms the app state into a Unity state
-pub async fn http_server_task(
+pub async fn http_server_job(
     listener: TcpListener,
     app_state_receiver: watch::Receiver<AppState>,
     unity_event_sender: mpsc::Sender<UnityEvent>,
@@ -57,7 +57,7 @@ pub async fn http_server_task(
 }
 
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
-pub async fn handle_unity_events_task(
+pub async fn handle_unity_events_job(
     app_handle: AppHandle,
     app_state_sender: watch::Sender<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
@@ -98,7 +98,7 @@ async fn setup(app: AppHandle) {
     println!("HTTP server listening on http://localhost:{HTTP_SERVER_PORT}");
 
     // Task that runs http server
-    let http_server = http_server_task(
+    let http_server = http_server_job(
         listener,
         app_data.state.subscribe(),
         unity_event_sender.clone(),
@@ -106,7 +106,7 @@ async fn setup(app: AppHandle) {
 
     // Task to update the app state based on Unity events
     let handle_unity_events =
-        handle_unity_events_task(app.clone(), app_data.state.clone(), unity_event_receiver);
+        handle_unity_events_job(app.clone(), app_data.state.clone(), unity_event_receiver);
 
     // println!(
     //     "{:?}",

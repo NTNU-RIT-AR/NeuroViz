@@ -6,7 +6,7 @@ use min_tauri_app_lib::{
     api::http_server::{UnityEvent, UnityState},
     appdata::{AppData, AppState, ExperimentState},
     extensions::MpscReceiverExt,
-    http_server_task,
+    http_server_job,
     structs::{
         Choice, CurrentPreset, Experiment, ExperimentResult, ExperimentType, ParameterValues,
         Preset,
@@ -33,7 +33,7 @@ async fn listener_random_port() -> (TcpListener, String) {
 }
 
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
-pub async fn handle_unity_events_task(
+pub async fn handle_unity_events_job(
     app_state_sender: watch::Sender<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
@@ -58,13 +58,12 @@ async fn experiment_integration_test() {
 
     let (listener, listening_url) = listener_random_port().await;
 
-    let http_server = http_server_task(
+    let http_server = http_server_job(
         listener,
         app_data.state.subscribe(),
         unity_event_sender.clone(),
     );
-    let handle_unity_events =
-        handle_unity_events_task(app_data.state.clone(), unity_event_receiver);
+    let handle_unity_events = handle_unity_events_job(app_data.state.clone(), unity_event_receiver);
 
     // Spawn tasks in background
     tokio::spawn(async { join!(http_server, handle_unity_events) });
