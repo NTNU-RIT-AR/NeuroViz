@@ -10,22 +10,21 @@ use serde::Serialize;
 use crate::consts::Folder;
 
 pub fn get_folder(folder: Folder) -> Result<PathBuf, String> {
-    //let mut path = env::current_exe().ok()?;
-    //path.push("data");
-
-    let mut path;
-
-    if cfg!(debug_assertions) {
-        // debug mode}
+    let mut path = if cfg!(debug_assertions) {
+        // debug mode
         let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
         let mut desktop_dir = PathBuf::from(manifest_dir);
 
         desktop_dir.pop();
-        path = desktop_dir.join("data");
+
+        desktop_dir.join("data")
     } else {
         // release mode
-        path = dirs::executable_dir().ok_or_else(|| format!("Could not get executable dir"))?;
-    }
+        dirs::data_dir()
+            .ok_or_else(|| format!("Could not get executable dir"))?
+            .join("NeuroViz")
+    };
+
     path.push(folder.to_string());
 
     fs::create_dir_all(&path).map_err(|e| format!("Could not create directory: {}", e))?;
