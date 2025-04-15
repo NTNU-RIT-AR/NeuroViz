@@ -1,9 +1,12 @@
+use std::{collections::HashMap, ops::Deref};
+
 use crate::{
     api::{storage, utils},
     consts::Folder,
     structs::{
-        CurrentPreset, Experiment, ExperimentAnswer, ExperimentResult, ExperimentResultType,
-        ExperimentType, OutcomeChoice, OutcomeRating, ParameterValues, Preset,
+        Choice, CurrentPreset, Experiment, ExperimentAnswer, ExperimentResult,
+        ExperimentResultType, ExperimentType, OutcomeChoice, OutcomeRating, ParameterValues,
+        Preset,
     },
 };
 use chrono::prelude::Local;
@@ -12,79 +15,181 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use strum::EnumTryAs;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct ExperimentState {
-    pub experiment_key: String,
-    pub result_key: String,
-    pub experiment: Experiment,
-    pub experiment_result: ExperimentResult,
-    pub current_index: u32,
-    pub choice_current_preset: CurrentPreset,
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
+pub struct SharedExperiment {
+    pub name: String,
+    pub presets: HashMap<String, Preset>,
 }
 
-impl ExperimentState {
-    pub fn new(
-        experiment_key: String,
-        result_key: String,
-        experiment: Experiment,
-        experiment_result: ExperimentResult,
-    ) -> Self {
-        let current_index = 0;
-        let choice_current_preset = CurrentPreset::A;
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
+pub struct ChoiceExperiment {
+    #[serde(flatten)]
+    pub shared: SharedExperiment,
 
-        Self {
-            experiment_key,
-            result_key,
-            experiment,
-            experiment_result,
-            current_index,
-            choice_current_preset,
+    pub choices: Vec<Choice>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
+pub struct RatingExperiment {
+    #[serde(flatten)]
+    pub shared: SharedExperiment,
+
+    pub order: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Type, Clone)]
+pub struct SharedExperimentResult {
+    pub name: String,
+    pub time: DateTime<Local>,
+    pub observer_id: u32,
+    pub note: String,
+    pub presets: HashMap<String, Preset>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
+pub struct ChoiceExperimentResult {
+    #[serde(flatten)]
+    pub shared: SharedExperimentResult,
+
+    pub choices: Vec<OutcomeChoice>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Type, Clone)]
+pub struct RatingExperimentResult {
+    #[serde(flatten)]
+    pub shared: SharedExperimentResult,
+
+    pub ratings: Vec<OutcomeRating>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct SharedExperimentState {
+    pub experiment_key: String,
+    pub result_key: String,
+    pub current_index: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct ChoiceExperimentState {
+    #[serde(flatten)]
+    pub shared: SharedExperimentState,
+    pub experiment: ChoiceExperiment,
+    pub result: ChoiceExperimentResult,
+    pub current_preset: CurrentPreset,
+}
+
+impl ChoiceExperimentState {
+    pub fn get_current_preset_key(&self) -> String {
+        let choice = &self.experiment.choices[self.shared.current_index as usize];
+
+        match self.current_preset {
+            CurrentPreset::A => choice.a.clone(),
+            CurrentPreset::B => choice.b.clone(),
         }
+    }
+
+    pub fn get_current_preset(&self) -> Preset {
+        let preset_key = self.get_current_preset_key();
+        let preset = self.experiment.shared.presets[&preset_key].clone();
+
+        preset
+    }
+
+    pub fn swap_current_preset(&mut self) {
+        match self.current_preset {
+            CurrentPreset::A => self.current_preset = CurrentPreset::B,
+            CurrentPreset::B => self.current_preset = CurrentPreset::A,
+        };
     }
 }
 
-impl ExperimentState {
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+pub struct RatingExperimentState {
+    #[serde(flatten)]
+    pub shared: SharedExperimentState,
+    pub experiment: RatingExperiment,
+    pub result: RatingExperimentResult,
+}
+
+impl RatingExperimentState {
     pub fn get_current_preset_key(&self) -> String {
-        let Self {
-            experiment,
-            current_index,
-            choice_current_preset,
-            ..
-        } = self;
-
-        let preset_key = match &experiment.experiment_type {
-            ExperimentType::Choice { choices } => {
-                let choice = &choices[*current_index as usize];
-
-                match choice_current_preset {
-                    CurrentPreset::A => choice.a.clone(),
-                    CurrentPreset::B => choice.b.clone(),
-                }
-            }
-
-            ExperimentType::Rating { order } => order[*current_index as usize].clone(),
-        };
+        let preset_key = self.experiment.order[self.shared.current_index as usize].clone();
 
         preset_key
     }
 
     pub fn get_current_preset(&self) -> Preset {
         let preset_key = self.get_current_preset_key();
-        let preset = self.experiment.presets[&preset_key].clone();
+        let preset = self.experiment.shared.presets[&preset_key].clone();
 
         preset
     }
+}
 
-    pub fn swap_current_preset(&mut self) {
-        match self.choice_current_preset {
-            CurrentPreset::A => self.choice_current_preset = CurrentPreset::B,
-            CurrentPreset::B => self.choice_current_preset = CurrentPreset::A,
-        };
+#[derive(Debug, Clone, Serialize, Deserialize, Type, EnumTryAs)]
+#[serde(tag = "experiment_type")]
+pub enum ExperimentState {
+    #[serde(rename = "rating")]
+    Rating(RatingExperimentState),
+    #[serde(rename = "choice")]
+    Choice(ChoiceExperimentState),
+}
+
+// impl ExperimentState {
+//     pub fn new(
+//         experiment_key: String,
+//         result_key: String,
+//         experiment: Experiment,
+//         experiment_result: ExperimentResult,
+//     ) -> Self {
+//         let current_index = 0;
+//         let choice_current_preset = CurrentPreset::A;
+
+//         Self {
+//             experiment_key,
+//             result_key,
+//             experiment,
+//             experiment_result,
+//             current_index,
+//             choice_current_preset,
+//         }
+//     }
+// }
+
+impl Deref for ExperimentState {
+    type Target = SharedExperimentState;
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            ExperimentState::Rating(state) => &state.shared,
+            ExperimentState::Choice(state) => &state.shared,
+        }
+    }
+}
+
+impl ExperimentState {
+    pub fn get_current_preset_key(&self) -> String {
+        match self {
+            ExperimentState::Rating(state) => state.get_current_preset_key(),
+            ExperimentState::Choice(state) => state.get_current_preset_key(),
+        }
     }
 
-    pub fn answer(&mut self, experiment_answer: ExperimentAnswer) -> Result<bool, String> {
+    pub fn get_current_preset(&self) -> Preset {
+        match self {
+            ExperimentState::Rating(state) => state.get_current_preset(),
+            ExperimentState::Choice(state) => state.get_current_preset(),
+        }
+    }
+
+    pub fn answer(&mut self, experiment_answer: ExperimentAnswer) -> anyhow::Result<bool> {
         let is_done = match experiment_answer {
-            ExperimentAnswer::Choice => self.answer_choice()?,
+            ExperimentAnswer::Choice => {
+                let choice_state = self
+                    .try_as_choice_mut()
+                    .context("Failed to get choice state");
+                self.answer_choice()?
+            }
             ExperimentAnswer::Rating { value } => self.answer_rating(value)?,
         };
 
