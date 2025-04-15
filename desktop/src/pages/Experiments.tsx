@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { EyeIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { commands, Experiment, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
 import Popup from "../components/Popup";
+import { useCommand } from "../hooks";
 import styles from "./styles/Experiments.module.css";
 
 enum FilterState {
@@ -31,10 +32,15 @@ function ViewExperiment({ data, setShow }: ViewExperimentProps) {
 
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
+  onDelete: () => void;
+  onStart: () => void;
 }
 
-function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
+function ExperimentCard(props: ExperimentCardProps) {
+  const { experiment, onDelete, onStart } = props;
+
   const [show, setShow] = useState(false);
+
   return (
     <>
       <div className={styles.experimentCard}>
@@ -43,21 +49,18 @@ function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
           <p>Type: {experiment.value.experiment_type}</p>
         </div>
         <div className={styles.experimentCardBottom}>
-          <Button square={true}>
+          {/* Delete button */}
+          <Button square={true} onClick={onDelete}>
             <TrashIcon className="icon" />
           </Button>
 
+          {/* Open button */}
           <Button square={true} onClick={() => setShow(true)}>
             <EyeIcon className="icon" />
           </Button>
 
-          <Button
-            square={true}
-            onClick={() => {
-              // TODO: Observer id and note
-              commands.startExperiment(experiment.key, 0, "note!");
-            }}
-          >
+          {/* Start button */}
+          <Button square={true} onClick={onStart}>
             <PlayIcon className="icon" />
           </Button>
         </div>
@@ -69,12 +72,8 @@ function ExperimentCard({ experiment: experiment }: ExperimentCardProps) {
 }
 
 export default function ExperimentsPage() {
-  const [experiments, setExperiments] = useState<WithKey<Experiment>[]>([]);
+  const experiments = useCommand(commands.getExperiments);
   const [filter, setFilter] = useState<FilterState>(FilterState.All);
-
-  useEffect(() => {
-    commands.getExperiments().then(setExperiments);
-  }, []);
 
   return (
     <>
@@ -84,14 +83,24 @@ export default function ExperimentsPage() {
         toolbar={<Button onClick={() => {}}>Create Experiment</Button>}
       >
         <div className={styles.experimentsContainer}>
-          {experiments
+          {experiments.data
             // .filter(
             //   (experiment) => (
             //     experiment
             //   )
             // )
             .map((experiment) => (
-              <ExperimentCard experiment={experiment} />
+              <ExperimentCard
+                experiment={experiment}
+                onStart={() =>
+                  // TODO: Observer id and note
+                  commands.startExperiment(experiment.key, 0, "note!")
+                }
+                onDelete={async () => {
+                  await commands.deleteExperiment(experiment.key);
+                  experiments.refetch();
+                }}
+              />
             ))}
         </div>
       </Layout>
