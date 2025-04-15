@@ -9,8 +9,8 @@ use crate::{
         Preset,
     },
 };
-use anyhow::bail;
-use chrono::prelude::Local;
+use anyhow::{bail, Context};
+use chrono::{prelude::Local, DateTime};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use strum::EnumTryAs;
@@ -71,6 +71,10 @@ pub struct SharedExperimentState {
     pub current_index: u32,
 }
 
+impl SharedExperimentState {
+    pub fn is_done() {}
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ChoiceExperimentState {
     #[serde(flatten)]
@@ -103,6 +107,30 @@ impl ChoiceExperimentState {
             CurrentPreset::B => self.current_preset = CurrentPreset::A,
         };
     }
+
+    pub fn answer(&mut self) -> anyhow::Result<bool> {
+        let selected_preset_key = self.get_current_preset_key();
+
+        let choice = &self.experiment.choices[self.shared.current_index as usize];
+
+        let outcome = OutcomeChoice {
+            a: choice.a.clone(),
+            b: choice.b.clone(),
+            selected: selected_preset_key,
+            time: Local::now(),
+            // TODO duration
+            duration_on_a: 0.0,
+            duration_on_b: 0.0,
+            duration: 0.0,
+        };
+
+        self.result.choices.push(outcome);
+
+        self.shared.current_index += 1;
+        let is_done = self.experiment.choices.len() == self.shared.current_index as usize;
+
+        Ok(is_done)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -125,6 +153,36 @@ impl RatingExperimentState {
         let preset = self.experiment.shared.presets[&preset_key].clone();
 
         preset
+    }
+
+    pub fn answer(&mut self, value: u8) -> anyhow::Result<bool> {
+        let ExperimentType::Rating { order } = &mut self.experiment.experiment_type else {
+            bail!("Not a rating experiment");
+        };
+
+        let ExperimentResultType::Rating { ratings } = &mut self.experiment_result.experiment_type
+        else {
+            bail!("Not a rating experiment");
+        };
+
+        let is_first_prompt = self.current_index == 0;
+        let duration = match is_first_prompt {
+            true => utils::get_duration_since(self.experiment_result.time),
+            false => utils::get_duration_since(ratings[self.current_index as usize - 1].time),
+        };
+
+        let outcome = OutcomeRating {
+            preset: order[self.current_index as usize].clone(),
+            rank: value,
+            time: Local::now(),
+            duration,
+        };
+
+        ratings.push(outcome);
+
+        let is_done = order.len() == self.current_index as usize + 1;
+
+        Ok(is_done)
     }
 }
 
@@ -189,80 +247,12 @@ impl ExperimentState {
             ExperimentAnswer::Choice => {
                 let choice_state = self
                     .try_as_choice_mut()
-                    .context("Failed to get choice state");
-                self.answer_choice()?
+                    .context("Failed to get choice state")?;
+
+                choice_state.answer();
             }
             ExperimentAnswer::Rating { value } => self.answer_rating(value)?,
         };
-
-        self.current_index += 1;
-
-        Ok(is_done)
-    }
-
-    fn answer_rating(&mut self, value: u8) -> anyhow::Result<bool> {
-        let ExperimentType::Rating { order } = &mut self.experiment.experiment_type else {
-            bail!("Not a rating experiment");
-        };
-
-        let ExperimentResultType::Rating { ratings } = &mut self.experiment_result.experiment_type
-        else {
-            bail!("Not a rating experiment");
-        };
-
-        let is_first_prompt = self.current_index == 0;
-        let duration = match is_first_prompt {
-            true => utils::get_duration_since(self.experiment_result.time),
-            false => utils::get_duration_since(ratings[self.current_index as usize - 1].time),
-        };
-
-        let outcome = OutcomeRating {
-            preset: order[self.current_index as usize].clone(),
-            rank: value,
-            time: Local::now(),
-            duration,
-        };
-
-        ratings.push(outcome);
-
-        let is_done = order.len() == self.current_index as usize + 1;
-
-        Ok(is_done)
-    }
-
-    fn answer_choice(&mut self) -> anyhow::Result<bool> {
-        let selected_preset_key = self.get_current_preset_key();
-
-        let ExperimentType::Choice {
-            choices: choices_experiment,
-        } = &mut self.experiment.experiment_type
-        else {
-            // Not a choice experiment, do nothing
-            bail!("Not a choice experiment");
-        };
-
-        let ExperimentResultType::Choice { choices } = &mut self.experiment_result.experiment_type
-        else {
-            // Not a choice experiment, do nothing
-            bail!("Not a choice experiment");
-        };
-
-        let choice = &choices_experiment[self.current_index as usize];
-
-        let outcome = OutcomeChoice {
-            a: choice.a.clone(),
-            b: choice.b.clone(),
-            selected: selected_preset_key,
-            time: Local::now(),
-            // TODO duration
-            duration_on_a: 0.0,
-            duration_on_b: 0.0,
-            duration: 0.0,
-        };
-
-        choices.push(outcome);
-
-        let is_done = choices_experiment.len() == self.current_index as usize + 1;
 
         Ok(is_done)
     }
