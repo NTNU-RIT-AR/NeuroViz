@@ -1,104 +1,112 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { useImmer } from "use-immer";
-import { commands, Preset } from "../bindings.gen";
+import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
 import Button from "../components/Button";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
-import { ParameterWithValue } from "../interfaces";
-import { capitalizeFirstLetter } from "../utils";
+import { useCommand } from "../hooks";
 import styles from "./styles/LiveView.module.css";
 
-function usePresetKeys(): string[] {
-  const [presetKeys, setPresets] = useState<string[]>([]);
+/// Fetches the initial live parameters and lets the user update them
+function useLiveParameters() {
+  const parameters = useCommand(commands.getParameters).data;
+  const initialLiveParameters = useCommand(commands.getLiveParameters).data;
+
+  // Initialize the parameters state with zero values
+  const [parameterStates, setParameterStates] = useImmer(() =>
+    parameters.map((parameter) => ({
+      ...parameter,
+      value: initialLiveParameters[parameter.key],
+    })),
+  );
 
   useEffect(() => {
-    commands.listPresets().then(setPresets);
-  }, []);
+    const parameters = Object.fromEntries(
+      parameterStates.map((parameter) => [parameter.key, parameter.value]),
+    ) as Record<ParameterKey, number>;
 
-  return presetKeys;
-}
+    commands.setLiveParameters(parameters);
+  }, [parameterStates]);
 
-function usePreset(presetKey: string | undefined): Preset | undefined {
-  const [preset, setPreset] = useState<Preset | undefined>();
-
-  useEffect(() => {
-    if (presetKey) {
-      commands.getPreset(presetKey).then(setPreset);
-    }
-  }, [presetKey]);
-
-  return preset;
-}
-
-export default function LiveViewPage() {
-  const presetKeys = usePresetKeys();
-  const [selectedPresetKey, setSelectedPresetKey] = useState<
-    string | undefined
-  >();
-  const preset = usePreset(selectedPresetKey);
-
-  const [parameters, setParameters] = useImmer<ParameterWithValue[]>([]);
-
-  const [showPresetCreationPopup, setShowPresetCreationPopup] =
-    useState<boolean>(false);
-
-  useEffect(() => {
-    commands.getParameters().then(async (parameters) => {
-      const promises = parameters.map(async (parameter) => {
-        const liveParameter = await commands.getLiveParameter(parameter.key);
-        return {
-          ...parameter,
-          value: liveParameter,
-        };
-      });
-
-      setParameters(await Promise.all(promises));
-    });
-  }, []);
-
-  useEffect(() => {
-    for (const parameter of parameters) {
-      commands.setLiveParameter(parameter.key, parameter.value);
-    }
-  }, [parameters]);
-
-  useEffect(() => {
-    if (preset) {
-      setParameters((parameters) => {
-        for (const parameter of parameters) {
-          parameter.value = preset.parameters[parameter.key];
-        }
-      });
-    }
-  }, [preset]);
-
-  const sliderParameters = parameters.map((parameter) => ({
+  const changeableParameterStates = parameterStates.map((parameter) => ({
     ...parameter,
 
     onChange(newValue: number) {
-      setParameters((parameters) => {
+      setParameterStates((parameters) => {
         parameters.find((p) => p.key == parameter.key)!.value = newValue;
       });
     },
   }));
 
-  const options = presetKeys.map((presetKey: string) => ({
-    value: presetKey,
-    label: capitalizeFirstLetter(presetKey),
+  return {
+    state: changeableParameterStates,
+
+    set(parameterValues: ParameterValues) {
+      setParameterStates((parameters) => {
+        for (const parameter of parameters) {
+          parameter.value = parameterValues[parameter.key];
+        }
+      });
+    },
+  };
+}
+
+/// Fetches the presets and lets the user select one
+function useSelectPreset() {
+  const presets = useCommand(commands.getPresets);
+
+  const [selectedPresetKey, setSelectedPresetKey] = useState<
+    string | undefined
+  >(undefined);
+
+  const selectedPreset = presets.data.find(
+    (preset) => preset.key === selectedPresetKey,
+  );
+
+  const options = presets.data.map((preset) => ({
+    value: preset.key,
+    label: preset.value.name,
   }));
+
+  return {
+    selected: selectedPreset,
+    refetch: presets.refetch,
+    options,
+
+    onChange(presetKey: string | undefined) {
+      setSelectedPresetKey(presetKey);
+    },
+  };
+}
+
+export default function LiveViewPage() {
+  const liveParameters = useLiveParameters();
+  const selectPreset = useSelectPreset();
+
+  const [showPresetCreationPopup, setShowPresetCreationPopup] =
+    useState<boolean>(false);
+
+  // Update the live parameters when a preset is selected
+  useEffect(() => {
+    const selectedPreset = selectPreset.selected;
+
+    if (selectedPreset) liveParameters.set(selectedPreset.value.parameters);
+  }, [selectPreset.selected]);
+
+  const presetNameRef = useRef<HTMLInputElement>(null);
 
   return (
     <Layout title="Live View">
       <ContentBox className={styles.contentBox}>
         <Select
           className={styles.select}
-          options={options}
-          onChange={(option) => setSelectedPresetKey(option?.value)}
+          options={selectPreset.options}
+          onChange={(option) => selectPreset.onChange(option?.value)}
         />
-        <SliderCollection parameters={sliderParameters} />
+        <SliderCollection parameters={liveParameters.state} />
 
         <Button
           onClick={() => {
@@ -114,9 +122,15 @@ export default function LiveViewPage() {
             }}
             title="Enter preset name"
           >
-            <input placeholder="preset-name" />
+            <input placeholder="preset-name" ref={presetNameRef} />
             <Button
-              onClick={() => {
+              onClick={async () => {
+                await commands
+                  .createPreset(presetNameRef.current!.value)
+                  // TODO better error handling
+                  .catch(alert);
+
+                selectPreset.refetch();
                 setShowPresetCreationPopup(false);
               }}
             >
