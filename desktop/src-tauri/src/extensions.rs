@@ -26,3 +26,24 @@ impl<T> MpscReceiverExt<T> for mpsc::Receiver<T> {
         ReceiverStream::new(self)
     }
 }
+
+pub trait WatchSenderExt<T> {
+    fn send_modify_with<F, V>(&self, modify: F) -> V
+    where
+        F: FnOnce(&mut T) -> V;
+}
+
+impl<T> WatchSenderExt<T> for watch::Sender<T> {
+    fn send_modify_with<F, V>(&self, modify: F) -> V
+    where
+        F: FnOnce(&mut T) -> V,
+    {
+        let mut value = None;
+
+        self.send_modify(|state| {
+            value = Some(modify(state));
+        });
+
+        value.expect("Failed to modify state")
+    }
+}
