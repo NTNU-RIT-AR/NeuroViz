@@ -14,65 +14,41 @@ async getIpAddress() : Promise<string> {
 async getParameters() : Promise<Parameter[]> {
     return await TAURI_INVOKE("get_parameters");
 },
-/**
- * Set a parameter in live view
- */
-async setLiveParameter(parameter: ParameterKey, value: number) : Promise<null> {
-    return await TAURI_INVOKE("set_live_parameter", { parameter, value });
+async getPresets() : Promise<WithKey<Preset>[]> {
+    return await TAURI_INVOKE("get_presets");
 },
-/**
- * Get a parameter in live view
- */
-async getLiveParameter(parameter: ParameterKey) : Promise<number> {
-    return await TAURI_INVOKE("get_live_parameter", { parameter });
-},
-/**
- * Retrieve a preset by file name
- */
-async getPreset(sluggedPresetName: string) : Promise<Preset> {
-    return await TAURI_INVOKE("get_preset", { sluggedPresetName });
-},
-async getAllPresets() : Promise<WithKey<Preset>[]> {
-    return await TAURI_INVOKE("get_all_presets");
-},
-/**
- * List all presets
- */
-async listPresets() : Promise<string[]> {
-    return await TAURI_INVOKE("list_presets");
-},
-/**
- * Save current live parameters to a preset
- */
 async createPreset(presetName: string) : Promise<null> {
     return await TAURI_INVOKE("create_preset", { presetName });
 },
-async deletePreset(sluggedName: string) : Promise<null> {
-    return await TAURI_INVOKE("delete_preset", { sluggedName });
-},
-/**
- * Retrieve a preset
- */
-async getExperiment(sluggedName: string) : Promise<Experiment> {
-    return await TAURI_INVOKE("get_experiment", { sluggedName });
-},
-/**
- * List all experiments
- */
-async listExperiments() : Promise<string[]> {
-    return await TAURI_INVOKE("list_experiments");
-},
-/**
- * Create a new experiment
- */
-async createExperiment(experimentInitData: CreateExperiment) : Promise<string> {
-    return await TAURI_INVOKE("create_experiment", { experimentInitData });
+async deletePreset(key: string) : Promise<null> {
+    return await TAURI_INVOKE("delete_preset", { key });
 },
 /**
  * Get all experiments
  */
 async getExperiments() : Promise<WithKey<Experiment>[]> {
     return await TAURI_INVOKE("get_experiments");
+},
+async createExperiment(experimentInitData: CreateExperiment) : Promise<string> {
+    return await TAURI_INVOKE("create_experiment", { experimentInitData });
+},
+/**
+ * Delete an experiment
+ */
+async deleteExperiment(key: string) : Promise<null> {
+    return await TAURI_INVOKE("delete_experiment", { key });
+},
+/**
+ * Set all parameters in live view
+ */
+async setLiveParameters(parameters: ParameterValues) : Promise<null> {
+    return await TAURI_INVOKE("set_live_parameters", { parameters });
+},
+/**
+ * Get all parameters in live view
+ */
+async getLiveParameters() : Promise<ParameterValues> {
+    return await TAURI_INVOKE("get_live_parameters");
 },
 async startExperiment(experimentKey: string, resultName: string, obeserverId: number, note: string) : Promise<null> {
     return await TAURI_INVOKE("start_experiment", { experimentKey, resultName, obeserverId, note });
