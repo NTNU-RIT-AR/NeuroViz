@@ -11,6 +11,9 @@ async currentState() : Promise<AppState> {
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
+async getSecret() : Promise<string> {
+    return await TAURI_INVOKE("get_secret");
+},
 async getParameters() : Promise<Parameter[]> {
     return await TAURI_INVOKE("get_parameters");
 },

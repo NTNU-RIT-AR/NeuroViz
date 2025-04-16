@@ -1,15 +1,17 @@
 use axum::{
-    extract::{Json, State},
+    extract::{Json, Query, Request, State},
+    http::{header::AUTHORIZATION, StatusCode},
+    middleware::{self, Next},
     response::{
         sse::{Event, KeepAlive},
-        Sse,
+        Response, Sse,
     },
     routing::{get, post},
     Router,
 };
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{convert::Infallible, time::Duration};
+use std::{convert::Infallible, sync::Arc, time::Duration};
 use tokio::sync::{mpsc, watch};
 
 use crate::{
@@ -61,6 +63,7 @@ pub enum UnityEvent {
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
     pub event_sender: mpsc::Sender<UnityEvent>,
+    pub secret: Arc<String>,
 }
 
 impl HttpServer {
@@ -72,9 +75,43 @@ impl HttpServer {
             .route("/state/subscribe", get(subscribe_state))
             .route("/experiment/swap", post(swap_preset))
             .route("/experiment/answer", post(answer_choice_experiment))
+            .route_layer(middleware::from_fn_with_state(state.clone(), auth))
             .with_state(state);
 
         app
+    }
+}
+
+#[derive(Deserialize)]
+struct AuthQuery {
+    secret: Option<String>,
+}
+
+/// Authentication middleware using secret
+async fn auth(
+    State(http_server): State<HttpServer>,
+    Query(auth_query): Query<AuthQuery>,
+    req: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let auth_header = req
+        .headers()
+        .get(AUTHORIZATION)
+        .and_then(|header| header.to_str().ok());
+
+    // let Some(auth_header) = auth_header else {
+    //     return Err(StatusCode::UNAUTHORIZED);
+    // };
+
+    let is_valid_token = match (auth_header, auth_query.secret) {
+        (Some(header_secret), _) => header_secret == *http_server.secret,
+        (None, Some(query_secret)) => query_secret == *http_server.secret,
+        (None, None) => false,
+    };
+
+    match is_valid_token {
+        true => Ok(next.run(req).await),
+        false => Err(StatusCode::UNAUTHORIZED),
     }
 }
 

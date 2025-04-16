@@ -8,6 +8,7 @@ import {
   ROUTE_RESULTS,
   UNITY_API_PORT,
 } from "../const.ts";
+import { useCommand } from "../hooks.ts";
 import { QrPayload } from "../interfaces.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
 import styles from "./styles/Sidebar.module.css";
@@ -31,6 +32,7 @@ function SidebarLink(props: SidebarLinkProps) {
 }
 
 export default function Sidebar() {
+  const secret = useCommand(commands.getSecret).data;
   const [deviceConnected, setDeviceConnected] = useState<boolean>(false);
   const [ipAddress, setIpAddress] = useState<string>("");
 
@@ -52,8 +54,7 @@ export default function Sidebar() {
   const qrPayload: QrPayload = {
     ip: ipAddress,
     port: UNITY_API_PORT,
-    // TODO: Use password protection
-    secret: "",
+    secret,
   };
 
   return (

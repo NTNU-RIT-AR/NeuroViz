@@ -15,7 +15,6 @@ namespace NeuroViz.Scenes
     {
         [SerializeField] private ConnectedScene connectedScene;
 
-
         private WebCamTexture camTexture;
         private Rect screenRect;
         private QrReader qrReader;
@@ -39,6 +38,7 @@ namespace NeuroViz.Scenes
 
             camTexture.Play();
 
+            Debug.Log("Starting QR reader");
             qrReader = new QrReader(() =>
             {
                 refreshPixels = true;
@@ -50,8 +50,9 @@ namespace NeuroViz.Scenes
             Update();
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
+            Debug.Log("Stopping QR reader");
             qrReader.Dispose();
             camTexture.Stop();
         }
@@ -70,6 +71,7 @@ namespace NeuroViz.Scenes
                 connectedScene.ip = foundQrPayload.Value.ip;
                 connectedScene.port = foundQrPayload.Value.port;
                 connectedScene.secret = foundQrPayload.Value.secret;
+                foundQrPayload = null;
                 connectedScene.gameObject.SetActive(true);
             }
         }

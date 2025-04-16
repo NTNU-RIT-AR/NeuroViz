@@ -5,17 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="091451e9-6284-40ea-b1db-fb98c943c51e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ExperimentUI.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Scripts/ExperimentUI.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/src/api/commands.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/src/api/commands.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/src/api/http_server.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/src/api/http_server.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/src/appdata.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/src/appdata.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/src-tauri/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src-tauri/src/lib.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../desktop/src/bindings.gen.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/src/bindings.gen.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebellum.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebellum.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebrum Main.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebrum Main.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cornea.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cornea.mat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Eye.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Eye.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/ExperimentScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/ExperimentScene.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/ScanScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/ScanScene.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/XR/Resources/XRSimulationRuntimeSettings.asset.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/XR/Resources/XRSimulationRuntimeSettings.asset.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/XR/Settings/XREALSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/XR/Settings/XREALSettings.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/XR/UserSimulationSettings/Resources/XRSimulationPreferences.asset.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/XR/UserSimulationSettings/Resources/XRSimulationPreferences.asset.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -60,7 +64,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "unity",
+    "git-widget-placeholder": "RIT-49-unity",
     "ignore.virus.scanning.warn.message": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -130,7 +134,7 @@
       <workItem from="1743094697766" duration="2965000" />
       <workItem from="1743363179240" duration="9919000" />
       <workItem from="1743446162274" duration="10432000" />
-      <workItem from="1744650077308" duration="6324000" />
+      <workItem from="1744650077308" duration="7302000" />
     </task>
     <servers />
   </component>

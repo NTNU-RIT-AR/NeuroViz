@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -107,6 +109,8 @@ namespace NeuroViz.Scenes
         [SerializeField] public int port;
         [SerializeField] public string secret;
 
+        [SerializeField] private ScanScene scanScene;
+
         [Header("Scenes")]
         [SerializeField] private GameObject idleScene;
 
@@ -116,26 +120,49 @@ namespace NeuroViz.Scenes
 
         private EventSourceReader eventSource;
         private UnityState state = new UnityState.Idle();
+        private bool isDisconnected = false;
 
         public UnityState State => state;
         public event Action<UnityState> OnStateChanged;
 
-        private void Start()
+        private void OnEnable()
         {
-            Debug.Log("Starting event source");
-            eventSource = new EventSourceReader(new Uri($"http://{ip}:{port}/state/subscribe"));
+            var url = $"http://{ip}:{port}/state/subscribe?secret={secret}";
+            Debug.Log($"Starting event source at: {url}");
+            eventSource = new EventSourceReader(new Uri(url));
             eventSource.Start();
+
+            var retryCount = 0;
 
             eventSource.MessageReceived += (sender, e) => HandleEvent(e);
             eventSource.Disconnected += async (sender, e) =>
             {
+                retryCount += 1;
+
+                if (retryCount >= 3)
+                {
+                    Debug.LogError("Failed to reconnect after 3 attempts.");
+                    isDisconnected = true;
+                    return;
+                }
+
                 Debug.Log($"Retry: {e.ReconnectDelay} - Error: {e.Exception}");
                 await Task.Delay(e.ReconnectDelay);
                 eventSource.Start(); // Reconnect to the same URL
             };
         }
 
-        private void OnDestroy()
+        private void Update()
+        {
+            if (isDisconnected)
+            {
+                isDisconnected = false;
+                gameObject.SetActive(false);
+                scanScene.gameObject.SetActive(true);
+            }
+        }
+
+        private void OnDisable()
         {
             eventSource.Dispose();
         }
