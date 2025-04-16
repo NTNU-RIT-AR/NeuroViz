@@ -41,7 +41,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Emission: 0
-    - _Transparency: 0.41
+    - _Transparency: 0
     m_Colors:
     - _Dark: {r: 0.7372549, g: 0.5764706, b: 0.5764706, a: 0}
     - _Light: {r: 0.79607844, g: 0.69411767, b: 0.65882355, a: 0}

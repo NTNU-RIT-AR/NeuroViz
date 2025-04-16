@@ -262,6 +262,7 @@ MonoBehaviour:
   transparency: 0
   outline: 0
   seeThrough: 0
+  smoothness: 0
   outlineObjects:
   - {fileID: 914731651}
   - {fileID: 124977959}
@@ -1202,7 +1203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ip: localhost
   port: 9001
-  secret: 
+  secret: aauYOOniMIn1B4pLEOvw2jIkYRszirfJ
   scanScene: {fileID: 291810990}
   idleScene: {fileID: 166711369}
   liveScene: {fileID: 1200367495}

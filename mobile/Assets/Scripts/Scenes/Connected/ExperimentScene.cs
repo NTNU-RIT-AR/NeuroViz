@@ -39,11 +39,7 @@ namespace NeuroViz.Scenes.Connected
             }
 
             var prompt = this.state.Prompt;
-
-            updateParameters.transparency = prompt.Parameters.Transparency;
-            updateParameters.seeThrough = prompt.Parameters.SeeThrough;
-            updateParameters.outline = prompt.Parameters.Outline;
-            updateParameters.HandlePropertiesEdited();
+            updateParameters.SetParameters(prompt.Parameters);
         }
     }
 }

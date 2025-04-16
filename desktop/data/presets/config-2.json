@@ -3,6 +3,7 @@
   "parameters": {
     "transparency": 0.3,
     "see_through": 0.4,
-    "outline": 0.6
+    "outline": 0.6,
+    "smoothness": 0.6
   }
 }

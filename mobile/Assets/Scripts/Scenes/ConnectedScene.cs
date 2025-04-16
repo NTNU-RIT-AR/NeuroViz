@@ -19,6 +19,7 @@ public class RenderParameters
     public float Transparency { get; set; }
     public float SeeThrough { get; set; }
     public float Outline { get; set; }
+    public float Smoothness { get; set; }
 }
 
 public struct Preset
