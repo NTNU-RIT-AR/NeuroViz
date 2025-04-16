@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace NeuroViz.Scenes.Connected
 {
@@ -12,7 +14,6 @@ namespace NeuroViz.Scenes.Connected
         // Opacity
         // Border
         // Xray
-
         // Subsurface?
 
         private void OnEnable()

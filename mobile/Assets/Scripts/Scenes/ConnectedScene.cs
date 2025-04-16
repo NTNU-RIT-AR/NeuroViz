@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -8,6 +10,7 @@ using JetBrains.Annotations;
 using NeuroViz;
 using NeuroViz.Scenes.Connected;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class RenderParameters
 {
@@ -28,41 +31,6 @@ public enum ExperimentType
     [JsonStringEnumMemberName("choice")] Choice,
     [JsonStringEnumMemberName("rating")] Rating
 }
-
-// public static class ExperimentTypeKind
-// {
-//     public const string Rating = "rating";
-//     public const string Choice = "choice";
-// }
-//
-// public struct Choice
-// {
-//     public string A { get; set; }
-//     public string B { get; set; }
-// }
-
-// [UnionTag(nameof(Kind))]
-// [UnionCase(typeof(Rating), ExperimentTypeKind.Rating)]
-// [UnionCase(typeof(Choice), ExperimentTypeKind.Choice)]
-// public abstract class ExperimentType
-// {
-//     public abstract string Kind { get; }
-//
-//     public sealed class Rating : UnityState
-//     {
-//         public override string Kind => ExperimentTypeKind.Rating;
-//
-//         public List<string> Order { get; set; }
-//     }
-//
-//     public sealed class Choice : UnityState
-//     {
-//         public override string Kind => ExperimentTypeKind.Choice;
-//
-//         public List<Choice> Choices { get; set; }
-//     }
-// }
-
 
 public struct ExperimentPrompt
 {
@@ -101,6 +69,32 @@ public abstract class UnityState
     {
         public override string Kind => UnityStateKind.Experiment;
         public ExperimentPrompt Prompt { get; set; }
+    }
+}
+
+public static class ExperimentAnswerKind
+{
+    public const string Choice = "choice";
+    public const string Rating = "rating";
+}
+
+[UnionTag(nameof(ExperimentType))]
+[UnionCase(typeof(Choice), ExperimentAnswerKind.Choice)]
+[UnionCase(typeof(Rating), ExperimentAnswerKind.Rating)]
+[JsonConverter(typeof(UnionConverter<ExperimentAnswer>))]
+public abstract class ExperimentAnswer
+{
+    public abstract string ExperimentType { get; }
+
+    public sealed class Choice : ExperimentAnswer
+    {
+        public override string ExperimentType => ExperimentAnswerKind.Choice;
+    }
+
+    public sealed class Rating : ExperimentAnswer
+    {
+        public override string ExperimentType => ExperimentAnswerKind.Rating;
+        public int value { get; set; }
     }
 }
 
@@ -156,7 +150,6 @@ namespace NeuroViz.Scenes
 
                 state = JsonSerializer.Deserialize<UnityState>(e.Message, options);
 
-                // Debug.Log(ObjectDumper.Dump(state));
                 SetActiveSubScene(state);
                 OnStateChanged?.Invoke(state);
             }
@@ -183,6 +176,43 @@ namespace NeuroViz.Scenes
                 case UnityState.Experiment experiment:
                     experimentScene.SetActive(true);
                     break;
+            }
+        }
+
+        public IEnumerator Swap()
+        {
+            var url = $"http://{ip}:{port}/experiment/swap";
+
+            using var www = UnityWebRequest.PostWwwForm(url, "");
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError(www.error);
+            }
+            else
+            {
+                Debug.Log("Form upload complete!");
+            }
+        }
+
+        public IEnumerator Answer(ExperimentAnswer answer)
+        {
+            var url = $"http://{ip}:{port}/experiment/answer";
+            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, };
+            var json = JsonSerializer.Serialize(answer, options);
+
+
+            using var www = UnityWebRequest.Post(url, json, "application/json");
+            yield return www.SendWebRequest();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError(www.error);
+            }
+            else
+            {
+                Debug.Log("Form upload complete!");
             }
         }
     }
