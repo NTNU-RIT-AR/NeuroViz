@@ -71,10 +71,6 @@ pub struct SharedExperimentState {
     pub current_index: u32,
 }
 
-impl SharedExperimentState {
-    pub fn is_done() {}
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ChoiceExperimentState {
     #[serde(flatten)]
@@ -109,6 +105,10 @@ impl ChoiceExperimentState {
     }
 
     pub fn answer(&mut self) -> anyhow::Result<bool> {
+        if self.is_done() {
+            return Ok(true);
+        }
+
         let selected_preset_key = self.get_current_preset_key();
 
         let choice = &self.experiment.choices[self.shared.current_index as usize];
@@ -127,7 +127,7 @@ impl ChoiceExperimentState {
         self.result.choices.push(outcome);
 
         self.shared.current_index += 1;
-        let is_done = self.experiment.choices.len() == self.shared.current_index as usize;
+        let is_done = self.is_done();
 
         Ok(is_done)
     }
@@ -155,17 +155,18 @@ impl RatingExperimentState {
         preset
     }
 
+    pub fn is_done() {
+        let is_done = order.len() == self.current_index as usize + 1;
+
+        is_done
+    }
+
     pub fn answer(&mut self, value: u8) -> anyhow::Result<bool> {
-        let ExperimentType::Rating { order } = &mut self.experiment.experiment_type else {
-            bail!("Not a rating experiment");
-        };
+        if self.is_done() {
+            return Ok(true);
+        }
 
-        let ExperimentResultType::Rating { ratings } = &mut self.experiment_result.experiment_type
-        else {
-            bail!("Not a rating experiment");
-        };
-
-        let is_first_prompt = self.current_index == 0;
+        let is_first_prompt = self.shared.current_index == 0;
         let duration = match is_first_prompt {
             true => utils::get_duration_since(self.experiment_result.time),
             false => utils::get_duration_since(ratings[self.current_index as usize - 1].time),
@@ -180,7 +181,8 @@ impl RatingExperimentState {
 
         ratings.push(outcome);
 
-        let is_done = order.len() == self.current_index as usize + 1;
+        self.shared.current_index += 1;
+        let is_done = self.is_done();
 
         Ok(is_done)
     }
@@ -249,9 +251,15 @@ impl ExperimentState {
                     .try_as_choice_mut()
                     .context("Failed to get choice state")?;
 
-                choice_state.answer();
+                choice_state.answer()
             }
-            ExperimentAnswer::Rating { value } => self.answer_rating(value)?,
+            ExperimentAnswer::Rating { value } => {
+                let rating_state = self
+                    .try_as_rating_mut()
+                    .context("Failed to get rating state")?;
+
+                rating_state.answer(value)?
+            }
         };
 
         Ok(is_done)
