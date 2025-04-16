@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
@@ -48,6 +49,8 @@ function useExperimentState(): ExperimentState | undefined {
   return experimentState;
 }
 
+const queryClient = new QueryClient();
+
 export default function App() {
   const experimentState = useExperimentState();
 
@@ -56,17 +59,19 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <div className={styles.mainLayout}>
-        <Sidebar />
-        <Routes>
-          <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
-          <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
-          <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
-          <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
-          <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <div className={styles.mainLayout}>
+          <Sidebar />
+          <Routes>
+            <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
+            <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
+            <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
+            <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
+            <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }

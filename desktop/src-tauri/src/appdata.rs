@@ -6,11 +6,13 @@ use crate::{
         ExperimentType, OutcomeChoice, OutcomeRating, ParameterValues, Preset,
     },
 };
+use anyhow::bail;
 use chrono::prelude::Local;
-use futures_signals::signal::Mutable;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use strum::EnumTryAs;
+use tauri::async_runtime::block_on;
+use tokio::sync::watch;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ExperimentState {
@@ -73,7 +75,7 @@ impl ExperimentState {
         };
     }
 
-    pub fn answer(&mut self, experiment_answer: ExperimentAnswer) -> Result<bool, String> {
+    pub fn answer(&mut self, experiment_answer: ExperimentAnswer) -> anyhow::Result<bool> {
         let is_done = match experiment_answer {
             ExperimentAnswer::Choice => self.answer_choice()?,
             ExperimentAnswer::Rating { value } => self.answer_rating(value)?,
@@ -84,14 +86,14 @@ impl ExperimentState {
         Ok(is_done)
     }
 
-    fn answer_rating(&mut self, value: u8) -> Result<bool, String> {
+    fn answer_rating(&mut self, value: u8) -> anyhow::Result<bool> {
         let ExperimentType::Rating { order } = &mut self.experiment.experiment_type else {
-            return Err("Not a rating experiment".to_string());
+            bail!("Not a rating experiment");
         };
 
         let ExperimentResultType::Rating { ratings } = &mut self.experiment_result.experiment_type
         else {
-            return Err("Not a rating experiment".to_string());
+            bail!("Not a rating experiment");
         };
 
         let is_first_prompt = self.current_index == 0;
@@ -114,7 +116,7 @@ impl ExperimentState {
         Ok(is_done)
     }
 
-    fn answer_choice(&mut self) -> Result<bool, String> {
+    fn answer_choice(&mut self) -> anyhow::Result<bool> {
         let selected_preset_key = self.get_current_preset_key();
 
         let ExperimentType::Choice {
@@ -122,13 +124,13 @@ impl ExperimentState {
         } = &mut self.experiment.experiment_type
         else {
             // Not a choice experiment, do nothing
-            return Err("Not a choice experiment".to_string());
+            bail!("Not a choice experiment");
         };
 
         let ExperimentResultType::Choice { choices } = &mut self.experiment_result.experiment_type
         else {
             // Not a choice experiment, do nothing
-            return Err("Not a choice experiment".to_string());
+            bail!("Not a choice experiment");
         };
 
         let choice = &choices_experiment[self.current_index as usize];
@@ -162,9 +164,9 @@ pub enum AppState {
 }
 
 impl AppState {
-    pub fn swap_current_preset(&mut self) -> Result<(), String> {
+    pub fn swap_current_preset(&mut self) -> anyhow::Result<()> {
         let AppState::Experiment(experiment_state) = self else {
-            return Err("Not in experiment mode".to_string());
+            bail!("Not in experiment mode");
         };
 
         experiment_state.swap_current_preset();
@@ -172,9 +174,9 @@ impl AppState {
         Ok(())
     }
 
-    pub fn answer_experiment(&mut self, experiment_answer: ExperimentAnswer) -> Result<(), String> {
+    pub fn answer_experiment(&mut self, experiment_answer: ExperimentAnswer) -> anyhow::Result<()> {
         let AppState::Experiment(experiment_state) = self else {
-            return Err("Not in experiment mode".to_string());
+            bail!("Not in experiment mode");
         };
 
         let is_done = experiment_state.answer(experiment_answer)?;
@@ -189,11 +191,11 @@ impl AppState {
                 experiment_state.experiment.name,
             );
 
-            storage::create_and_write_to_json_file(
+            block_on(storage::create_file(
+                result_name,
                 &experiment_state.experiment_result,
                 Folder::Results,
-                result_name,
-            )?;
+            ))?;
 
             *self = AppState::LiveView(ParameterValues::default());
         }
@@ -205,13 +207,13 @@ impl AppState {
 /// A handle to all the state of the app.
 #[derive(Clone)]
 pub struct AppData {
-    pub state: Mutable<AppState>,
+    pub state: watch::Sender<AppState>,
 }
 
 impl AppData {
     pub fn new(state: AppState) -> Self {
         Self {
-            state: Mutable::new(state),
+            state: watch::Sender::new(state),
         }
     }
 }
