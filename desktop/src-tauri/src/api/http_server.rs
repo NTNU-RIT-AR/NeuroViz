@@ -204,6 +204,8 @@ async fn subscribe_state(
 
 #[cfg(test)]
 mod tests {
+    use std::ops::Deref;
+
     use eventsource_stream::Eventsource;
     use tokio::{
         net::TcpListener,
@@ -233,15 +235,19 @@ mod tests {
         let (_, unity_state_receiver) = watch::channel(UnityState::Idle);
         let (unity_event_sender, _) = mpsc::channel(100);
 
+        let secret = Arc::new("secret".to_owned());
+
         let http_server = HttpServer {
             state: unity_state_receiver,
             event_sender: unity_event_sender,
+            secret: secret.clone(),
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
 
         let app_state = reqwest::Client::new()
             .get(format!("{}/state/current", listening_url))
+            .header(AUTHORIZATION, (*secret).clone())
             .send()
             .await
             .unwrap()
@@ -258,15 +264,19 @@ mod tests {
         let (unity_state_sender, unity_state_receiver) = watch::channel(UnityState::Idle);
         let (unity_event_sender, _unity_event_reciever) = mpsc::channel(100);
 
+        let secret = Arc::new("secret".to_owned());
+
         let http_server = HttpServer {
             state: unity_state_receiver,
             event_sender: unity_event_sender,
+            secret: secret.clone(),
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
 
         let mut event_stream = reqwest::Client::new()
             .get(format!("{}/state/subscribe", listening_url))
+            .header(AUTHORIZATION, (*secret).clone())
             .send()
             .await
             .unwrap()
