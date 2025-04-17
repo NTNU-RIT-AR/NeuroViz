@@ -11,6 +11,8 @@ pub enum ParameterKey {
     SeeThrough,
     #[serde(rename = "outline")]
     Outline,
+    #[serde(rename = "smoothness")]
+    Smoothness,
 }
 
 #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
@@ -34,6 +36,10 @@ impl Parameter {
                 key: ParameterKey::Outline,
                 name: "Outline".to_owned(),
             },
+            Parameter {
+                key: ParameterKey::Smoothness,
+                name: "Smoothness".to_owned(),
+            },
         ]
         .to_vec()
     }
@@ -44,6 +50,7 @@ pub struct ParameterValues {
     pub transparency: f32,
     pub see_through: f32,
     pub outline: f32,
+    pub smoothness: f32,
 }
 
 impl ParameterValues {
@@ -52,6 +59,7 @@ impl ParameterValues {
             ParameterKey::Transparency => self.transparency,
             ParameterKey::SeeThrough => self.see_through,
             ParameterKey::Outline => self.outline,
+            ParameterKey::Smoothness => self.smoothness,
         }
     }
 
@@ -60,6 +68,7 @@ impl ParameterValues {
             ParameterKey::Transparency => self.transparency = value,
             ParameterKey::SeeThrough => self.see_through = value,
             ParameterKey::Outline => self.outline = value,
+            ParameterKey::Smoothness => self.smoothness = value,
         }
     }
 }
@@ -142,10 +151,10 @@ pub enum ExperimentResultType {
 
 #[derive(Debug, Serialize, Deserialize, Type, Clone)]
 pub struct Experiment {
-    #[serde(flatten)]
-    pub experiment_type: ExperimentType,
     pub name: String,
     pub presets: HashMap<String, Preset>,
+    #[serde(flatten)]
+    pub experiment_type: ExperimentType,
 }
 
 #[derive(Serialize, Deserialize, Type)]
@@ -158,13 +167,13 @@ pub struct CreateExperiment {
 
 #[derive(Debug, Deserialize, Serialize, Type, Clone)]
 pub struct ExperimentResult {
-    #[serde(flatten)]
-    pub experiment_type: ExperimentResultType,
     pub name: String,
     pub time: DateTime<Local>,
     pub observer_id: u32,
     pub note: String,
     pub presets: HashMap<String, Preset>,
+    #[serde(flatten)]
+    pub experiment_type: ExperimentResultType,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Type, PartialEq, Eq)]
@@ -175,7 +184,7 @@ pub enum CurrentPreset {
 
 impl ExperimentResult {
     //TODO lage funksjon for å avslutte eksperimentet. Når man avslutter så lagres det til fil i korresponderende folder
-    pub fn new(experiment: &Experiment, observer_id: u32, note: String) -> Self {
+    pub fn new(experiment: &Experiment, name: String, observer_id: u32, note: String) -> Self {
         Self {
             experiment_type: match experiment.experiment_type {
                 ExperimentType::Choice { .. } => ExperimentResultType::Choice {
@@ -185,7 +194,7 @@ impl ExperimentResult {
                     ratings: Vec::new(),
                 },
             },
-            name: experiment.name.clone(),
+            name,
             observer_id,
             time: Local::now(),
             note,

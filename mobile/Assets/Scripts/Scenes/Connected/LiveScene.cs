@@ -37,10 +37,7 @@ namespace NeuroViz.Scenes.Connected
                 this.state = live;
             }
 
-            updateParameters.transparency = this.state.Parameters.Transparency;
-            updateParameters.seeThrough = this.state.Parameters.SeeThrough;
-            updateParameters.outline = this.state.Parameters.Outline;
-            updateParameters.HandlePropertiesEdited();
+            updateParameters.SetParameters(this.state.Parameters);
         }
     }
 }

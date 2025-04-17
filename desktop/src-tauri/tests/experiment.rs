@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
@@ -12,6 +12,7 @@ use min_tauri_app_lib::{
         Preset,
     },
 };
+use reqwest::header::AUTHORIZATION;
 use tokio::{
     join,
     net::TcpListener,
@@ -53,7 +54,9 @@ pub async fn handle_unity_events_task(
 /// Integration test for the experiment functionality, tests the AppData and HTTP server integrated
 #[tokio::test]
 async fn experiment_integration_test() {
-    let app_data = AppData::new(AppState::LiveView(Default::default()));
+    let secret = Arc::new("secret".to_owned());
+
+    let app_data = AppData::new(AppState::LiveView(Default::default()), secret.clone());
     let (unity_event_sender, unity_event_receiver) = mpsc::channel(100);
 
     let (listener, listening_url) = listener_random_port().await;
@@ -62,6 +65,7 @@ async fn experiment_integration_test() {
         listener,
         app_data.state.subscribe(),
         unity_event_sender.clone(),
+        secret.clone(),
     );
     let handle_unity_events =
         handle_unity_events_task(app_data.state.clone(), unity_event_receiver);
@@ -71,6 +75,7 @@ async fn experiment_integration_test() {
 
     let mut event_stream = reqwest::Client::new()
         .get(format!("{listening_url}/state/subscribe"))
+        .header(AUTHORIZATION, (*secret).clone())
         .send()
         .await
         .unwrap()
@@ -94,12 +99,14 @@ async fn experiment_integration_test() {
         transparency: 0.5,
         see_through: 0.5,
         outline: 0.5,
+        smoothness: 0.5,
     };
 
     let parameters_2 = ParameterValues {
         transparency: 0.7,
         see_through: 0.7,
         outline: 0.7,
+        smoothness: 0.7,
     };
 
     // Start an experiment
@@ -129,11 +136,14 @@ async fn experiment_integration_test() {
         name: "Experiment 1".to_owned(),
     };
 
-    let experiment_result = ExperimentResult::new(&experiment, 0, String::default());
+    let experiment_result =
+        ExperimentResult::new(&experiment, "Result 1".to_owned(), 0, String::default());
 
     app_data
         .state
         .send(AppState::Experiment(ExperimentState::new(
+            "experiment-1".to_owned(),
+            "result-1".to_owned(),
             experiment,
             experiment_result,
         )))

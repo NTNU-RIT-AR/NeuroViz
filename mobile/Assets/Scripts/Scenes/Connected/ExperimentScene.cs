@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace NeuroViz.Scenes.Connected
 {
@@ -12,7 +14,6 @@ namespace NeuroViz.Scenes.Connected
         // Opacity
         // Border
         // Xray
-
         // Subsurface?
 
         private void OnEnable()
@@ -38,11 +39,7 @@ namespace NeuroViz.Scenes.Connected
             }
 
             var prompt = this.state.Prompt;
-
-            updateParameters.transparency = prompt.Parameters.Transparency;
-            updateParameters.seeThrough = prompt.Parameters.SeeThrough;
-            updateParameters.outline = prompt.Parameters.Outline;
-            updateParameters.HandlePropertiesEdited();
+            updateParameters.SetParameters(prompt.Parameters);
         }
     }
 }

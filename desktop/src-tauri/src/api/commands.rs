@@ -53,6 +53,15 @@ pub fn get_ip_address() -> String {
     }
 }
 
+#[specta::specta]
+#[tauri::command]
+pub fn get_secret(app: tauri::AppHandle) -> String {
+    let app_data = app.state::<AppData>();
+    let secret = (*app_data.secret).clone();
+
+    secret
+}
+
 #[tauri::command]
 #[specta::specta]
 pub fn get_parameters() -> Vec<Parameter> {
@@ -186,15 +195,18 @@ pub fn set_live_parameters(
 #[specta::specta]
 pub async fn start_experiment(
     app: tauri::AppHandle,
-    slugged_experiment_name: String,
+    experiment_key: String,
+    result_name: String,
     obeserver_id: u32,
     note: String,
 ) -> Result<(), AppError> {
+    let result_key = slugify(&result_name);
+
     let experiment =
-        storage::read_file::<Experiment>(slugged_experiment_name, Folder::Experiments).await?;
+        storage::read_file::<Experiment>(experiment_key.clone(), Folder::Experiments).await?;
 
     let experiment_result: ExperimentResult =
-        ExperimentResult::new(&experiment, obeserver_id, note);
+        ExperimentResult::new(&experiment, result_name, obeserver_id, note);
 
     // Update the AppState in AppData to be in "ExperimentMode"
     let app_data = app.state::<AppData>();
@@ -202,6 +214,8 @@ pub async fn start_experiment(
     app_data
         .state
         .send(AppState::Experiment(ExperimentState::new(
+            experiment_key,
+            result_key,
             experiment,
             experiment_result,
         )))

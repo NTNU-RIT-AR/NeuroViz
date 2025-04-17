@@ -26,7 +26,7 @@ pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
             .join("NeuroViz")
     };
 
-    path.push(folder.to_string());
+    path.push(folder.path());
 
     fs::create_dir_all(&path)
         .await

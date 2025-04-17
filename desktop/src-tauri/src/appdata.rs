@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     api::{storage, utils},
     consts::Folder,
@@ -16,6 +18,8 @@ use tokio::sync::watch;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct ExperimentState {
+    pub experiment_key: String,
+    pub result_key: String,
     pub experiment: Experiment,
     pub experiment_result: ExperimentResult,
     pub current_index: u32,
@@ -23,11 +27,18 @@ pub struct ExperimentState {
 }
 
 impl ExperimentState {
-    pub fn new(experiment: Experiment, experiment_result: ExperimentResult) -> Self {
+    pub fn new(
+        experiment_key: String,
+        result_key: String,
+        experiment: Experiment,
+        experiment_result: ExperimentResult,
+    ) -> Self {
         let current_index = 0;
         let choice_current_preset = CurrentPreset::A;
 
         Self {
+            experiment_key,
+            result_key,
             experiment,
             experiment_result,
             current_index,
@@ -181,20 +192,23 @@ impl AppState {
 
         let is_done = experiment_state.answer(experiment_answer)?;
 
+        // TODO: Move this out of AppState to keep it pure
         if is_done {
             // Experiment is over, save the result
             println!("Experiment is done, saving result");
 
             let result_name = format!(
                 "{}-{}",
-                Local::now().format("%Y-%m-%d_%H-%M-%S"),
-                experiment_state.experiment.name,
+                Local::now().to_rfc3339(),
+                experiment_state.result_key,
             );
 
             block_on(storage::create_file(
                 result_name,
                 &experiment_state.experiment_result,
-                Folder::Results,
+                Folder::Results {
+                    experiment_key: experiment_state.experiment_key.clone(),
+                },
             ))?;
 
             *self = AppState::LiveView(ParameterValues::default());
@@ -208,12 +222,14 @@ impl AppState {
 #[derive(Clone)]
 pub struct AppData {
     pub state: watch::Sender<AppState>,
+    pub secret: Arc<String>,
 }
 
 impl AppData {
-    pub fn new(state: AppState) -> Self {
+    pub fn new(state: AppState, secret: Arc<String>) -> Self {
         Self {
             state: watch::Sender::new(state),
+            secret,
         }
     }
 }

@@ -5,7 +5,8 @@ namespace NeuroViz
 {
     public class UpdateParameters : MonoBehaviour
     {
-        private static readonly int SeeThrough = Shader.PropertyToID("_SeeThrough");
+        private static readonly int SeeThroughID = Shader.PropertyToID("_SeeThrough");
+        private static readonly int SmoothnessID = Shader.PropertyToID("_Smoothness");
 
         [Header("Properties")]
         // [OnValueChanged(nameof(HandlePropertiesEdited))]
@@ -19,6 +20,7 @@ namespace NeuroViz
         // [OnValueChanged(nameof(HandlePropertiesEdited))]
         // [PropertyRange(0, 1)]
         [SerializeField] public float seeThrough;
+        [SerializeField] public float smoothness;
 
 
         [Header("Objects")]
@@ -26,19 +28,37 @@ namespace NeuroViz
 
         [SerializeField] private List<Material> transparencyMaterials;
 
+        public void SetParameters(RenderParameters parameters)
+        {
+            transparency = parameters.Transparency;
+            seeThrough = parameters.SeeThrough;
+            outline = parameters.Outline;
+            smoothness = parameters.Smoothness;
+
+            HandlePropertiesEdited();
+        }
+
         private void OnEnable()
         {
             HandlePropertiesEdited();
         }
 
-        public void HandlePropertiesEdited()
+        private static float EaseInQuad(float start, float end, float value)
         {
-            Shader.SetGlobalFloat(SeeThrough, seeThrough);
+            end -= start;
+            return end * value * value + start;
+        }
+
+        private void HandlePropertiesEdited()
+        {
+            Shader.SetGlobalFloat(SeeThroughID, seeThrough);
+            Shader.SetGlobalFloat(SmoothnessID, smoothness);
 
             foreach (var outlineObject in outlineObjects)
             {
                 var color = outlineObject.OutlineColor;
-                outlineObject.OutlineColor = new Color(color.r, color.g, color.b, outline);
+                outlineObject.OutlineColor = new Color(color.r, color.g, color.b, EaseInQuad(0f, 1f, outline));
+                outlineObject.OutlineWidth = outline * 10f;
             }
 
             foreach (var transparencyMaterial in transparencyMaterials)
