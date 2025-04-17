@@ -1,23 +1,16 @@
 {
   "name": "TODO name",
-  "time": "2025-04-14T19:29:37.234612474-04:00",
+  "time": "2025-04-17T15:57:20.385179037-04:00",
   "observer_id": 0,
   "note": "note!",
   "presets": {
-    "preset-1": {
-      "name": "Preset 1",
-      "parameters": {
-        "transparency": 0.5,
-        "see_through": 0.2,
-        "outline": 0.8
-      }
-    },
     "preset-4": {
       "name": "Preset 4",
       "parameters": {
         "transparency": 0.9,
         "see_through": 0.3,
-        "outline": 0.4
+        "outline": 0.4,
+        "smoothness": 0.6
       }
     },
     "preset-2": {
@@ -25,7 +18,8 @@
       "parameters": {
         "transparency": 0.3,
         "see_through": 0.4,
-        "outline": 0.6
+        "outline": 0.6,
+        "smoothness": 0.6
       }
     },
     "preset-3": {
@@ -33,7 +27,17 @@
       "parameters": {
         "transparency": 0.1,
         "see_through": 0.5,
-        "outline": 0.7
+        "outline": 0.7,
+        "smoothness": 0.6
+      }
+    },
+    "preset-1": {
+      "name": "Preset 1",
+      "parameters": {
+        "transparency": 0.5,
+        "see_through": 0.2,
+        "outline": 0.8,
+        "smoothness": 0.6
       }
     }
   },
@@ -42,8 +46,8 @@
     {
       "a": "preset-1",
       "b": "preset-2",
-      "selected": "preset-1",
-      "time": "2025-04-14T19:29:38.091218974-04:00",
+      "selected": "preset-2",
+      "time": "2025-04-17T15:57:22.953218088-04:00",
       "duration_on_a": 0.0,
       "duration_on_b": 0.0,
       "duration": 0.0
@@ -51,8 +55,8 @@
     {
       "a": "preset-4",
       "b": "preset-1",
-      "selected": "preset-4",
-      "time": "2025-04-14T19:29:38.245761686-04:00",
+      "selected": "preset-1",
+      "time": "2025-04-17T15:57:23.134255801-04:00",
       "duration_on_a": 0.0,
       "duration_on_b": 0.0,
       "duration": 0.0
@@ -60,8 +64,8 @@
     {
       "a": "preset-2",
       "b": "preset-4",
-      "selected": "preset-2",
-      "time": "2025-04-14T19:29:38.434537132-04:00",
+      "selected": "preset-4",
+      "time": "2025-04-17T15:57:23.324326743-04:00",
       "duration_on_a": 0.0,
       "duration_on_b": 0.0,
       "duration": 0.0
