@@ -1,15 +1,17 @@
 use axum::{
-    extract::{Json, State},
+    extract::{Json, Query, Request, State},
+    http::{header::AUTHORIZATION, StatusCode},
+    middleware::{self, Next},
     response::{
         sse::{Event, KeepAlive},
-        Sse,
+        Response, Sse,
     },
     routing::{get, post},
     Router,
 };
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
-use std::{convert::Infallible, time::Duration};
+use std::{convert::Infallible, sync::Arc, time::Duration};
 use tokio::sync::{mpsc, watch};
 
 use crate::{
@@ -61,6 +63,7 @@ pub enum UnityEvent {
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
     pub event_sender: mpsc::Sender<UnityEvent>,
+    pub secret: Arc<String>,
 }
 
 impl HttpServer {
@@ -72,9 +75,43 @@ impl HttpServer {
             .route("/state/subscribe", get(subscribe_state))
             .route("/experiment/swap", post(swap_preset))
             .route("/experiment/answer", post(answer_choice_experiment))
+            .route_layer(middleware::from_fn_with_state(state.clone(), auth))
             .with_state(state);
 
         app
+    }
+}
+
+#[derive(Deserialize)]
+struct AuthQuery {
+    secret: Option<String>,
+}
+
+/// Authentication middleware using secret
+async fn auth(
+    State(http_server): State<HttpServer>,
+    Query(auth_query): Query<AuthQuery>,
+    req: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let auth_header = req
+        .headers()
+        .get(AUTHORIZATION)
+        .and_then(|header| header.to_str().ok());
+
+    // let Some(auth_header) = auth_header else {
+    //     return Err(StatusCode::UNAUTHORIZED);
+    // };
+
+    let is_valid_token = match (auth_header, auth_query.secret) {
+        (Some(header_secret), _) => header_secret == *http_server.secret,
+        (None, Some(query_secret)) => query_secret == *http_server.secret,
+        (None, None) => false,
+    };
+
+    match is_valid_token {
+        true => Ok(next.run(req).await),
+        false => Err(StatusCode::UNAUTHORIZED),
     }
 }
 
@@ -167,6 +204,8 @@ async fn subscribe_state(
 
 #[cfg(test)]
 mod tests {
+    use std::ops::Deref;
+
     use eventsource_stream::Eventsource;
     use tokio::{
         net::TcpListener,
@@ -196,15 +235,19 @@ mod tests {
         let (_, unity_state_receiver) = watch::channel(UnityState::Idle);
         let (unity_event_sender, _) = mpsc::channel(100);
 
+        let secret = Arc::new("secret".to_owned());
+
         let http_server = HttpServer {
             state: unity_state_receiver,
             event_sender: unity_event_sender,
+            secret: secret.clone(),
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
 
         let app_state = reqwest::Client::new()
             .get(format!("{}/state/current", listening_url))
+            .header(AUTHORIZATION, (*secret).clone())
             .send()
             .await
             .unwrap()
@@ -221,15 +264,19 @@ mod tests {
         let (unity_state_sender, unity_state_receiver) = watch::channel(UnityState::Idle);
         let (unity_event_sender, _unity_event_reciever) = mpsc::channel(100);
 
+        let secret = Arc::new("secret".to_owned());
+
         let http_server = HttpServer {
             state: unity_state_receiver,
             event_sender: unity_event_sender,
+            secret: secret.clone(),
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
 
         let mut event_stream = reqwest::Client::new()
             .get(format!("{}/state/subscribe", listening_url))
+            .header(AUTHORIZATION, (*secret).clone())
             .send()
             .await
             .unwrap()

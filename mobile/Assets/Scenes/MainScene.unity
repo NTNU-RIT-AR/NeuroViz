@@ -262,6 +262,7 @@ MonoBehaviour:
   transparency: 0
   outline: 0
   seeThrough: 0
+  smoothness: 0
   outlineObjects:
   - {fileID: 914731651}
   - {fileID: 124977959}
@@ -452,7 +453,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &291810989
 Transform:
   m_ObjectHideFlags: 0
@@ -1169,7 +1170,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &741916159
 Transform:
   m_ObjectHideFlags: 0
@@ -1200,9 +1201,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 554e3fce08a34494b0be3d9eb6f909fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ip: 129.21.105.21
+  ip: localhost
   port: 9001
-  secret: 
+  secret: aauYOOniMIn1B4pLEOvw2jIkYRszirfJ
+  scanScene: {fileID: 291810990}
   idleScene: {fileID: 166711369}
   liveScene: {fileID: 1200367495}
   experimentScene: {fileID: 1883350453}
@@ -1492,15 +1494,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 89978da7aabf23c459783de45b9062a1, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.04
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 89978da7aabf23c459783de45b9062a1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.04
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 89978da7aabf23c459783de45b9062a1, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.04
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 89978da7aabf23c459783de45b9062a1, type: 3}
       propertyPath: m_LocalPosition.x

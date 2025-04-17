@@ -6,6 +6,7 @@ pub mod extensions;
 pub mod structs;
 
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use api::events::{ConnectionEvent, StateEvent};
 use api::http_server::{HttpServer, UnityEvent};
@@ -15,6 +16,8 @@ use consts::HTTP_SERVER_PORT;
 
 use extensions::{MpscReceiverExt, WatchReceiverExt};
 use futures::StreamExt;
+use rand::distr::Alphanumeric;
+use rand::Rng;
 use specta_typescript::formatter::prettier;
 use specta_typescript::Typescript;
 use structs::ParameterValues;
@@ -29,6 +32,7 @@ pub async fn http_server_task(
     listener: TcpListener,
     app_state_receiver: watch::Receiver<AppState>,
     unity_event_sender: mpsc::Sender<UnityEvent>,
+    secret: Arc<String>,
 ) {
     // Channel for unity state
     let (unity_state_sender, unity_state_receiver) =
@@ -37,6 +41,7 @@ pub async fn http_server_task(
     let http_server = HttpServer {
         state: unity_state_receiver,
         event_sender: unity_event_sender,
+        secret: secret,
     };
 
     // Task to update the unity state based on app state changes
@@ -83,10 +88,26 @@ pub async fn handle_unity_events_task(
     }
 }
 
+/// Generate random secret with 32 characters
+fn generate_secret() -> String {
+    let secret = rand::rng()
+        .sample_iter(&Alphanumeric)
+        .take(32)
+        .map(char::from)
+        .collect::<String>();
+
+    secret
+}
+
 async fn setup(app: AppHandle) {
     // Initialize app state
-    // TODO: Maybe starting as idle would be better?
-    let app_data = AppData::new(AppState::LiveView(ParameterValues::default()));
+    let secret = Arc::new(generate_secret());
+    println!("Secret: {}", secret);
+
+    let app_data = AppData::new(
+        AppState::LiveView(ParameterValues::default()),
+        secret.clone(),
+    );
     app.manage(app_data.clone());
 
     // Channel for events from Unity
@@ -102,6 +123,7 @@ async fn setup(app: AppHandle) {
         listener,
         app_data.state.subscribe(),
         unity_event_sender.clone(),
+        secret,
     );
 
     // Task to update the app state based on Unity events
@@ -143,6 +165,7 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             // App data
             commands::current_state,
             commands::get_ip_address,
+            commands::get_secret,
             commands::get_parameters,
             // CRUD presets
             commands::get_presets,

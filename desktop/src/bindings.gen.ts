@@ -11,6 +11,9 @@ async currentState() : Promise<AppState> {
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
+async getSecret() : Promise<string> {
+    return await TAURI_INVOKE("get_secret");
+},
 async getParameters() : Promise<Parameter[]> {
     return await TAURI_INVOKE("get_parameters");
 },
@@ -118,8 +121,8 @@ export type ExperimentState = { experiment: Experiment; experiment_result: Exper
 export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }
 export type OutcomeRating = { preset: string; rank: number; time: string; duration: number }
 export type Parameter = { key: ParameterKey; name: string }
-export type ParameterKey = "transparency" | "see_through" | "outline"
-export type ParameterValues = { transparency: number; see_through: number; outline: number }
+export type ParameterKey = "transparency" | "see_through" | "outline" | "smoothness"
+export type ParameterValues = { transparency: number; see_through: number; outline: number; smoothness: number }
 export type Preset = { name: string; parameters: ParameterValues }
 export type StateEvent = { state: AppState }
 export type WithKey<T> = { key: string; value: T }

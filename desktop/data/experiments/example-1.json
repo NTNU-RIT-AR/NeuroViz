@@ -7,7 +7,8 @@
       "parameters": {
         "transparency": 0.5,
         "see_through": 0.2,
-        "outline": 0.8
+        "outline": 0.8,
+        "smoothness": 0.6
       }
     },
     "preset-2": {
@@ -15,7 +16,8 @@
       "parameters": {
         "transparency": 0.3,
         "see_through": 0.4,
-        "outline": 0.6
+        "outline": 0.6,
+        "smoothness": 0.6
       }
     },
     "preset-3": {
@@ -23,7 +25,8 @@
       "parameters": {
         "transparency": 0.1,
         "see_through": 0.5,
-        "outline": 0.7
+        "outline": 0.7,
+        "smoothness": 0.6
       }
     },
     "preset-4": {
@@ -31,7 +34,8 @@
       "parameters": {
         "transparency": 0.9,
         "see_through": 0.3,
-        "outline": 0.4
+        "outline": 0.4,
+        "smoothness": 0.6
       }
     }
   },

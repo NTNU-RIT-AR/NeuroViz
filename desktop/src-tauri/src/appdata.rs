@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     api::{storage, utils},
     consts::Folder,
@@ -208,12 +210,14 @@ impl AppState {
 #[derive(Clone)]
 pub struct AppData {
     pub state: watch::Sender<AppState>,
+    pub secret: Arc<String>,
 }
 
 impl AppData {
-    pub fn new(state: AppState) -> Self {
+    pub fn new(state: AppState, secret: Arc<String>) -> Self {
         Self {
             state: watch::Sender::new(state),
+            secret,
         }
     }
 }
