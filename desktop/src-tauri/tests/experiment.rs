@@ -136,11 +136,14 @@ async fn experiment_integration_test() {
         name: "Experiment 1".to_owned(),
     };
 
-    let experiment_result = ExperimentResult::new(&experiment, 0, String::default());
+    let experiment_result =
+        ExperimentResult::new(&experiment, "Result 1".to_owned(), 0, String::default());
 
     app_data
         .state
         .send(AppState::Experiment(ExperimentState::new(
+            "experiment-1".to_owned(),
+            "result-1".to_owned(),
             experiment,
             experiment_result,
         )))
