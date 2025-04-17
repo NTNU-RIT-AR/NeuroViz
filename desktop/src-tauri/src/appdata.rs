@@ -199,7 +199,7 @@ impl AppState {
 
             let result_name = format!(
                 "{}-{}",
-                Local::now().to_rfc3339(),
+                Local::now().format("%Y-%m-%d-%H.%M.%S"),
                 experiment_state.result_key,
             );
 
