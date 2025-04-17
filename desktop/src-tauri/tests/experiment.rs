@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
-use min_tauri_app_lib::{
+use neuroviz_lib::{
     api::http_server::{UnityEvent, UnityState},
     appdata::{AppData, AppState, ExperimentState},
     extensions::MpscReceiverExt,
