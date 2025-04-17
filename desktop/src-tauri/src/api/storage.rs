@@ -11,22 +11,21 @@ use super::commands::WithKey;
 use crate::consts::Folder;
 
 pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
-    //let mut path = env::current_exe().ok()?;
-    //path.push("data");
-
-    let mut path;
-
-    if cfg!(debug_assertions) {
-        // debug mode}
+    let mut path = if cfg!(debug_assertions) {
+        // debug mode
         let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
         let mut desktop_dir = PathBuf::from(manifest_dir);
 
         desktop_dir.pop();
-        path = desktop_dir.join("data");
+
+        desktop_dir.join("data")
     } else {
         // release mode
-        path = dirs::executable_dir().context("Could not get executable dir")?;
-    }
+        dirs::data_dir()
+            .context("Could not get data dir")?
+            .join("NeuroViz")
+    };
+
     path.push(folder.path());
 
     fs::create_dir_all(&path)
