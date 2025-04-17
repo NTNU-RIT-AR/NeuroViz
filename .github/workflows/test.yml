@@ -34,9 +34,19 @@ jobs:
         working-directory: ./desktop/src-tauri
         run: cargo test --verbose
 
-      - name: install frontend dependencies
+      - name: Cargo audit
+        working-directory: ./desktop/src-tauri
+        run: |
+          cargo install cargo-audit
+          cargo audio
+
+      - name: Install frontend dependencies
         working-directory: ./desktop
         run: npm install
+
+      - name: Npm audit
+        working-directory: ./desktop
+        run: npm audit
 
       - name: Run frontend build
         working-directory: ./desktop
