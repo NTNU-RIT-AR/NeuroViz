@@ -38,7 +38,7 @@ jobs:
         working-directory: ./desktop/src-tauri
         run: |
           cargo install cargo-audit
-          cargo audio
+          cargo audit
 
       - name: Install frontend dependencies
         working-directory: ./desktop
