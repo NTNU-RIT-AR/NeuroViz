@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Deref};
+use std::{collections::HashMap, ops::Deref, sync::Arc};
 
 use crate::{
     api::{storage, utils},
@@ -300,7 +300,7 @@ impl AppState {
 
             let result_name = format!(
                 "{}-{}",
-                Local::now().to_rfc3339(),
+                Local::now().format("%Y-%m-%d-%H.%M.%S"),
                 experiment_state.result_key,
             );
 
@@ -323,12 +323,14 @@ impl AppState {
 #[derive(Clone)]
 pub struct AppData {
     pub state: watch::Sender<AppState>,
+    pub secret: Arc<String>,
 }
 
 impl AppData {
-    pub fn new(state: AppState) -> Self {
+    pub fn new(state: AppState, secret: Arc<String>) -> Self {
         Self {
             state: watch::Sender::new(state),
+            secret,
         }
     }
 }

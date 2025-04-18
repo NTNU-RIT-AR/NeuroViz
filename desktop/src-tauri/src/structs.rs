@@ -11,6 +11,8 @@ pub enum ParameterKey {
     SeeThrough,
     #[serde(rename = "outline")]
     Outline,
+    #[serde(rename = "smoothness")]
+    Smoothness,
 }
 
 #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
@@ -34,6 +36,10 @@ impl Parameter {
                 key: ParameterKey::Outline,
                 name: "Outline".to_owned(),
             },
+            Parameter {
+                key: ParameterKey::Smoothness,
+                name: "Smoothness".to_owned(),
+            },
         ]
         .to_vec()
     }
@@ -44,6 +50,7 @@ pub struct ParameterValues {
     pub transparency: f32,
     pub see_through: f32,
     pub outline: f32,
+    pub smoothness: f32,
 }
 
 impl ParameterValues {
@@ -52,6 +59,7 @@ impl ParameterValues {
             ParameterKey::Transparency => self.transparency,
             ParameterKey::SeeThrough => self.see_through,
             ParameterKey::Outline => self.outline,
+            ParameterKey::Smoothness => self.smoothness,
         }
     }
 
@@ -60,6 +68,7 @@ impl ParameterValues {
             ParameterKey::Transparency => self.transparency = value,
             ParameterKey::SeeThrough => self.see_through = value,
             ParameterKey::Outline => self.outline = value,
+            ParameterKey::Smoothness => self.smoothness = value,
         }
     }
 }

@@ -54,6 +54,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SeeThrough: 0
+    - _Transparency: 0
     m_Colors:
     - _Albedo: {r: 1, g: 0.70980394, b: 0.57254905, a: 0}
     - _Dark: {r: 0.14509805, g: 0.09411765, b: 0.08235294, a: 0}

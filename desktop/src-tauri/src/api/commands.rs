@@ -53,6 +53,15 @@ pub fn get_ip_address() -> String {
     }
 }
 
+#[specta::specta]
+#[tauri::command]
+pub fn get_secret(app: tauri::AppHandle) -> String {
+    let app_data = app.state::<AppData>();
+    let secret = (*app_data.secret).clone();
+
+    secret
+}
+
 #[tauri::command]
 #[specta::specta]
 pub fn get_parameters() -> Vec<Parameter> {

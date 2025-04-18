@@ -4,53 +4,55 @@ using UnityEngine;
 namespace NeuroViz.Scenes
 {
     [Serializable]
-
     public struct QrPayload
     {
         public string ip;
         public int port;
         public string secret;
     }
-    
+
     public class ScanScene : MonoBehaviour
     {
         [SerializeField] private ConnectedScene connectedScene;
-        
-        
+
         private WebCamTexture camTexture;
         private Rect screenRect;
         private QrReader qrReader;
 
         private Color32[] pixels = null;
         private bool refreshPixels = true;
-        
+
         private Nullable<QrPayload> foundQrPayload = null;
-        
+
         void OnGUI()
         {
+            GUIUtility.RotateAroundPivot(camTexture.videoRotationAngle,
+                new Vector2(screenRect.width / 2, screenRect.height / 2));
             GUI.DrawTexture(screenRect, camTexture, ScaleMode.ScaleToFit);
         }
-        
+
         void OnEnable()
         {
             screenRect = new Rect(0, 0, Screen.width, Screen.height);
             camTexture = new WebCamTexture();
 
             camTexture.Play();
-            
+
+            Debug.Log("Starting QR reader");
             qrReader = new QrReader(() =>
             {
                 refreshPixels = true;
-                
+
                 return (pixels, camTexture.width, camTexture.height);
             });
             qrReader.OnQrCodeFound += OnQrCodeFound;
 
             Update();
         }
-        
-        void OnDisable()
+
+        private void OnDisable()
         {
+            Debug.Log("Stopping QR reader");
             qrReader.Dispose();
             camTexture.Stop();
         }
@@ -62,25 +64,26 @@ namespace NeuroViz.Scenes
                 pixels = camTexture.GetPixels32();
                 refreshPixels = false;
             }
-            
+
             if (foundQrPayload != null)
             {
                 gameObject.SetActive(false);
                 connectedScene.ip = foundQrPayload.Value.ip;
                 connectedScene.port = foundQrPayload.Value.port;
                 connectedScene.secret = foundQrPayload.Value.secret;
+                foundQrPayload = null;
                 connectedScene.gameObject.SetActive(true);
             }
         }
-        
+
         private void OnQrCodeFound(string text)
         {
             try
             {
                 var payload = JsonUtility.FromJson<QrPayload>(text);
-                
+
                 Debug.LogWarning($"IP: {payload.ip}, Port: {payload.port}, Secret: {payload.secret}");
-                
+
                 foundQrPayload = payload;
             }
             catch (Exception e)
