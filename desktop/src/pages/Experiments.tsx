@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { match } from "ts-pattern";
 import { commands, Experiment, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
 import Popup from "../components/Popup";
@@ -45,12 +46,29 @@ function ExperimentCard(props: ExperimentCardProps) {
   const observerIdRef = useRef<HTMLInputElement>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
+  const experimentType = match(experiment.value.experiment_type)
+    .with("rating", () => "Rating")
+    .with("choice", () => "Choice")
+    .exhaustive();
+
+  const questionsAmount = match(experiment.value)
+    .with(
+      { experiment_type: "rating" },
+      (experiment) => experiment.order.length
+    )
+    .with(
+      { experiment_type: "choice" },
+      (experiment) => experiment.choices.length
+    )
+    .exhaustive();
+
   return (
     <>
       <div className={styles.experimentCard}>
         <h3 className={styles.experimentCardTitle}>{experiment.value.name}</h3>
         <div className={styles.experimentCardContent}>
-          <p>Type: {experiment.value.experiment_type}</p>
+          <p>Type: {experimentType}</p>
+          <p>Questions: {questionsAmount}</p>
         </div>
         <div className={styles.experimentCardBottom}>
           {/* Delete button */}
