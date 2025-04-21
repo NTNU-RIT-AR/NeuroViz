@@ -22,7 +22,6 @@
   flex-direction: column;
   justify-content: center;
   transition-duration: 0.4s;
-  z-index: 2;
 }
 
 .experimentCardTitle,
@@ -38,13 +37,12 @@
   padding-bottom: 15px;
 }
 
-
 .experimentCardContent {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: var(--primary-hl)
+  color: var(--primary-hl);
 }
 
 .experimentCardBottom {

@@ -1,7 +1,6 @@
-import { useState } from "react";
-import Backdrop from "./Backdrop";
-import styles from "./styles/Popup.module.css";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { createPortal } from "react-dom";
+import styles from "./styles/Popup.module.css";
 
 interface PopupProps {
   title: string;
@@ -10,8 +9,9 @@ interface PopupProps {
 }
 
 export default function Popup({ children, title, onClose }: PopupProps) {
-  return (
-    <Backdrop>
+  return createPortal(
+    <>
+      <div className={styles.backdrop} onClick={onClose} />
       <div className={styles.popup}>
         <div className={styles.top}>
           <h1>{title}</h1>
@@ -19,6 +19,7 @@ export default function Popup({ children, title, onClose }: PopupProps) {
         </div>
         {children}
       </div>
-    </Backdrop>
+    </>,
+    document.body
   );
 }

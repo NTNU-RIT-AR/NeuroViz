@@ -33,13 +33,18 @@ function ViewExperiment({ data, setShow }: ViewExperimentProps) {
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
   onDelete: () => void;
-  onStart: () => void;
+  onStart: (
+    resultName: string,
+    observerId: number,
+    observerNote: string
+  ) => void;
 }
 
 function ExperimentCard(props: ExperimentCardProps) {
   const { experiment, onDelete, onStart } = props;
 
   const [show, setShow] = useState(false);
+  const [showCreatePopup, setShowCreatePopup] = useState(false);
 
   return (
     <>
@@ -60,13 +65,20 @@ function ExperimentCard(props: ExperimentCardProps) {
           </Button>
 
           {/* Start button */}
-          <Button square={true} onClick={onStart}>
+          <Button square={true} onClick={() => setShowCreatePopup(true)}>
             <PlayIcon className="icon" />
           </Button>
         </div>
       </div>
 
       {show && <ViewExperiment data={experiment.value} setShow={setShow} />}
+
+      {showCreatePopup && (
+        <Popup
+          title="Start experiment"
+          onClose={() => setShowCreatePopup(false)}
+        ></Popup>
+      )}
     </>
   );
 }
@@ -91,6 +103,7 @@ export default function ExperimentsPage() {
             // )
             .map((experiment) => (
               <ExperimentCard
+                key={experiment.key}
                 experiment={experiment}
                 onStart={() =>
                   // TODO: Observer id and note
@@ -98,7 +111,7 @@ export default function ExperimentsPage() {
                     experiment.key,
                     "TODO name",
                     0,
-                    "note!",
+                    "note!"
                   )
                 }
                 onDelete={async () => {
