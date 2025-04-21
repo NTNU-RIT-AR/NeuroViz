@@ -1,14 +1,13 @@
 .button {
   border-radius: 8px;
-  border: solid 2px var(--line);
+  border: solid 2px var(--primary-hl);
 
-  padding: 8px 16px;
+  padding: 8px 32px;
   font-family: inherit;
-  color: var(--white);
-  background-color: #00000026;
-  transition:
-    border-color 0.25s,
-    transform 0.1s;
+  font-weight: bold;
+  color: var(--primary-hl);
+  background-color: var(--primary-bg);
+  transition: border-color 0.25s, transform 0.1s;
 
   cursor: pointer;
 }
@@ -33,10 +32,16 @@
 }
 
 .primary {
+  color: var(--green-hl);
+  background-color: var(--green-bg);
+  border-color: var(--green-hl);
 }
 
 .secondary {
 }
 
 .danger {
+  color: var(--red-hl);
+  background-color: var(--red-bg);
+  border-color: var(--red-hl);
 }

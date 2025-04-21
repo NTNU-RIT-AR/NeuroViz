@@ -24,7 +24,7 @@ export default function SliderCollection({
           min={0}
           max={1}
           value={parameter.value}
-          onChange={parameter.onChange ?? (() => {})}
+          onChange={parameter.onChange}
         ></Slider>
       ))}
     </div>
