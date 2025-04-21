@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { EyeIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -33,11 +33,7 @@ function ViewExperiment({ data, setShow }: ViewExperimentProps) {
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
   onDelete: () => void;
-  onStart: (
-    resultName: string,
-    observerId: number,
-    observerNote: string
-  ) => void;
+  onStart: (resultName: string, observerId: number, note: string) => void;
 }
 
 function ExperimentCard(props: ExperimentCardProps) {
@@ -45,6 +41,10 @@ function ExperimentCard(props: ExperimentCardProps) {
 
   const [show, setShow] = useState(false);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
+
+  const resultNameRef = useRef<HTMLInputElement>(null);
+  const observerIdRef = useRef<HTMLInputElement>(null);
+  const noteRef = useRef<HTMLTextAreaElement>(null);
 
   return (
     <>
@@ -77,7 +77,44 @@ function ExperimentCard(props: ExperimentCardProps) {
         <Popup
           title="Start experiment"
           onClose={() => setShowCreatePopup(false)}
-        ></Popup>
+        >
+          <div className={styles.inputFields}>
+            <label className={styles.inputGroup}>
+              Experiment result name
+              <input ref={resultNameRef} className={styles.input} type="text" />
+            </label>
+
+            <label className={styles.inputGroup}>
+              Observer ID
+              <input
+                ref={observerIdRef}
+                className={styles.input}
+                type="number"
+              />
+            </label>
+
+            <label className={styles.inputGroup}>
+              Note
+              <textarea ref={noteRef} className={styles.input} />
+            </label>
+          </div>
+
+          <Button
+            variant="primary"
+            onClick={() => {
+              const resultName = resultNameRef.current?.value;
+              const observerId = observerIdRef.current?.value;
+              const note = noteRef.current?.value;
+
+              if (resultName && observerId) {
+                onStart(resultName, parseInt(observerId), note || "");
+                setShowCreatePopup(false);
+              }
+            }}
+          >
+            Start
+          </Button>
+        </Popup>
       )}
     </>
   );
@@ -85,7 +122,6 @@ function ExperimentCard(props: ExperimentCardProps) {
 
 export default function ExperimentsPage() {
   const experiments = useCommand(commands.getExperiments);
-  const [filter, setFilter] = useState<FilterState>(FilterState.All);
 
   return (
     <>
@@ -95,48 +131,26 @@ export default function ExperimentsPage() {
         toolbar={<Button onClick={() => {}}>Create Experiment</Button>}
       >
         <div className={styles.experimentsContainer}>
-          {experiments.data
-            // .filter(
-            //   (experiment) => (
-            //     experiment
-            //   )
-            // )
-            .map((experiment) => (
-              <ExperimentCard
-                key={experiment.key}
-                experiment={experiment}
-                onStart={() =>
-                  // TODO: Observer id and note
-                  commands.startExperiment(
-                    experiment.key,
-                    "TODO name",
-                    0,
-                    "note!"
-                  )
-                }
-                onDelete={async () => {
-                  await commands.deleteExperiment(experiment.key);
-                  experiments.refetch();
-                }}
-              />
-            ))}
+          {experiments.data.map((experiment) => (
+            <ExperimentCard
+              key={experiment.key}
+              experiment={experiment}
+              onStart={(resultName, observerId, note) =>
+                commands.startExperiment(
+                  experiment.key,
+                  resultName,
+                  observerId,
+                  note
+                )
+              }
+              onDelete={async () => {
+                await commands.deleteExperiment(experiment.key);
+                experiments.refetch();
+              }}
+            />
+          ))}
         </div>
       </Layout>
-
-      {/* {viewCreateExperiment && <CreateExperimentForm />} */}
-      {/* {viewCreateExperiment ? ( */}
-      {/*   <Button */}
-      {/*     theme={"neutral"} */}
-      {/*     textContent="Cancel" */}
-      {/*     onClick={toggleViewCreateExperiment} */}
-      {/*   /> */}
-      {/* ) : ( */}
-      {/*   <Button */}
-      {/*     theme={"green"} */}
-      {/*     textContent="Create new" */}
-      {/*     onClick={toggleViewCreateExperiment} */}
-      {/*   /> */}
-      {/* )} */}
     </>
   );
 }
