@@ -37,9 +37,6 @@
   border-color: var(--green-hl);
 }
 
-.secondary {
-}
-
 .danger {
   color: var(--red-hl);
   background-color: var(--red-bg);

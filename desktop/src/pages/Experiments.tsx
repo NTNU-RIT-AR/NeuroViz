@@ -2,41 +2,14 @@ import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Select from "react-select";
+import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
 import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
-import {
-  Label,
-  NumberInput,
-  TextArea,
-  TextInput,
-} from "../components/InputField";
+import { Input, Label, Select, TextArea } from "../components/Input";
 import Popup from "../components/Popup";
 import { useCommand } from "../hooks";
 import styles from "./Experiments.module.css";
-
-enum FilterState {
-  All = "All",
-  Published = "Published",
-  Draft = "Draft",
-}
-
-interface ViewExperimentProps {
-  data: Experiment;
-  setShow: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-function ViewExperiment({ data, setShow }: ViewExperimentProps) {
-  let close = () => {
-    setShow(false);
-  };
-  return (
-    <Popup title={data.name} onClose={close}>
-      <h3>{data.name}</h3>
-    </Popup>
-  );
-}
 
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
@@ -109,12 +82,12 @@ function ExperimentCard(props: ExperimentCardProps) {
           <div className={styles.inputFields}>
             <Label>
               Experiment result name
-              <TextInput ref={resultNameRef} />
+              <Input ref={resultNameRef} />
             </Label>
 
             <Label>
               Observer ID
-              <NumberInput ref={observerIdRef} />
+              <Input ref={observerIdRef} type="number" />
             </Label>
 
             <Label>
@@ -144,63 +117,132 @@ function ExperimentCard(props: ExperimentCardProps) {
   );
 }
 
-function CreateChoiceExperiment() {
-  return <div>Create Choice Experiment</div>;
-}
-
 interface CreateExperimentPopupProps {
   presets: WithKey<Preset>[];
   onClose: () => void;
+}
+
+interface Option {
+  value: string;
+  label: string;
 }
 
 const options = [
   {
     value: "choice",
     label: "Choice",
-  } as const,
+  },
   {
     value: "rating",
     label: "Rating",
-  } as const,
-];
+  },
+] as const;
 
-// Choice: select two
-// Create all combinations of presets? can select
+type ExperimentType = (typeof options)[number]["value"];
 
 function CreateExperimentPopup(props: CreateExperimentPopupProps) {
   const { onClose, presets } = props;
   const [experimentType, setExperimentType] = useState(options[0].value);
 
+  const experimentNameRef = useRef<HTMLInputElement>(null);
+  const experimentTypeRef = useRef<SelectInstance<Option>>(null);
+  const presetsRef = useRef<SelectInstance<Option>>(null);
+
+  function createExperiment() {
+    const experimentName = experimentNameRef.current!.value;
+    const experimentType = experimentTypeRef.current!.getValue()[0]
+      .value as ExperimentType;
+
+    const selectedPresets = presetsRef
+      .current!.getValue()
+      .map((preset) => preset.value);
+
+    if (!experimentName) {
+      alert("Experiment name is required");
+      return;
+    }
+
+    if (selectedPresets.length < 2) {
+      alert("At least two presets are required");
+      return;
+    }
+
+    function onSuccess(path: string) {
+      alert(`Experiment created successfully! Saved to ${path}`);
+      onClose();
+    }
+
+    match(experimentType)
+      .with("choice", () => {
+        const combinations = selectedPresets.flatMap((presetA) =>
+          selectedPresets
+            .filter((presetB) => presetA !== presetB)
+            .map((presetB) => ({
+              a: presetA,
+              b: presetB,
+            }))
+        );
+
+        commands
+          .createExperiment({
+            experiment_type: "choice",
+            name: experimentName,
+            presets: selectedPresets,
+            choices: combinations,
+          })
+          .then(onSuccess)
+          .catch(alert);
+      })
+      .with("rating", () => {
+        commands
+          .createExperiment({
+            experiment_type: "rating",
+            name: experimentName,
+            presets: selectedPresets,
+            order: selectedPresets,
+          })
+          .then(onSuccess)
+          .catch(alert);
+      })
+      .exhaustive();
+  }
+
   return (
     <Popup title="Create Experiment" onClose={onClose}>
-      <Select options={options} defaultValue={options[0]} />
+      <div className={styles.inputFields}>
+        <Label>
+          Experiment type
+          <Select
+            options={options}
+            defaultValue={options[0]}
+            ref={experimentTypeRef}
+          />
+        </Label>
 
-      {/* <Select
-        name="type"
-        aria-label="Experiment type"
-        value={experimentType}
-        onChange={(e) => setExperimentType(e.currentTarget.value as any)}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.name}
-          </option>
-        ))}
-      </Select> */}
+        <Label>
+          Experiment name
+          <Input ref={experimentNameRef} />
+        </Label>
 
-      <Select
-        // defaultValue={[colourOptions[2], colourOptions[3]]}
-        isMulti
-        name="presets"
-        options={
-          presets.map((preset) => ({
-            value: preset.key,
-            label: preset.value.name,
-          })) as any
-        }
-        className="basic-multi-select"
-        classNamePrefix="select"
-      />
+        <Label>
+          Presets
+          <Select
+            ref={presetsRef}
+            isMulti
+            name="presets"
+            options={presets.map((preset) => ({
+              value: preset.key,
+              label: preset.value.name,
+            }))}
+            className="basic-multi-select"
+            classNamePrefix="select"
+          />
+        </Label>
+
+        <Button onClick={createExperiment} className={styles.createButton}>
+          Create
+        </Button>
+      </div>
     </Popup>
   );
 }

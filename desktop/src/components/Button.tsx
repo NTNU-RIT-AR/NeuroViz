@@ -4,6 +4,7 @@ import styles from "./Button.module.css";
 type Variant = "primary" | "secondary" | "danger";
 
 interface ButtonProps {
+  className?: string;
   variant?: Variant;
   onClick?: () => void;
   children?: React.ReactNode;
@@ -17,6 +18,7 @@ const styleVariant: Record<Variant, string> = {
 };
 
 export default function Button({
+  className,
   children,
   variant,
   onClick,
@@ -26,6 +28,7 @@ export default function Button({
     <button
       onClick={onClick}
       className={classNames(
+        className,
         styles.button,
         square && styles.square,
         variant && styleVariant[variant]

@@ -4,7 +4,7 @@ use local_ip_address::local_ip;
 use serde::{Deserialize, Serialize};
 use slug::slugify;
 use specta::Type;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 use tauri::Manager;
 use tauri_plugin_opener::OpenerExt;
 use tauri_specta::Event;
@@ -137,7 +137,9 @@ pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, AppError> {
 
 #[tauri::command]
 #[specta::specta]
-pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, AppError> {
+pub async fn create_experiment(
+    experiment_init_data: CreateExperiment,
+) -> Result<PathBuf, AppError> {
     //Generate file name <SLUG OF EXPERIMENT NAME>
     let experiment_key = slugify(&experiment_init_data.name);
 
@@ -165,10 +167,8 @@ pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result
         )),
     };
 
-    //Create and write to JSON file
-    storage::create_file(&experiment_key, &experiment, Folder::Experiments).await?;
-    //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
-    Ok(String::from("Experiment created successfully"))
+    let path = storage::create_file(&experiment_key, &experiment, Folder::Experiments).await?;
+    Ok(path)
 }
 
 /// Delete an experiment

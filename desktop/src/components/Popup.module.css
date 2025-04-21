@@ -1,5 +1,5 @@
 .backdrop {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -9,7 +9,7 @@
 }
 
 .popup {
-  position: absolute;
+  position: fixed;
   top: 5%;
   bottom: 5%;
   left: 2.5%;
@@ -20,6 +20,7 @@
 
   border: 2px solid var(--line);
   border-radius: 20px;
+  overflow: scroll;
 }
 
 .top {

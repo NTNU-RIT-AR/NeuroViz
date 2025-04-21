@@ -86,8 +86,7 @@ export default function LiveViewPage() {
   const liveParameters = useLiveParameters();
   const selectPreset = useSelectPreset();
 
-  const [showPresetCreationPopup, setShowPresetCreationPopup] =
-    useState<boolean>(false);
+  const [showPresetCreationPopup, setShowPresetCreationPopup] = useState(false);
 
   // Update the live parameters when a preset is selected
   useEffect(() => {
@@ -106,20 +105,16 @@ export default function LiveViewPage() {
           options={selectPreset.options}
           onChange={(option) => selectPreset.onChange(option?.value)}
         />
+
         <SliderCollection parameters={liveParameters.state} />
 
-        <Button
-          onClick={() => {
-            setShowPresetCreationPopup(true);
-          }}
-        >
+        <Button onClick={() => setShowPresetCreationPopup(true)}>
           Save as new preset
         </Button>
+
         {showPresetCreationPopup && (
           <Popup
-            onClose={() => {
-              setShowPresetCreationPopup(false);
-            }}
+            onClose={() => setShowPresetCreationPopup(false)}
             title="Enter preset name"
           >
             <input placeholder="preset-name" ref={presetNameRef} />

@@ -28,10 +28,6 @@
   justify-content: end;
 }
 
-.toolbar > Button {
-  /* height: 40px; */
-}
-
 .contentContainer,
 .contentContainerScrollable {
   border-top: 1px solid var(--line);
