@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { createPortal } from "react-dom";
-import styles from "./styles/Popup.module.css";
+import styles from "./Popup.module.css";
 
 interface PopupProps {
   title: string;

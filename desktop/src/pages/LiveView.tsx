@@ -8,7 +8,7 @@ import { Layout } from "../components/Layout";
 import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
 import { useCommand } from "../hooks";
-import styles from "./styles/LiveView.module.css";
+import styles from "./LiveView.module.css";
 
 /// Fetches the initial live parameters and lets the user update them
 function useLiveParameters() {
@@ -20,12 +20,12 @@ function useLiveParameters() {
     parameters.map((parameter) => ({
       ...parameter,
       value: initialLiveParameters[parameter.key],
-    })),
+    }))
   );
 
   useEffect(() => {
     const parameters = Object.fromEntries(
-      parameterStates.map((parameter) => [parameter.key, parameter.value]),
+      parameterStates.map((parameter) => [parameter.key, parameter.value])
     ) as Record<ParameterKey, number>;
 
     commands.setLiveParameters(parameters);
@@ -63,7 +63,7 @@ function useSelectPreset() {
   >(undefined);
 
   const selectedPreset = presets.data.find(
-    (preset) => preset.key === selectedPresetKey,
+    (preset) => preset.key === selectedPresetKey
   );
 
   const options = presets.data.map((preset) => ({

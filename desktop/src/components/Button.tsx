@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import styles from "./styles/Button.module.css";
+import styles from "./Button.module.css";
 
 type Variant = "primary" | "secondary" | "danger";
 

@@ -6,7 +6,7 @@ import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import SliderCollection from "../components/SliderCollection.tsx";
 import { useCommand } from "../hooks.ts";
-import styles from "./styles/Presets.module.css";
+import styles from "./Presets.module.css";
 
 type PresetProps = { name: string };
 

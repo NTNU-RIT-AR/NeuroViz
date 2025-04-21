@@ -60,24 +60,3 @@
   flex-direction: column;
   gap: 10px;
 }
-
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: stretch;
-  max-width: 300px;
-
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--primary-hl);
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  color: white;
-  border: solid var(--primary-hl) 2px;
-  background-color: var(--primary-bg);
-}

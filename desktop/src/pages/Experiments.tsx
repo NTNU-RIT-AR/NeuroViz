@@ -2,12 +2,19 @@ import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Select from "react-select";
 import { match } from "ts-pattern";
-import { commands, Experiment, WithKey } from "../bindings.gen";
+import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
+import {
+  Label,
+  NumberInput,
+  TextArea,
+  TextInput,
+} from "../components/InputField";
 import Popup from "../components/Popup";
 import { useCommand } from "../hooks";
-import styles from "./styles/Experiments.module.css";
+import styles from "./Experiments.module.css";
 
 enum FilterState {
   All = "All",
@@ -100,24 +107,20 @@ function ExperimentCard(props: ExperimentCardProps) {
           onClose={() => setShowCreatePopup(false)}
         >
           <div className={styles.inputFields}>
-            <label className={styles.inputGroup}>
+            <Label>
               Experiment result name
-              <input ref={resultNameRef} className={styles.input} type="text" />
-            </label>
+              <TextInput ref={resultNameRef} />
+            </Label>
 
-            <label className={styles.inputGroup}>
+            <Label>
               Observer ID
-              <input
-                ref={observerIdRef}
-                className={styles.input}
-                type="number"
-              />
-            </label>
+              <NumberInput ref={observerIdRef} />
+            </Label>
 
-            <label className={styles.inputGroup}>
+            <Label>
               Note
-              <textarea ref={noteRef} className={styles.input} />
-            </label>
+              <TextArea ref={noteRef} />
+            </Label>
           </div>
 
           <Button
@@ -141,8 +144,71 @@ function ExperimentCard(props: ExperimentCardProps) {
   );
 }
 
+function CreateChoiceExperiment() {
+  return <div>Create Choice Experiment</div>;
+}
+
+interface CreateExperimentPopupProps {
+  presets: WithKey<Preset>[];
+  onClose: () => void;
+}
+
+const options = [
+  {
+    value: "choice",
+    label: "Choice",
+  } as const,
+  {
+    value: "rating",
+    label: "Rating",
+  } as const,
+];
+
+// Choice: select two
+// Create all combinations of presets? can select
+
+function CreateExperimentPopup(props: CreateExperimentPopupProps) {
+  const { onClose, presets } = props;
+  const [experimentType, setExperimentType] = useState(options[0].value);
+
+  return (
+    <Popup title="Create Experiment" onClose={onClose}>
+      <Select options={options} defaultValue={options[0]} />
+
+      {/* <Select
+        name="type"
+        aria-label="Experiment type"
+        value={experimentType}
+        onChange={(e) => setExperimentType(e.currentTarget.value as any)}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.name}
+          </option>
+        ))}
+      </Select> */}
+
+      <Select
+        // defaultValue={[colourOptions[2], colourOptions[3]]}
+        isMulti
+        name="presets"
+        options={
+          presets.map((preset) => ({
+            value: preset.key,
+            label: preset.value.name,
+          })) as any
+        }
+        className="basic-multi-select"
+        classNamePrefix="select"
+      />
+    </Popup>
+  );
+}
+
 export default function ExperimentsPage() {
   const experiments = useCommand(commands.getExperiments);
+  const presets = useCommand(commands.getPresets).data;
+  const [showCreatePopup, setShowCreatePopup] = useState(false);
 
   return (
     <>
@@ -150,7 +216,11 @@ export default function ExperimentsPage() {
         title="Experiments"
         folder="Experiments"
         scrollable={true}
-        toolbar={<Button onClick={() => {}}>Create Experiment</Button>}
+        toolbar={
+          <Button onClick={() => setShowCreatePopup(true)}>
+            Create Experiment
+          </Button>
+        }
       >
         <div className={styles.experimentsContainer}>
           {experiments.data.map((experiment) => (
@@ -173,6 +243,13 @@ export default function ExperimentsPage() {
           ))}
         </div>
       </Layout>
+
+      {showCreatePopup && (
+        <CreateExperimentPopup
+          onClose={() => setShowCreatePopup(false)}
+          presets={presets}
+        />
+      )}
     </>
   );
 }

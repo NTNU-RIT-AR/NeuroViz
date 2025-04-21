@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import styles from "./styles/ParameterSlider.module.css";
+import styles from "./ParameterSlider.module.css";
 
 type SliderProps = {
   name: string;

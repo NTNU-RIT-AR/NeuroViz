@@ -2,7 +2,7 @@ import { FolderIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import { commands, TopLevelFolder } from "../bindings.gen";
 import Button from "./Button";
-import styles from "./styles/Layout.module.css";
+import styles from "./Layout.module.css";
 
 interface LayoutProps {
   title: string;
