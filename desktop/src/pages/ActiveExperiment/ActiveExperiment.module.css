@@ -16,9 +16,9 @@
   margin: auto;
 
   display: flex;
-  gap: 32px;
+  gap: 48px;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .header {

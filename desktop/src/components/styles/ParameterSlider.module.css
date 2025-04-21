@@ -83,6 +83,8 @@ input::-webkit-inner-spin-button {
   background: none;
   color: white;
   padding: 0;
+  text-align: right;
+  min-width: 50px;
 }
 
 .minMaxContainer {
