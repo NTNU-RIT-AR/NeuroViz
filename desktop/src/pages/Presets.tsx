@@ -33,10 +33,18 @@ function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
       <p>{name}</p>
       <div className={styles.buttonsContainer}>
         <Button onClick={onSelect} square={true}>
-          <EyeIcon className="icon" />
+          <EyeIcon />
         </Button>
-        <Button onClick={onDelete} square={true}>
-          <TrashIcon className={`icon ${styles.trashIcon}`} />
+        <Button
+          variant="danger"
+          onClick={() => {
+            if (confirm("Are you sure you want to delete this preset?")) {
+              onDelete();
+            }
+          }}
+          square={true}
+        >
+          <TrashIcon />
         </Button>
       </div>
     </div>
