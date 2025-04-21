@@ -11,6 +11,9 @@ async currentState() : Promise<AppState> {
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
+async getSecret() : Promise<string> {
+    return await TAURI_INVOKE("get_secret");
+},
 async getParameters() : Promise<Parameter[]> {
     return await TAURI_INVOKE("get_parameters");
 },
@@ -50,8 +53,8 @@ async setLiveParameters(parameters: ParameterValues) : Promise<null> {
 async getLiveParameters() : Promise<ParameterValues> {
     return await TAURI_INVOKE("get_live_parameters");
 },
-async startExperiment(sluggedExperimentName: string, obeserverId: number, note: string) : Promise<null> {
-    return await TAURI_INVOKE("start_experiment", { sluggedExperimentName, obeserverId, note });
+async startExperiment(experimentKey: string, resultName: string, obeserverId: number, note: string) : Promise<null> {
+    return await TAURI_INVOKE("start_experiment", { experimentKey, resultName, obeserverId, note });
 },
 /**
  * Exit the current experiment early
@@ -78,9 +81,11 @@ async swapPreset() : Promise<null> {
 
 export const events = __makeEvents__<{
 connectionEvent: ConnectionEvent,
+resultSavedEvent: ResultSavedEvent,
 stateEvent: StateEvent
 }>({
 connectionEvent: "connection-event",
+resultSavedEvent: "result-saved-event",
 stateEvent: "state-event"
 })
 
@@ -92,6 +97,9 @@ stateEvent: "state-event"
 
 export type AppState = ({ kind: "live_view" } & ParameterValues) | ({ kind: "experiment" } & ExperimentState)
 export type Choice = { a: string; b: string }
+export type ChoiceExperiment = ({ name: string; presets: Partial<{ [key in string]: Preset }> }) & { choices: Choice[] }
+export type ChoiceExperimentResult = ({ name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }) & { choices: OutcomeChoice[] }
+export type ChoiceExperimentState = ({ experiment_key: string; result_key: string; current_index: number }) & { experiment: ChoiceExperiment; result: ChoiceExperimentResult; current_preset: CurrentPreset }
 export type ConnectionEvent = { is_connected: boolean }
 export type CreateExperiment = (
 /**
@@ -103,24 +111,19 @@ export type CreateExperiment = (
  */
 { experiment_type: "choice"; choices: Choice[] }) & { name: string; presets: string[] }
 export type CurrentPreset = "A" | "B"
-export type Experiment = (
-/**
- * Rating between 1-5
- */
-{ experiment_type: "rating"; order: string[] } | 
-/**
- * Choose between two options
- */
-{ experiment_type: "choice"; choices: Choice[] }) & { name: string; presets: Partial<{ [key in string]: Preset }> }
+export type Experiment = ({ experiment_type: "rating" } & RatingExperiment) | ({ experiment_type: "choice" } & ChoiceExperiment)
 export type ExperimentAnswer = { experiment_type: "choice" } | { experiment_type: "rating"; value: number }
-export type ExperimentResult = ({ experiment_type: "rating"; ratings: OutcomeRating[] } | { experiment_type: "choice"; choices: OutcomeChoice[] }) & { name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }
-export type ExperimentState = { experiment: Experiment; experiment_result: ExperimentResult; current_index: number; choice_current_preset: CurrentPreset }
-export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration_on_a: number; duration_on_b: number; duration: number }
+export type ExperimentState = ({ experiment_type: "rating" } & RatingExperimentState) | ({ experiment_type: "choice" } & ChoiceExperimentState)
+export type OutcomeChoice = { a: string; b: string; selected: string; time: string; duration: number }
 export type OutcomeRating = { preset: string; rank: number; time: string; duration: number }
 export type Parameter = { key: ParameterKey; name: string }
-export type ParameterKey = "transparency" | "see_through" | "outline"
-export type ParameterValues = { transparency: number; see_through: number; outline: number }
+export type ParameterKey = "transparency" | "see_through" | "outline" | "smoothness"
+export type ParameterValues = { transparency: number; see_through: number; outline: number; smoothness: number }
 export type Preset = { name: string; parameters: ParameterValues }
+export type RatingExperiment = ({ name: string; presets: Partial<{ [key in string]: Preset }> }) & { order: string[] }
+export type RatingExperimentResult = ({ name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }) & { ratings: OutcomeRating[] }
+export type RatingExperimentState = ({ experiment_key: string; result_key: string; current_index: number }) & { experiment: RatingExperiment; result: RatingExperimentResult }
+export type ResultSavedEvent = { result_file_path: string }
 export type StateEvent = { state: AppState }
 export type WithKey<T> = { key: string; value: T }
 

@@ -8,26 +8,44 @@ use tokio::fs::{self, File};
 use tokio::io::AsyncWriteExt;
 
 use super::commands::WithKey;
-use crate::consts::Folder;
+
+#[derive(Debug)]
+pub enum Folder {
+    Presets,
+    Experiments,
+    Results { experiment_key: String },
+}
+
+impl Folder {
+    pub fn path(&self) -> String {
+        match self {
+            Folder::Presets => "presets".to_owned(),
+            Folder::Experiments => "experiments".to_owned(),
+            Folder::Results {
+                experiment_key: experiment,
+            } => format!("results/{experiment}"),
+        }
+        .to_string()
+    }
+}
 
 pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
-    //let mut path = env::current_exe().ok()?;
-    //path.push("data");
-
-    let mut path;
-
-    if cfg!(debug_assertions) {
-        // debug mode}
+    let mut path = if cfg!(debug_assertions) {
+        // debug mode
         let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
         let mut desktop_dir = PathBuf::from(manifest_dir);
 
         desktop_dir.pop();
-        path = desktop_dir.join("data");
+
+        desktop_dir.join("data")
     } else {
         // release mode
-        path = dirs::executable_dir().context("Could not get executable dir")?;
-    }
-    path.push(folder.to_string());
+        dirs::data_dir()
+            .context("Could not get data dir")?
+            .join("NeuroViz")
+    };
+
+    path.push(folder.path());
 
     fs::create_dir_all(&path)
         .await
@@ -38,25 +56,27 @@ pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
 }
 
 pub async fn create_file(
-    key: String,
+    key: &str,
     contents: impl Serialize,
     folder: Folder,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<PathBuf> {
     let file_name = format!("{}.json", key);
     let path = get_folder(folder).await?.join(file_name);
 
     let json = serde_json::to_string_pretty(&contents).context("Could not serialize to JSON")?;
 
-    let mut file = File::create_new(path)
+    let mut file = File::create_new(&path)
         .await
         .context("File with this name exist already")?;
 
     file.write_all(json.as_bytes())
         .await
-        .context("Could not write to file")
+        .context("Could not write to file")?;
+
+    Ok(path)
 }
 
-pub async fn read_file<T: DeserializeOwned>(key: String, folder: Folder) -> anyhow::Result<T> {
+pub async fn read_file<T: DeserializeOwned>(key: &str, folder: Folder) -> anyhow::Result<T> {
     let file_name = format!("{}.json", key);
     let path = get_folder(folder).await?.join(file_name);
 
@@ -112,7 +132,7 @@ pub async fn read_files<T: DeserializeOwned>(folder: Folder) -> anyhow::Result<V
     Ok(results)
 }
 
-pub async fn delete_file(key: String, folder: Folder) -> anyhow::Result<()> {
+pub async fn delete_file(key: &str, folder: Folder) -> anyhow::Result<()> {
     let file_name = format!("{}.json", key);
     let path = get_folder(folder).await?.join(file_name);
 

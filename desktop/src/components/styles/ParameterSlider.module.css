@@ -9,12 +9,20 @@ input[type="range"] {
   cursor: pointer;
   transition: background 0.3s ease;
   box-shadow: none;
+
+  --range: calc(var(--max) - var(--min));
+  --ratio: calc((var(--value) - var(--min)) / var(--range));
+  --sx: calc(0.5 * 6px + var(--ratio) * (100% - 6px));
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
   border-radius: 4px;
-  background: var(--primary-hl);
-  height: 7px;
+  background: linear-gradient(var(--primary-hl), var(--primary-hl)) 0 /
+      var(--sx) 100% no-repeat,
+    rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--primary-hl);
+
+  height: 9px;
 }
 
 input[type="range"]::-moz-range-track {
@@ -60,6 +68,10 @@ input::-webkit-inner-spin-button {
   display: flex;
   flex-direction: column;
   width: 100%;
+
+  &.readonly input[type="range"]::-webkit-slider-thumb {
+    display: none;
+  }
 }
 
 .numberNameContainer {
@@ -67,10 +79,12 @@ input::-webkit-inner-spin-button {
   justify-content: space-between;
 }
 
-.numberNameContainer>input[type="number"] {
+.numberNameContainer > input[type="number"] {
   background: none;
   color: white;
   padding: 0;
+  text-align: right;
+  min-width: 50px;
 }
 
 .minMaxContainer {
@@ -79,8 +93,7 @@ input::-webkit-inner-spin-button {
   color: var(--line);
 }
 
-
-.minMaxContainer>p {
+.minMaxContainer > p {
   margin: 0;
   line-height: 0.5;
 }

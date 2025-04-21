@@ -94,7 +94,12 @@ export default function ExperimentsPage() {
                 experiment={experiment}
                 onStart={() =>
                   // TODO: Observer id and note
-                  commands.startExperiment(experiment.key, 0, "note!")
+                  commands.startExperiment(
+                    experiment.key,
+                    "TODO name",
+                    0,
+                    "note!",
+                  )
                 }
                 onDelete={async () => {
                   await commands.deleteExperiment(experiment.key);

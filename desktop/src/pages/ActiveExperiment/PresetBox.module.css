@@ -1,0 +1,38 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+  padding: 16px;
+
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 1px solid var(--line);
+
+  &.active {
+    border-color: var(--primary-hl);
+    border-width: 2px;
+    padding: 15px;
+  }
+
+  &.toggleable {
+    cursor: pointer;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: bold;
+  color: var(--white);
+}
+
+.subtitle {
+  font-size: 15px;
+  font-weight: bolder;
+  color: rgba(255, 255, 255, 0.8);
+}

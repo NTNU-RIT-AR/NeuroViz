@@ -11,7 +11,7 @@ import {
   ROUTE_PRESETS,
   ROUTE_RESULTS,
 } from "./const";
-import { ActiveExperiment } from "./pages/ActiveExperiment";
+import { ActiveExperiment } from "./pages/ActiveExperiment/ActiveExperiment";
 import ExperimentsPage from "./pages/Experiments";
 import LiveViewPage from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
@@ -54,8 +54,25 @@ const queryClient = new QueryClient();
 export default function App() {
   const experimentState = useExperimentState();
 
+  useEffect(() => {
+    const unlisten = events.resultSavedEvent.listen((event) => {
+      const { result_file_path } = event.payload;
+      alert(
+        `Result saved to ${result_file_path}. You can view it in the Results tab.`
+      );
+    });
+
+    return () => {
+      unlisten.then((unlisten) => unlisten());
+    };
+  }, []);
+
   if (experimentState) {
-    return <ActiveExperiment experimentState={experimentState} />;
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ActiveExperiment experimentState={experimentState} />
+      </QueryClientProvider>
+    );
   }
 
   return (
