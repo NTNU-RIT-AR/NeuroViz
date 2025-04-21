@@ -7,7 +7,7 @@
 
   font-size: 16px;
   font-weight: bold;
-  color: var(--primary-hl);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .input {
@@ -15,6 +15,6 @@
   padding: 10px;
   border-radius: 5px;
   color: white;
-  border: solid var(--primary-hl) 2px;
+  border: solid var(--line) 2px;
   background-color: var(--primary-bg);
 }

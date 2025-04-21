@@ -11,7 +11,7 @@ export function Label(props: LabelProps) {
 }
 
 interface InputProps<T> {
-  ref: React.RefObject<T>;
+  ref: React.RefObject<T | null>;
 }
 
 export function TextInput(props: InputProps<HTMLInputElement>) {

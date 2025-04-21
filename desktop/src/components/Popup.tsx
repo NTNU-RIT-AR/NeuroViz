@@ -15,7 +15,11 @@ export default function Popup({ children, title, onClose }: PopupProps) {
       <div className={styles.popup}>
         <div className={styles.top}>
           <h1>{title}</h1>
-          <XMarkIcon className={styles.close} onClick={onClose} />
+          <XMarkIcon
+            className={styles.close}
+            onClick={onClose}
+            style={{ width: 48, height: 48 }}
+          />
         </div>
         {children}
       </div>
