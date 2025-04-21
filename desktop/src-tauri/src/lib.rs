@@ -4,6 +4,7 @@ pub mod consts;
 pub mod data;
 pub mod extensions;
 pub mod state;
+pub mod storage;
 
 use std::path::PathBuf;
 use std::sync::Arc;

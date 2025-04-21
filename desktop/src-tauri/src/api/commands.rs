@@ -20,13 +20,10 @@ use crate::{
     },
     extensions::WatchSenderExt,
     state::{experiment_state::ExperimentState, AppData, AppState},
-};
-
-use super::{
-    command_error::AppError,
-    events::ResultSavedEvent,
     storage::{self, Folder},
 };
+
+use super::{command_error::AppError, events::ResultSavedEvent};
 
 #[derive(Deserialize, Serialize, Type)]
 pub struct WithKey<T> {
