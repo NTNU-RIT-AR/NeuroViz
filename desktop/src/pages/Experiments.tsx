@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
-import { EyeIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { commands, Experiment, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
 import Popup from "../components/Popup";
@@ -39,7 +39,6 @@ interface ExperimentCardProps {
 function ExperimentCard(props: ExperimentCardProps) {
   const { experiment, onDelete, onStart } = props;
 
-  const [show, setShow] = useState(false);
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
   const resultNameRef = useRef<HTMLInputElement>(null);
@@ -55,23 +54,27 @@ function ExperimentCard(props: ExperimentCardProps) {
         </div>
         <div className={styles.experimentCardBottom}>
           {/* Delete button */}
-          <Button square={true} onClick={onDelete}>
+          <Button
+            variant="danger"
+            square={true}
+            onClick={() => {
+              if (confirm("Are you sure you want to delete this experiment?")) {
+                onDelete();
+              }
+            }}
+          >
             <TrashIcon className="icon" />
           </Button>
-
-          {/* Open button */}
-          <Button square={true} onClick={() => setShow(true)}>
-            <EyeIcon className="icon" />
-          </Button>
-
           {/* Start button */}
-          <Button square={true} onClick={() => setShowCreatePopup(true)}>
+          <Button
+            variant="primary"
+            square={true}
+            onClick={() => setShowCreatePopup(true)}
+          >
             <PlayIcon className="icon" />
           </Button>
         </div>
       </div>
-
-      {show && <ViewExperiment data={experiment.value} setShow={setShow} />}
 
       {showCreatePopup && (
         <Popup
