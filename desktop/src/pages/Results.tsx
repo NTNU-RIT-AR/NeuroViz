@@ -1,6 +1,5 @@
+import { Layout } from "../components/Layout";
 
 export default function ResultsPage() {
-  return (
-    <p>Reults page text</p>
-  )
+  return <Layout title="Results" folder="Results" scrollable={true}></Layout>;
 }

@@ -191,6 +191,7 @@ pub fn tauri_commands() -> tauri_specta::Builder {
         .commands(collect_commands![
             // App data
             commands::current_state,
+            commands::show_folder,
             commands::get_ip_address,
             commands::get_secret,
             commands::get_parameters,

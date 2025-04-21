@@ -80,10 +80,11 @@ export default function PresetsPage() {
   }
 
   return (
-    <Layout title="Presets">
+    <Layout title="Presets" folder="Presets">
       <ContentBox className={styles.presetsContainer}>
         {presets.data.map((preset) => (
           <PresetElement
+            key={preset.key}
             name={preset.value.name}
             onDelete={() => deletePreset(preset.key)}
             onSelect={() => setSelectedPreset(preset)}

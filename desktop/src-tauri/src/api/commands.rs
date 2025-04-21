@@ -6,6 +6,7 @@ use slug::slugify;
 use specta::Type;
 use std::collections::HashMap;
 use tauri::Manager;
+use tauri_plugin_opener::OpenerExt;
 use tauri_specta::Event;
 
 use crate::{
@@ -15,6 +16,7 @@ use crate::{
             RatingExperiment,
         },
         experiment_result::{ChoiceExperimentResult, RatingExperimentResult},
+        folder::TopLevelFolder,
         parameters::{Parameter, ParameterValues},
         preset::Preset,
     },
@@ -38,6 +40,18 @@ pub fn current_state(app: tauri::AppHandle) -> AppState {
     let state = app_data.state.borrow().clone();
 
     state
+}
+
+#[specta::specta]
+#[tauri::command]
+pub fn show_folder(app: tauri::AppHandle, folder: TopLevelFolder) -> Result<(), AppError> {
+    let path = storage::data_folder()?.join(folder.path());
+
+    app.opener()
+        .open_path(path.to_string_lossy(), None::<&str>)
+        .context("Open folder")?;
+
+    Ok(())
 }
 
 #[specta::specta]
