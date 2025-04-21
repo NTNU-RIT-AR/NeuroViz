@@ -1,27 +1,32 @@
-use crate::api::storage;
-use crate::appdata::AppData;
-use crate::appdata::AppState;
-use crate::appdata::ExperimentState;
-use crate::consts::Folder;
-use crate::extensions::WatchSenderExt;
-use crate::structs::CreateExperiment;
-use crate::structs::Experiment;
-use crate::structs::ExperimentAnswer;
-use crate::structs::ExperimentResult;
-use crate::structs::Parameter;
-use crate::structs::ParameterValues;
-use crate::structs::Preset;
-
 use anyhow::Context;
+use chrono::Local;
 use local_ip_address::local_ip;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use slug::slugify;
 use specta::Type;
 use std::collections::HashMap;
 use tauri::Manager;
+use tauri_specta::Event;
 
-use super::command_error::AppError;
+use crate::{
+    data::{
+        experiment::{
+            ChoiceExperiment, CreateExperiment, CreateExperimentType, Experiment, ExperimentAnswer,
+            RatingExperiment,
+        },
+        experiment_result::{ChoiceExperimentResult, RatingExperimentResult},
+        parameters::{Parameter, ParameterValues},
+        preset::Preset,
+    },
+    extensions::WatchSenderExt,
+    state::{experiment_state::ExperimentState, AppData, AppState},
+};
+
+use super::{
+    command_error::AppError,
+    events::ResultSavedEvent,
+    storage::{self, Folder},
+};
 
 #[derive(Deserialize, Serialize, Type)]
 pub struct WithKey<T> {
@@ -97,7 +102,7 @@ pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result
         parameters,
     };
 
-    storage::create_file(preset_key, preset, Folder::Presets).await?;
+    storage::create_file(&preset_key, preset, Folder::Presets).await?;
 
     Ok(())
 }
@@ -105,7 +110,7 @@ pub async fn create_preset(app: tauri::AppHandle, preset_name: String) -> Result
 #[tauri::command]
 #[specta::specta]
 pub async fn delete_preset(key: String) -> Result<(), AppError> {
-    storage::delete_file(key, Folder::Presets).await?;
+    storage::delete_file(&key, Folder::Presets).await?;
 
     Ok(())
 }
@@ -122,6 +127,9 @@ pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, AppError> {
 #[tauri::command]
 #[specta::specta]
 pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, AppError> {
+    //Generate file name <SLUG OF EXPERIMENT NAME>
+    let experiment_key = slugify(&experiment_init_data.name);
+
     //Derive from CreateExperiment and Preset to Experiment
     let mut experiment_presets: HashMap<String, Preset> =
         HashMap::with_capacity(experiment_init_data.presets.len());
@@ -129,21 +137,25 @@ pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result
     for preset_name in experiment_init_data.presets {
         experiment_presets.insert(
             slugify(preset_name.clone()),
-            storage::read_file::<Preset>(slugify(preset_name), Folder::Presets).await?,
+            storage::read_file::<Preset>(&slugify(preset_name), Folder::Presets).await?,
         );
     }
 
-    let experiment: Experiment = Experiment {
-        experiment_type: experiment_init_data.experiment_type,
-        name: experiment_init_data.name,
-        presets: experiment_presets,
+    let experiment = match experiment_init_data.experiment_type {
+        CreateExperimentType::Rating { order } => Experiment::Rating(RatingExperiment::new(
+            experiment_init_data.name,
+            experiment_presets,
+            order,
+        )),
+        CreateExperimentType::Choice { choices } => Experiment::Choice(ChoiceExperiment::new(
+            experiment_init_data.name,
+            experiment_presets,
+            choices,
+        )),
     };
 
-    //Generate file name <SLUG OF EXPERIMENT NAME>
-    let file_name = slugify(&experiment.name);
-
     //Create and write to JSON file
-    storage::create_file(file_name, &experiment, Folder::Experiments).await?;
+    storage::create_file(&experiment_key, &experiment, Folder::Experiments).await?;
     //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
     Ok(String::from("Experiment created successfully"))
 }
@@ -152,7 +164,7 @@ pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result
 #[tauri::command]
 #[specta::specta]
 pub async fn delete_experiment(key: String) -> Result<(), AppError> {
-    storage::delete_file(key, Folder::Experiments).await?;
+    storage::delete_file(&key, Folder::Experiments).await?;
 
     Ok(())
 }
@@ -202,23 +214,55 @@ pub async fn start_experiment(
 ) -> Result<(), AppError> {
     let result_key = slugify(&result_name);
 
-    let experiment =
-        storage::read_file::<Experiment>(experiment_key.clone(), Folder::Experiments).await?;
+    let experiment = storage::read_file::<Experiment>(&experiment_key, Folder::Experiments).await?;
 
-    let experiment_result: ExperimentResult =
-        ExperimentResult::new(&experiment, result_name, obeserver_id, note);
+    // let experiment_result: ExperimentResult =
+    //     ExperimentResult::new(&experiment, result_name, obeserver_id, note);
+
+    let time = Local::now();
+
+    let experiment_state = match experiment {
+        Experiment::Rating(rating_experiment) => {
+            let experiment_result = RatingExperimentResult::new(
+                result_name,
+                time,
+                obeserver_id,
+                note,
+                &rating_experiment,
+            );
+
+            ExperimentState::new_rating(
+                experiment_key,
+                result_key,
+                rating_experiment,
+                experiment_result,
+            )
+        }
+
+        Experiment::Choice(choice_experiment) => {
+            let experiment_result = ChoiceExperimentResult::new(
+                result_name,
+                time,
+                obeserver_id,
+                note,
+                &choice_experiment,
+            );
+
+            ExperimentState::new_choice(
+                experiment_key,
+                result_key,
+                choice_experiment,
+                experiment_result,
+            )
+        }
+    };
 
     // Update the AppState in AppData to be in "ExperimentMode"
     let app_data = app.state::<AppData>();
 
     app_data
         .state
-        .send(AppState::Experiment(ExperimentState::new(
-            experiment_key,
-            result_key,
-            experiment,
-            experiment_result,
-        )))
+        .send(AppState::Experiment(experiment_state))
         .unwrap();
 
     Ok(())
@@ -242,12 +286,29 @@ pub fn exit_experiment(app: tauri::AppHandle) {
 /// Answer the current experiment prompt
 #[tauri::command]
 #[specta::specta]
-pub fn answer_experiment(app: tauri::AppHandle, answer: ExperimentAnswer) -> Result<(), AppError> {
+pub async fn answer_experiment(
+    app: tauri::AppHandle,
+    answer: ExperimentAnswer,
+) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
 
-    app_data
+    let experiment_is_done = app_data
         .state
         .send_modify_with(|state| state.answer_experiment(answer))?;
+
+    if experiment_is_done {
+        let experiment_state = app_data
+            .state
+            .send_replace(AppState::LiveView(Default::default()))
+            .try_as_experiment()
+            .context("Must be in experiment")?;
+
+        let result_file_path = experiment_state.finish_experiment().await?;
+
+        ResultSavedEvent { result_file_path }
+            .emit(&app)
+            .context("Could not emit event")?;
+    }
 
     Ok(())
 }
@@ -260,7 +321,17 @@ pub fn swap_preset(app: tauri::AppHandle) -> Result<(), AppError> {
 
     app_data
         .state
-        .send_modify_with(|state| state.swap_current_preset())?;
+        .send_modify_with(|state| -> anyhow::Result<()> {
+            let choice = state
+                .try_as_experiment_mut()
+                .context("Must be in experiment")?
+                .try_as_choice_mut()
+                .context("Must be in a choice experiment")?;
+
+            choice.swap_current_preset();
+
+            Ok(())
+        })?;
 
     Ok(())
 }

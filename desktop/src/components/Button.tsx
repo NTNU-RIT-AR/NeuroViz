@@ -18,7 +18,7 @@ const styleVariant: Record<Variant, string> = {
 
 export default function Button({
   children,
-  variant = "primary",
+  variant,
   onClick,
   square = false,
 }: ButtonProps) {
@@ -28,7 +28,7 @@ export default function Button({
       className={classNames(
         styles.button,
         square && styles.square,
-        styleVariant[variant]
+        variant && styleVariant[variant]
       )}
     >
       {children}

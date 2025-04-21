@@ -15,12 +15,24 @@ use std::{convert::Infallible, sync::Arc, time::Duration};
 use tokio::sync::{mpsc, watch};
 
 use crate::{
-    appdata::AppState,
+    data::{experiment::ExperimentAnswer, parameters::ParameterValues},
     extensions::WatchReceiverExt,
-    structs::{
-        ExperimentAnswer, ExperimentPrompt, ExperimentType, ParameterValues, UnityExperimentType,
-    },
+    state::{experiment_state::ExperimentState, AppState},
 };
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum UnityExperimentType {
+    #[serde(rename = "choice")]
+    Choice,
+    #[serde(rename = "rating")]
+    Rating,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ExperimentPrompt {
+    pub experiment_type: UnityExperimentType,
+    pub parameters: ParameterValues,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "kind")]
@@ -41,9 +53,9 @@ impl From<AppState> for UnityState {
             AppState::LiveView(parameters) => UnityState::Live { parameters },
             AppState::Experiment(experiment_state) => UnityState::Experiment {
                 prompt: ExperimentPrompt {
-                    experiment_type: match experiment_state.experiment.experiment_type {
-                        ExperimentType::Choice { .. } => UnityExperimentType::Choice,
-                        ExperimentType::Rating { .. } => UnityExperimentType::Rating,
+                    experiment_type: match experiment_state {
+                        ExperimentState::Choice { .. } => UnityExperimentType::Choice,
+                        ExperimentState::Rating { .. } => UnityExperimentType::Rating,
                     },
                     parameters: experiment_state.get_current_preset().parameters,
                 },
@@ -204,8 +216,6 @@ async fn subscribe_state(
 
 #[cfg(test)]
 mod tests {
-    use std::ops::Deref;
-
     use eventsource_stream::Eventsource;
     use tokio::{
         net::TcpListener,

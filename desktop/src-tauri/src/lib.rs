@@ -1,26 +1,26 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 pub mod api;
-pub mod appdata;
 pub mod consts;
+pub mod data;
 pub mod extensions;
-pub mod structs;
+pub mod state;
 
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use api::events::{ConnectionEvent, StateEvent};
+use api::events::{ConnectionEvent, ResultSavedEvent, StateEvent};
 use api::http_server::{HttpServer, UnityEvent};
 use api::{commands, events};
-use appdata::{AppData, AppState};
 use consts::HTTP_SERVER_PORT;
 
-use extensions::{MpscReceiverExt, WatchReceiverExt};
+use data::parameters::ParameterValues;
+use extensions::{MpscReceiverExt, WatchReceiverExt, WatchSenderExt};
 use futures::StreamExt;
 use rand::distr::Alphanumeric;
 use rand::Rng;
 use specta_typescript::formatter::prettier;
 use specta_typescript::Typescript;
-use structs::ParameterValues;
+use state::{AppData, AppState};
 use tauri::{AppHandle, Manager};
 use tauri_specta::{collect_commands, collect_events, ErrorHandlingMode, Event};
 use tokio::join;
@@ -71,20 +71,46 @@ pub async fn handle_unity_events_task(
 
     while let Some(event) = stream.next().await {
         // let mut app_state = app_state.lock_mut();
-        app_state_sender.send_modify(|state| match event {
-            UnityEvent::SwapPreset => {
-                let _ = state.swap_current_preset();
-            }
+        let experiment_is_done = app_state_sender.send_modify_with(|state| {
+            match event {
+                UnityEvent::SwapPreset => {
+                    let choice_experiment = state
+                        .try_as_experiment_mut()
+                        .and_then(|experiment| experiment.try_as_choice_mut());
 
-            UnityEvent::Answer(experiment_answer) => {
-                let _ = state.answer_experiment(experiment_answer);
-            }
+                    if let Some(choice) = choice_experiment {
+                        choice.swap_current_preset();
+                    }
+                }
 
-            UnityEvent::Connection { is_connected } => {
-                dbg!("Received connection event: {}", is_connected);
-                ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
-            }
+                UnityEvent::Answer(experiment_answer) => {
+                    match state.answer_experiment(experiment_answer) {
+                        Ok(is_done) => return is_done,
+                        Err(error) => {
+                            eprintln!("Error answering experiment: {}", error);
+                            return false;
+                        }
+                    };
+                }
+
+                UnityEvent::Connection { is_connected } => {
+                    dbg!("Received connection event: {}", is_connected);
+                    ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
+                }
+            };
+            false
         });
+
+        if experiment_is_done {
+            if let Some(experiment_state) = app_state_sender
+                .send_replace(AppState::LiveView(Default::default()))
+                .try_as_experiment()
+            {
+                if let Ok(result_file_path) = experiment_state.finish_experiment().await {
+                    let _ = ResultSavedEvent { result_file_path }.emit(&app_handle);
+                }
+            }
+        }
     }
 }
 
@@ -184,7 +210,11 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::answer_experiment,
             commands::swap_preset
         ])
-        .events(collect_events![events::ConnectionEvent, events::StateEvent,])
+        .events(collect_events![
+            events::ConnectionEvent,
+            events::StateEvent,
+            events::ResultSavedEvent
+        ])
 }
 
 pub fn generate_typescript_types(builder: &tauri_specta::Builder) {

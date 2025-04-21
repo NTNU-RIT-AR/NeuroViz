@@ -1,16 +1,19 @@
 use std::{collections::HashMap, sync::Arc};
 
+use chrono::Local;
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
 use min_tauri_app_lib::{
     api::http_server::{UnityEvent, UnityState},
-    appdata::{AppData, AppState, ExperimentState},
+    data::{
+        experiment::{Choice, ChoiceExperiment, CurrentPreset},
+        experiment_result::ChoiceExperimentResult,
+        parameters::ParameterValues,
+        preset::Preset,
+    },
     extensions::MpscReceiverExt,
     http_server_task,
-    structs::{
-        Choice, CurrentPreset, Experiment, ExperimentResult, ExperimentType, ParameterValues,
-        Preset,
-    },
+    state::{experiment_state::ExperimentState, AppData, AppState},
 };
 use reqwest::header::AUTHORIZATION;
 use tokio::{
@@ -42,9 +45,19 @@ pub async fn handle_unity_events_task(
 
     while let Some(event) = stream.next().await {
         app_state_sender.send_modify(|state| match event {
-            UnityEvent::SwapPreset => state.swap_current_preset().unwrap(),
+            UnityEvent::SwapPreset => state
+                .try_as_experiment_mut()
+                .unwrap()
+                .try_as_choice_mut()
+                .unwrap()
+                .swap_current_preset(),
             UnityEvent::Answer(experiment_answer) => {
-                state.answer_experiment(experiment_answer).unwrap()
+                let is_done = state.answer_experiment(experiment_answer).unwrap();
+                if is_done {
+                    app_state_sender
+                        .send(AppState::LiveView(Default::default()))
+                        .unwrap();
+                }
             }
             UnityEvent::Connection { .. } => {}
         });
@@ -110,14 +123,9 @@ async fn experiment_integration_test() {
     };
 
     // Start an experiment
-    let experiment = Experiment {
-        experiment_type: ExperimentType::Choice {
-            choices: vec![Choice {
-                a: "preset-1".to_owned(),
-                b: "preset-2".to_owned(),
-            }],
-        },
-        presets: HashMap::from_iter([
+    let experiment = ChoiceExperiment::new(
+        "Experiment 1".to_owned(),
+        HashMap::from_iter([
             (
                 "preset-1".to_owned(),
                 Preset {
@@ -133,15 +141,23 @@ async fn experiment_integration_test() {
                 },
             ),
         ]),
-        name: "Experiment 1".to_owned(),
-    };
+        vec![Choice {
+            a: "preset-1".to_owned(),
+            b: "preset-2".to_owned(),
+        }],
+    );
 
-    let experiment_result =
-        ExperimentResult::new(&experiment, "Result 1".to_owned(), 0, String::default());
+    let experiment_result = ChoiceExperimentResult::new(
+        "result-1".to_owned(),
+        Local::now(),
+        0,
+        "my note".to_owned(),
+        &experiment,
+    );
 
     app_data
         .state
-        .send(AppState::Experiment(ExperimentState::new(
+        .send(AppState::Experiment(ExperimentState::new_choice(
             "experiment-1".to_owned(),
             "result-1".to_owned(),
             experiment,
@@ -160,7 +176,9 @@ async fn experiment_integration_test() {
             .borrow()
             .try_as_experiment_ref()
             .unwrap()
-            .choice_current_preset
+            .try_as_choice_ref()
+            .unwrap()
+            .current_preset
     };
 
     assert_eq!(get_current_preset(), CurrentPreset::A);

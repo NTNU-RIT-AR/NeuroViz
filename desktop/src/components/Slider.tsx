@@ -1,33 +1,50 @@
+import classNames from "classnames";
 import styles from "./styles/ParameterSlider.module.css";
 
 type SliderProps = {
   name: string;
   min: number;
   max: number;
+  step?: number;
   value: number;
-  onChange: (value: number) => void;
+  onChange?: (value: number) => void;
 };
 
-export default function Slider({
-  name,
-  min,
-  max,
-  value,
-  onChange,
-}: SliderProps) {
+export default function Slider(props: SliderProps) {
+  const { name, min, max, value, onChange } = props;
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (onChange) {
+      const newValue = parseFloat(e.target.value);
+      onChange(Math.min(Math.max(newValue, min), max));
+    }
+  }
+
+  const step = props.step || (max - min) / 100;
+  const isReadonly = onChange === undefined;
+
   return (
-    <div className={styles.mainContainer}>
+    <div
+      className={classNames(
+        styles.mainContainer,
+        isReadonly && styles.readonly
+      )}
+      style={
+        {
+          "--min": min,
+          "--max": max,
+          "--value": value,
+        } as React.CSSProperties
+      }
+    >
       <div className={styles.numberNameContainer}>
         <p>{name}</p>
         <input
           type="number"
           min={min}
           max={max}
-          step={(max - min) / 100}
           value={value}
-          onChange={(e) =>
-            onChange(Math.min(Math.max(parseFloat(e.target.value), min), max))
-          }
+          onChange={handleChange}
         />
       </div>
       <div>
@@ -36,9 +53,9 @@ export default function Slider({
           className={styles.slider}
           min={min}
           max={max}
-          step={(max - min) / 100}
+          step={step}
           value={value}
-          onChange={(e) => onChange(parseFloat(e.target.value))}
+          onChange={handleChange}
         />
       </div>
       <div className={styles.minMaxContainer}>
