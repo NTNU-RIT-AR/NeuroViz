@@ -216,9 +216,6 @@ pub async fn start_experiment(
 
     let experiment = storage::read_file::<Experiment>(&experiment_key, Folder::Experiments).await?;
 
-    // let experiment_result: ExperimentResult =
-    //     ExperimentResult::new(&experiment, result_name, obeserver_id, note);
-
     let time = Local::now();
 
     let experiment_state = match experiment {
