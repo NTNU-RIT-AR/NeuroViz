@@ -1,3 +1,9 @@
+.container {
+  display: flex;
+  height: unset;
+  align-items: stretch;
+}
+
 .presetElement {
   display: flex;
   align-items: center;
@@ -28,8 +34,11 @@
   padding: 5px;
 }
 
+.contentBox {
+  height: unset;
+}
+
 .presetsContainer {
-  height: 100%;
   display: flex;
   gap: 2px;
 }

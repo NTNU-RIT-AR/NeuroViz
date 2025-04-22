@@ -1,4 +1,5 @@
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
+import classNames from "classnames";
 import { useState } from "react";
 import { commands, WithKey, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
@@ -80,8 +81,10 @@ export default function PresetsPage() {
   }
 
   return (
-    <Layout title="Presets" folder="Presets">
-      <ContentBox className={styles.presetsContainer}>
+    <Layout title="Presets" folder="Presets" className={styles.container}>
+      <ContentBox
+        className={classNames(styles.contentBox, styles.presetsContainer)}
+      >
         {presets.data.map((preset) => (
           <PresetElement
             key={preset.key}
@@ -92,7 +95,7 @@ export default function PresetsPage() {
         ))}
       </ContentBox>
 
-      <ContentBox>
+      <ContentBox className={styles.contentBox}>
         {selectedPreset && <PresetPreview preset={selectedPreset.value} />}
       </ContentBox>
     </Layout>
