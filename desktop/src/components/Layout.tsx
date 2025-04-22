@@ -6,7 +6,6 @@ import styles from "./Layout.module.css";
 
 interface LayoutProps {
   title: string;
-  scrollable?: boolean;
   className?: string;
   children?: React.ReactNode;
   toolbar?: React.ReactNode;
@@ -15,7 +14,6 @@ interface LayoutProps {
 
 export function Layout({
   title,
-  scrollable = false,
   className,
   children,
   toolbar,
@@ -24,29 +22,26 @@ export function Layout({
   return (
     <>
       <main className={styles.layout}>
-        <div className={styles.header}>
-          {folder && (
-            <Button
-              square
-              onClick={() => {
-                commands.showFolder(folder);
-              }}
-            >
-              <FolderIcon />
-            </Button>
-          )}
-          <h1 className={styles.title}>{title}</h1>
-          <div className={styles.toolbar}>{toolbar && toolbar}</div>
+        <div className={styles.headerContainer}>
+          <header className={styles.header}>
+            {folder && (
+              <Button
+                square
+                onClick={() => {
+                  commands.showFolder(folder);
+                }}
+              >
+                <FolderIcon />
+              </Button>
+            )}
+            <h1 className={styles.title}>{title}</h1>
+            <div className={styles.toolbar}>{toolbar && toolbar}</div>
+          </header>
         </div>
-        <div
-          className={classNames(
-            scrollable
-              ? styles.contentContainerScrollable
-              : styles.contentContainer,
-            className
-          )}
-        >
-          {children}
+        <div className={styles.contentContainer}>
+          <main className={classNames(styles.content, className)}>
+            {children}
+          </main>
         </div>
       </main>
     </>

@@ -261,7 +261,6 @@ export default function ExperimentsPage() {
       <Layout
         title="Experiments"
         folder="Experiments"
-        scrollable={true}
         toolbar={
           <Button onClick={() => setShowCreatePopup(true)}>
             Create Experiment
