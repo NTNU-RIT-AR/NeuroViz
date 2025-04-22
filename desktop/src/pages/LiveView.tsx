@@ -131,11 +131,11 @@ export default function LiveViewPage() {
                 onClick={async () => {
                   await commands
                     .createPreset(presetNameRef.current!.value)
-                    // TODO better error handling
+                    .then(() => {
+                      selectPreset.refetch();
+                      setShowPresetCreationPopup(false);
+                    })
                     .catch(alert);
-
-                  selectPreset.refetch();
-                  setShowPresetCreationPopup(false);
                 }}
               >
                 Save
