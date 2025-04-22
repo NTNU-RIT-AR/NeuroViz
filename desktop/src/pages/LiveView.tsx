@@ -3,7 +3,7 @@ import { useImmer } from "use-immer";
 import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
 import Button from "../components/Button";
 import { ContentBox } from "../components/ContentBox";
-import { Select } from "../components/Input";
+import { Input, Label, Select } from "../components/Input";
 import { Layout } from "../components/Layout";
 import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
@@ -114,22 +114,33 @@ export default function LiveViewPage() {
         {showPresetCreationPopup && (
           <Popup
             onClose={() => setShowPresetCreationPopup(false)}
-            title="Enter preset name"
+            title="Save as new preset"
           >
-            <input placeholder="preset-name" ref={presetNameRef} />
-            <Button
-              onClick={async () => {
-                await commands
-                  .createPreset(presetNameRef.current!.value)
-                  // TODO better error handling
-                  .catch(alert);
+            <div className={styles.inputFields}>
+              <Label>
+                Preset name
+                <Input
+                  type="text"
+                  placeholder="preset-name"
+                  ref={presetNameRef}
+                />
+              </Label>
 
-                selectPreset.refetch();
-                setShowPresetCreationPopup(false);
-              }}
-            >
-              Save
-            </Button>
+              <Button
+                variant="primary"
+                onClick={async () => {
+                  await commands
+                    .createPreset(presetNameRef.current!.value)
+                    // TODO better error handling
+                    .catch(alert);
+
+                  selectPreset.refetch();
+                  setShowPresetCreationPopup(false);
+                }}
+              >
+                Save
+              </Button>
+            </div>
           </Popup>
         )}
       </ContentBox>
