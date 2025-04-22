@@ -15,11 +15,16 @@
   padding: 10px;
   cursor: pointer;
   border-radius: 10px;
+
+  border: 2px solid transparent;
+}
+.presetElementSelected {
+  background: var(--primary-bg) !important;
+  border: 2px solid var(--primary-hl);
 }
 
 .presetElement:hover {
-  background-color: #ffffff11;
-  box-shadow: 0 0 3px var(--white), inset 0 0 3px var(--primary-hl);
+  border: solid 2px #ffffff60;
 }
 
 .buttonsContainer {

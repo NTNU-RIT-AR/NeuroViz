@@ -17,4 +17,5 @@
   color: white;
   border: solid var(--line) 2px;
   background-color: var(--primary-bg);
+  cursor: pointer;
 }

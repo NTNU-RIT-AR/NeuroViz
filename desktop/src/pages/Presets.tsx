@@ -22,36 +22,6 @@ function Preset({ name }: PresetProps) {
   );
 }
 
-type presetElementProps = {
-  name: string;
-  onSelect: () => void;
-  onDelete: () => void;
-};
-
-function PresetElement({ name, onSelect, onDelete }: presetElementProps) {
-  return (
-    <div className={styles.presetElement} onClick={onSelect}>
-      <p>{name}</p>
-      <div className={styles.buttonsContainer}>
-        <Button onClick={onSelect} square={true}>
-          <EyeIcon />
-        </Button>
-        <Button
-          variant="danger"
-          onClick={() => {
-            if (confirm("Are you sure you want to delete this preset?")) {
-              onDelete();
-            }
-          }}
-          square={true}
-        >
-          <TrashIcon />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 interface PresetPreviewProps {
   preset: Preset;
 }
@@ -84,14 +54,38 @@ export default function PresetsPage() {
     <Layout title="Presets" folder="Presets" className={styles.container}>
       <ContentBox
         className={classNames(styles.contentBox, styles.presetsContainer)}
+        role="listbox"
       >
         {presets.data.map((preset) => (
-          <PresetElement
-            key={preset.key}
-            name={preset.value.name}
-            onDelete={() => deletePreset(preset.key)}
-            onSelect={() => setSelectedPreset(preset)}
-          />
+          <div
+            className={classNames(
+              styles.presetElement,
+              selectedPreset?.key === preset.key &&
+                styles.presetElementSelected,
+            )}
+            onClick={() => setSelectedPreset(preset)}
+            role="option"
+            aria-selected={selectedPreset?.key === preset.key}
+          >
+            <p>{preset.value.name}</p>
+            <div className={styles.buttonsContainer}>
+              {/* <Button onClick={() => setSelectedPreset(preset)} square={true}> */}
+              {/*   <EyeIcon /> */}
+              {/* </Button> */}
+
+              <Button
+                variant="danger"
+                onClick={() => {
+                  if (confirm("Are you sure you want to delete this preset?")) {
+                    deletePreset(preset.key);
+                  }
+                }}
+                square={true}
+              >
+                <TrashIcon />
+              </Button>
+            </div>
+          </div>
         ))}
       </ContentBox>
 

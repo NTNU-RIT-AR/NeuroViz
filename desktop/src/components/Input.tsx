@@ -38,11 +38,19 @@ export const Select: StateManagedSelect = (props) => {
           ...base,
           backgroundColor: "var(--primary-bg)",
           border: "solid var(--line) 2px",
-          color: "white",
+          cursor: "pointer",
+        }),
+        menu: (base) => ({
+          ...base,
+          background: "var(--bg)",
+          color: "#ffffffaa",
+          border: "2px solid var(--line)",
         }),
         option: (base) => ({
           ...base,
-          color: "rgba(0, 0, 0, 0.7)",
+          background: "var(--primary-bg)",
+          cursor: "pointer",
+          borderBottom: "1px solid var(--line)",
         }),
         singleValue: (base) => ({
           ...base,
