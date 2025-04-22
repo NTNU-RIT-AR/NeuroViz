@@ -29,14 +29,13 @@ impl Folder {
     }
 }
 
-pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
-    let mut path = if cfg!(debug_assertions) {
+pub fn data_folder() -> anyhow::Result<PathBuf> {
+    let path = if cfg!(debug_assertions) {
         // debug mode
         let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
         let mut desktop_dir = PathBuf::from(manifest_dir);
 
         desktop_dir.pop();
-
         desktop_dir.join("data")
     } else {
         // release mode
@@ -44,6 +43,12 @@ pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
             .context("Could not get data dir")?
             .join("NeuroViz")
     };
+
+    Ok(path)
+}
+
+pub async fn get_folder(folder: Folder) -> anyhow::Result<PathBuf> {
+    let mut path = data_folder()?;
 
     path.push(folder.path());
 

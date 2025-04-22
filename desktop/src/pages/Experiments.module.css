@@ -22,7 +22,6 @@
   flex-direction: column;
   justify-content: center;
   transition-duration: 0.4s;
-  z-index: 2;
 }
 
 .experimentCardTitle,
@@ -38,13 +37,12 @@
   padding-bottom: 15px;
 }
 
-
 .experimentCardContent {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: var(--primary-hl)
+  color: var(--primary-hl);
 }
 
 .experimentCardBottom {
@@ -53,4 +51,23 @@
   justify-content: end;
   gap: 10px;
   padding: 10px;
+}
+
+.inputFields {
+  margin-top: 16px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.createButton {
+  margin-top: 24px;
+  align-self: flex-start;
+}
+
+.infoText {
+  font-size: 15px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
 }

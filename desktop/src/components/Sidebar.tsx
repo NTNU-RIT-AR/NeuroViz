@@ -11,7 +11,7 @@ import {
 import { useCommand } from "../hooks.ts";
 import { QrPayload } from "../interfaces.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
-import styles from "./styles/Sidebar.module.css";
+import styles from "./Sidebar.module.css";
 
 interface SidebarLinkProps {
   to: string;

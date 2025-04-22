@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import Select from "react-select";
 import { useImmer } from "use-immer";
 import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
 import Button from "../components/Button";
 import { ContentBox } from "../components/ContentBox";
+import { Input, Label, Select } from "../components/Input";
 import { Layout } from "../components/Layout";
 import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
 import { useCommand } from "../hooks";
-import styles from "./styles/LiveView.module.css";
+import styles from "./LiveView.module.css";
 
 /// Fetches the initial live parameters and lets the user update them
 function useLiveParameters() {
@@ -20,12 +20,12 @@ function useLiveParameters() {
     parameters.map((parameter) => ({
       ...parameter,
       value: initialLiveParameters[parameter.key],
-    })),
+    }))
   );
 
   useEffect(() => {
     const parameters = Object.fromEntries(
-      parameterStates.map((parameter) => [parameter.key, parameter.value]),
+      parameterStates.map((parameter) => [parameter.key, parameter.value])
     ) as Record<ParameterKey, number>;
 
     commands.setLiveParameters(parameters);
@@ -63,7 +63,7 @@ function useSelectPreset() {
   >(undefined);
 
   const selectedPreset = presets.data.find(
-    (preset) => preset.key === selectedPresetKey,
+    (preset) => preset.key === selectedPresetKey
   );
 
   const options = presets.data.map((preset) => ({
@@ -86,8 +86,7 @@ export default function LiveViewPage() {
   const liveParameters = useLiveParameters();
   const selectPreset = useSelectPreset();
 
-  const [showPresetCreationPopup, setShowPresetCreationPopup] =
-    useState<boolean>(false);
+  const [showPresetCreationPopup, setShowPresetCreationPopup] = useState(false);
 
   // Update the live parameters when a preset is selected
   useEffect(() => {
@@ -102,40 +101,46 @@ export default function LiveViewPage() {
     <Layout title="Live View">
       <ContentBox className={styles.contentBox}>
         <Select
-          className={styles.select}
           options={selectPreset.options}
           onChange={(option) => selectPreset.onChange(option?.value)}
         />
+
         <SliderCollection parameters={liveParameters.state} />
 
-        <Button
-          onClick={() => {
-            setShowPresetCreationPopup(true);
-          }}
-        >
+        <Button onClick={() => setShowPresetCreationPopup(true)}>
           Save as new preset
         </Button>
+
         {showPresetCreationPopup && (
           <Popup
-            onClose={() => {
-              setShowPresetCreationPopup(false);
-            }}
-            title="Enter preset name"
+            onClose={() => setShowPresetCreationPopup(false)}
+            title="Save as new preset"
           >
-            <input placeholder="preset-name" ref={presetNameRef} />
-            <Button
-              onClick={async () => {
-                await commands
-                  .createPreset(presetNameRef.current!.value)
-                  // TODO better error handling
-                  .catch(alert);
+            <div className={styles.inputFields}>
+              <Label>
+                Preset name
+                <Input
+                  type="text"
+                  placeholder="preset-name"
+                  ref={presetNameRef}
+                />
+              </Label>
 
-                selectPreset.refetch();
-                setShowPresetCreationPopup(false);
-              }}
-            >
-              Save
-            </Button>
+              <Button
+                variant="primary"
+                onClick={async () => {
+                  await commands
+                    .createPreset(presetNameRef.current!.value)
+                    .then(() => {
+                      selectPreset.refetch();
+                      setShowPresetCreationPopup(false);
+                    })
+                    .catch(alert);
+                }}
+              >
+                Save
+              </Button>
+            </div>
           </Popup>
         )}
       </ContentBox>

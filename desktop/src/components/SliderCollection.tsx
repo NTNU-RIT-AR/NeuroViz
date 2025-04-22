@@ -1,7 +1,7 @@
 import { Parameter } from "../interfaces";
 import Slider from "./Slider";
 
-import styles from "./styles/SliderCollection.module.css";
+import styles from "./SliderCollection.module.css";
 
 export interface StateParameter extends Parameter {
   onChange?: (value: number) => void;

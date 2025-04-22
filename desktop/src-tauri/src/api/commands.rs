@@ -4,8 +4,9 @@ use local_ip_address::local_ip;
 use serde::{Deserialize, Serialize};
 use slug::slugify;
 use specta::Type;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 use tauri::Manager;
+use tauri_plugin_opener::OpenerExt;
 use tauri_specta::Event;
 
 use crate::{
@@ -15,6 +16,7 @@ use crate::{
             RatingExperiment,
         },
         experiment_result::{ChoiceExperimentResult, RatingExperimentResult},
+        folder::TopLevelFolder,
         parameters::{Parameter, ParameterValues},
         preset::Preset,
     },
@@ -38,6 +40,18 @@ pub fn current_state(app: tauri::AppHandle) -> AppState {
     let state = app_data.state.borrow().clone();
 
     state
+}
+
+#[specta::specta]
+#[tauri::command]
+pub fn show_folder(app: tauri::AppHandle, folder: TopLevelFolder) -> Result<(), AppError> {
+    let path = storage::data_folder()?.join(folder.path());
+
+    app.opener()
+        .open_path(path.to_string_lossy(), None::<&str>)
+        .context("Open folder")?;
+
+    Ok(())
 }
 
 #[specta::specta]
@@ -123,7 +137,9 @@ pub async fn get_experiments() -> Result<Vec<WithKey<Experiment>>, AppError> {
 
 #[tauri::command]
 #[specta::specta]
-pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result<String, AppError> {
+pub async fn create_experiment(
+    experiment_init_data: CreateExperiment,
+) -> Result<PathBuf, AppError> {
     //Generate file name <SLUG OF EXPERIMENT NAME>
     let experiment_key = slugify(&experiment_init_data.name);
 
@@ -151,10 +167,8 @@ pub async fn create_experiment(experiment_init_data: CreateExperiment) -> Result
         )),
     };
 
-    //Create and write to JSON file
-    storage::create_file(&experiment_key, &experiment, Folder::Experiments).await?;
-    //TODO: Kan eventuelt returnere det nye eksperimentet sånn det kan vises på frontend som en slags bekreftelse
-    Ok(String::from("Experiment created successfully"))
+    let path = storage::create_file(&experiment_key, &experiment, Folder::Experiments).await?;
+    Ok(path)
 }
 
 /// Delete an experiment

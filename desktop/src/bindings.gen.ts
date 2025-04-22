@@ -8,6 +8,9 @@ export const commands = {
 async currentState() : Promise<AppState> {
     return await TAURI_INVOKE("current_state");
 },
+async showFolder(folder: TopLevelFolder) : Promise<null> {
+    return await TAURI_INVOKE("show_folder", { folder });
+},
 async getIpAddress() : Promise<string> {
     return await TAURI_INVOKE("get_ip_address");
 },
@@ -125,6 +128,7 @@ export type RatingExperimentResult = ({ name: string; time: string; observer_id:
 export type RatingExperimentState = ({ experiment_key: string; result_key: string; current_index: number }) & { experiment: RatingExperiment; result: RatingExperimentResult }
 export type ResultSavedEvent = { result_file_path: string }
 export type StateEvent = { state: AppState }
+export type TopLevelFolder = "Presets" | "Experiments" | "Results"
 export type WithKey<T> = { key: string; value: T }
 
 /** tauri-specta globals **/

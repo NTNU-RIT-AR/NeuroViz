@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import styles from "./styles/ContentBox.module.css";
+import styles from "./ContentBox.module.css";
 
 interface ContentBoxProps {
   children?: React.ReactNode;
