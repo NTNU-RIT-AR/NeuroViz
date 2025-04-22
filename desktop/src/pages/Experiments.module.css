@@ -63,5 +63,5 @@
 
 .createButton {
   margin-top: 24px;
-  max-width: 300px;
+  align-self: flex-start;
 }
