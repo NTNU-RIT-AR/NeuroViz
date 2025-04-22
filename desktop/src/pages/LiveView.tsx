@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import Select from "react-select";
 import { useImmer } from "use-immer";
 import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
 import Button from "../components/Button";
 import { ContentBox } from "../components/ContentBox";
+import { Select } from "../components/Input";
 import { Layout } from "../components/Layout";
 import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
@@ -101,7 +101,6 @@ export default function LiveViewPage() {
     <Layout title="Live View">
       <ContentBox className={styles.contentBox}>
         <Select
-          className={styles.select}
           options={selectPreset.options}
           onChange={(option) => selectPreset.onChange(option?.value)}
         />
