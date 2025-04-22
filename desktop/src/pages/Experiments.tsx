@@ -131,27 +131,22 @@ const options = [
   {
     value: "choice",
     label: "Choice",
-  },
+  } as const,
   {
     value: "rating",
     label: "Rating",
-  },
-] as const;
-
-type ExperimentType = (typeof options)[number]["value"];
+  } as const,
+];
 
 function CreateExperimentPopup(props: CreateExperimentPopupProps) {
   const { onClose, presets } = props;
-  const [experimentType, setExperimentType] = useState(options[0].value);
+  const [experimentType, setExperimentType] = useState(options[0]);
 
   const experimentNameRef = useRef<HTMLInputElement>(null);
-  const experimentTypeRef = useRef<SelectInstance<Option>>(null);
   const presetsRef = useRef<SelectInstance<Option, true>>(null);
 
   function createExperiment() {
     const experimentName = experimentNameRef.current!.value;
-    const experimentType = experimentTypeRef.current!.getValue()[0]
-      .value as ExperimentType;
 
     const selectedPresets = presetsRef
       .current!.getValue()
@@ -172,7 +167,7 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
       onClose();
     }
 
-    match(experimentType)
+    match(experimentType.value)
       .with("choice", () => {
         const combinations = selectedPresets.flatMap((presetA) =>
           selectedPresets
@@ -214,8 +209,8 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
           Experiment type
           <Select
             options={options}
-            defaultValue={options[0]}
-            ref={experimentTypeRef}
+            value={experimentType}
+            onChange={(value) => setExperimentType(value!)}
           />
         </Label>
 
@@ -237,6 +232,11 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
             className="basic-multi-select"
             classNamePrefix="select"
           />
+          {experimentType.value === "choice" && (
+            <p className={styles.infoText}>
+              Experiment contain all combinations of presets
+            </p>
+          )}
         </Label>
 
         <Button
@@ -292,7 +292,10 @@ export default function ExperimentsPage() {
 
       {showCreatePopup && (
         <CreateExperimentPopup
-          onClose={() => setShowCreatePopup(false)}
+          onClose={() => {
+            experiments.refetch();
+            setShowCreatePopup(false);
+          }}
           presets={presets}
         />
       )}
