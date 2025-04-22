@@ -1,12 +1,14 @@
 import { EyeIcon, TrashIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { commands, WithKey, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Layout } from "../components/Layout";
 import SliderCollection from "../components/SliderCollection.tsx";
 import { useCommand } from "../hooks.ts";
+import { Input } from "../components/Input.tsx";
+import Fuse from "fuse.js";
 import styles from "./Presets.module.css";
 
 type PresetProps = { name: string };
@@ -45,6 +47,18 @@ export default function PresetsPage() {
     WithKey<Preset> | undefined
   >(undefined);
 
+  const [search, setSearch] = useState('');
+
+  const fuse = useMemo(() => new Fuse(presets.data, {
+    keys: ['value.name'],
+    threshold: 0.3,
+  }), [presets.data]);
+
+  const filteredPresets = useMemo(() => {
+    if (!search.trim()) return presets.data;
+    return fuse.search(search).map(res => res.item);
+  }, [search, fuse]);
+
   async function deletePreset(presetKey: string) {
     await commands.deletePreset(presetKey);
     presets.refetch();
@@ -56,12 +70,23 @@ export default function PresetsPage() {
         className={classNames(styles.contentBox, styles.presetsContainer)}
         role="listbox"
       >
-        {presets.data.map((preset) => (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <h2 className="title">Presets</h2>
+          <div style={{ maxWidth: '300px', width: '100%' }}>
+            <Input
+              placeholder="Search presets"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {filteredPresets.map((preset) => (
           <div
+            key={preset.key}
             className={classNames(
               styles.presetElement,
-              selectedPreset?.key === preset.key &&
-                styles.presetElementSelected,
+              selectedPreset?.key === preset.key && styles.presetElementSelected,
             )}
             onClick={() => setSelectedPreset(preset)}
             role="option"
@@ -69,10 +94,6 @@ export default function PresetsPage() {
           >
             <p>{preset.value.name}</p>
             <div className={styles.buttonsContainer}>
-              {/* <Button onClick={() => setSelectedPreset(preset)} square={true}> */}
-              {/*   <EyeIcon /> */}
-              {/* </Button> */}
-
               <Button
                 variant="danger"
                 onClick={() => {
