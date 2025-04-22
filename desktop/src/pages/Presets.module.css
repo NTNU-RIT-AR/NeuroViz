@@ -9,7 +9,6 @@
   padding: 10px;
   cursor: pointer;
   border-radius: 10px;
-
 }
 
 .presetElement:hover {
@@ -21,10 +20,9 @@
   display: flex;
   gap: 10px;
   height: 100%;
-
 }
 
-.buttonsContainer>button {
+.buttonsContainer > button {
   height: 100%;
   aspect-ratio: 1;
   padding: 5px;
@@ -34,12 +32,4 @@
   height: 100%;
   display: flex;
   gap: 2px;
-}
-
-.icon {
-  color: var(--white);
-}
-
-.trashIcon {
-  color: var(--red-hl);
 }
