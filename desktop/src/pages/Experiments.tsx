@@ -146,7 +146,7 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
 
   const experimentNameRef = useRef<HTMLInputElement>(null);
   const experimentTypeRef = useRef<SelectInstance<Option>>(null);
-  const presetsRef = useRef<SelectInstance<Option>>(null);
+  const presetsRef = useRef<SelectInstance<Option, true>>(null);
 
   function createExperiment() {
     const experimentName = experimentNameRef.current!.value;
@@ -239,7 +239,11 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
           />
         </Label>
 
-        <Button onClick={createExperiment} className={styles.createButton}>
+        <Button
+          variant="primary"
+          onClick={createExperiment}
+          className={styles.createButton}
+        >
           Create
         </Button>
       </div>
