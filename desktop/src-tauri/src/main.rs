@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    min_tauri_app_lib::run()
+    neuroviz_lib::run()
 }
