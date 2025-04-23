@@ -1,4 +1,4 @@
-use min_tauri_app_lib::{
+use neuroviz_lib::{
     data::{experiment::Experiment, experiment_result::ExperimentResult, preset::Preset},
     storage::{self, Folder},
 };

@@ -149,10 +149,10 @@ impl ExperimentState {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
     use crate::data::parameters::ParameterValues;
-    
+    use std::collections::HashMap;
+
     // Helper function to create a test rating experiment and result
     fn create_test_rating_experiment() -> (RatingExperiment, RatingExperimentResult) {
         // Create sample parameter values
@@ -162,7 +162,7 @@ mod tests {
             outline: 0.7,
             smoothness: 0.8,
         };
-        
+
         // Create preset map
         let mut presets = HashMap::new();
         presets.insert(
@@ -179,7 +179,7 @@ mod tests {
                 parameters: parameters.clone(),
             },
         );
-        
+
         // Create experiment with fixed order
         let experiment = RatingExperiment {
             shared: crate::data::experiment::SharedExperiment {
@@ -188,7 +188,7 @@ mod tests {
             },
             order: vec!["preset1".to_string(), "preset2".to_string()],
         };
-        
+
         // Create initial result
         let now = Local::now();
         let result = RatingExperimentResult {
@@ -201,10 +201,10 @@ mod tests {
             },
             ratings: vec![],
         };
-        
+
         (experiment, result)
     }
-    
+
     // Helper function to create a test choice experiment and result
     fn create_test_choice_experiment() -> (ChoiceExperiment, ChoiceExperimentResult) {
         // Create sample parameter values
@@ -214,7 +214,7 @@ mod tests {
             outline: 0.7,
             smoothness: 0.8,
         };
-        
+
         // Create preset map
         let mut presets = HashMap::new();
         presets.insert(
@@ -231,15 +231,13 @@ mod tests {
                 parameters: parameters.clone(),
             },
         );
-        
+
         // Create choices
-        let choices = vec![
-            crate::data::experiment::Choice {
-                a: "preset1".to_string(),
-                b: "preset2".to_string(),
-            },
-        ];
-        
+        let choices = vec![crate::data::experiment::Choice {
+            a: "preset1".to_string(),
+            b: "preset2".to_string(),
+        }];
+
         // Create experiment
         let experiment = ChoiceExperiment {
             shared: crate::data::experiment::SharedExperiment {
@@ -248,7 +246,7 @@ mod tests {
             },
             choices,
         };
-        
+
         // Create initial result
         let now = Local::now();
         let result = ChoiceExperimentResult {
@@ -261,10 +259,10 @@ mod tests {
             },
             choices: vec![],
         };
-        
+
         (experiment, result)
     }
-    
+
     #[test]
     fn test_new_rating() {
         let (experiment, result) = create_test_rating_experiment();
@@ -274,7 +272,7 @@ mod tests {
             experiment.clone(),
             result.clone(),
         );
-        
+
         // Verify the state was created correctly
         match state {
             ExperimentState::Rating(rating_state) => {
@@ -287,7 +285,7 @@ mod tests {
             _ => panic!("Expected Rating experiment state"),
         }
     }
-    
+
     #[test]
     fn test_new_choice() {
         let (experiment, result) = create_test_choice_experiment();
@@ -297,66 +295,57 @@ mod tests {
             experiment.clone(),
             result.clone(),
         );
-        
+
         // Verify the state was created correctly
         match state {
             ExperimentState::Choice(choice_state) => {
                 assert_eq!(choice_state.shared.experiment_key, "exp1");
                 assert_eq!(choice_state.shared.result_key, "res1");
                 assert_eq!(choice_state.shared.current_index, 0);
-                assert_eq!(choice_state.experiment.choices.len(), experiment.choices.len());
+                assert_eq!(
+                    choice_state.experiment.choices.len(),
+                    experiment.choices.len()
+                );
                 assert_eq!(choice_state.result.choices.len(), 0);
                 assert_eq!(choice_state.current_preset, CurrentPreset::A);
             }
             _ => panic!("Expected Choice experiment state"),
         }
     }
-    
+
     #[test]
     fn test_get_current_preset_key() {
         // Test with rating experiment
         let (experiment, result) = create_test_rating_experiment();
-        let state = ExperimentState::new_rating(
-            "exp1".to_string(),
-            "res1".to_string(),
-            experiment,
-            result,
-        );
-        
+        let state =
+            ExperimentState::new_rating("exp1".to_string(), "res1".to_string(), experiment, result);
+
         assert_eq!(state.get_current_preset_key(), "preset1");
     }
-    
+
     #[test]
     fn test_get_current_preset() {
         // Test with rating experiment
         let (experiment, result) = create_test_rating_experiment();
-        let state = ExperimentState::new_rating(
-            "exp1".to_string(),
-            "res1".to_string(),
-            experiment,
-            result,
-        );
-        
+        let state =
+            ExperimentState::new_rating("exp1".to_string(), "res1".to_string(), experiment, result);
+
         let preset = state.get_current_preset();
         assert_eq!(preset.name, "Preset 1");
     }
-    
+
     #[test]
     fn test_answer_rating() {
         let (experiment, result) = create_test_rating_experiment();
-        let mut state = ExperimentState::new_rating(
-            "exp1".to_string(),
-            "res1".to_string(),
-            experiment,
-            result,
-        );
-        
+        let mut state =
+            ExperimentState::new_rating("exp1".to_string(), "res1".to_string(), experiment, result);
+
         // Answer with rating value
         let is_done = state.answer(ExperimentAnswer::Rating { value: 4 }).unwrap();
-        
+
         // Not done yet (we have 2 presets)
         assert!(!is_done);
-        
+
         // Check that the state advanced
         match &state {
             ExperimentState::Rating(rating_state) => {

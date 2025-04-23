@@ -69,8 +69,8 @@ impl RatingExperimentState {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
     use super::*;
+    use std::collections::HashMap;
 
     // Helper function to create test data
     fn create_test_state() -> RatingExperimentState {
@@ -149,14 +149,14 @@ mod tests {
     #[test]
     fn test_get_current_preset_key() {
         let mut state = create_test_state();
-        
+
         // Test with initial index
         assert_eq!(state.get_current_preset_key(), "preset1");
-        
+
         // Test after advancing index
         state.shared.current_index = 1;
         assert_eq!(state.get_current_preset_key(), "preset2");
-        
+
         // Test with last index
         state.shared.current_index = 2;
         assert_eq!(state.get_current_preset_key(), "preset3");
@@ -165,11 +165,11 @@ mod tests {
     #[test]
     fn test_get_current_preset() {
         let mut state = create_test_state();
-        
+
         // Test with initial index
         let preset = state.get_current_preset();
         assert_eq!(preset.name, "Preset 1");
-        
+
         // Test after advancing index
         state.shared.current_index = 1;
         let preset = state.get_current_preset();
@@ -179,18 +179,18 @@ mod tests {
     #[test]
     fn test_is_done() {
         let mut state = create_test_state();
-        
+
         // Initial state - not done
         assert!(!state.is_done());
-        
+
         // Middle state - not done
         state.shared.current_index = 1;
         assert!(!state.is_done());
-        
+
         // Final state - not done
         state.shared.current_index = 2;
         assert!(!state.is_done());
-        
+
         // Past final state - done
         state.shared.current_index = 3;
         assert!(state.is_done());
@@ -199,7 +199,7 @@ mod tests {
     #[test]
     fn test_answer() {
         let mut state = create_test_state();
-        
+
         // First answer - not done
         let is_done = state.answer(4).unwrap();
         assert!(!is_done);
@@ -207,7 +207,7 @@ mod tests {
         assert_eq!(state.result.ratings.len(), 1);
         assert_eq!(state.result.ratings[0].preset, "preset1");
         assert_eq!(state.result.ratings[0].rank, 4);
-        
+
         // Second answer - not done
         let is_done = state.answer(3).unwrap();
         assert!(!is_done);
@@ -215,7 +215,7 @@ mod tests {
         assert_eq!(state.result.ratings.len(), 2);
         assert_eq!(state.result.ratings[1].preset, "preset2");
         assert_eq!(state.result.ratings[1].rank, 3);
-        
+
         // Third answer - done
         let is_done = state.answer(5).unwrap();
         assert!(is_done);
@@ -223,7 +223,7 @@ mod tests {
         assert_eq!(state.result.ratings.len(), 3);
         assert_eq!(state.result.ratings[2].preset, "preset3");
         assert_eq!(state.result.ratings[2].rank, 5);
-        
+
         // Attempt to answer when done - should return true (done) without changing state
         let is_done = state.answer(2).unwrap();
         assert!(is_done);
