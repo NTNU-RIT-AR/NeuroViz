@@ -18,6 +18,7 @@
 
   border: 2px solid transparent;
 }
+
 .presetElementSelected {
   background: var(--primary-bg) !important;
   border: 2px solid var(--primary-hl);
@@ -33,7 +34,7 @@
   height: 100%;
 }
 
-.buttonsContainer > button {
+.buttonsContainer>button {
   height: 100%;
   aspect-ratio: 1;
   padding: 5px;
@@ -46,4 +47,16 @@
 .presetsContainer {
   display: flex;
   gap: 2px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.searchBoxWrapper {
+  max-width: 300px;
+  width: 100%;
 }
