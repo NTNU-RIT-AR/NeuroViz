@@ -12,7 +12,10 @@
   transform: scaleY(0.965) scaleX(0.995);
 }
 
-.select * {
-  color: black;
-  cursor: pointer;
+.inputFields {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
 }

@@ -1,4 +1,4 @@
-import styles from "./styles/ListButton.module.css";
+import styles from "./ListButton.module.css";
 
 interface ListButtonProps {
   textContent: string;

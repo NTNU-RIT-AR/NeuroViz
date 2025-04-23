@@ -1,13 +1,26 @@
-.popup {
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 
-  height: 90%;
-  width: 95%;
+  background-color: #000000dd;
+}
+
+.popup {
+  position: fixed;
+  top: 5%;
+  bottom: 5%;
+  left: 2.5%;
+  right: 2.5%;
   margin: 100px;
   background-color: var(--bg);
   padding: 30px;
 
   border: 2px solid var(--line);
   border-radius: 20px;
+  overflow: scroll;
 }
 
 .top {

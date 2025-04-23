@@ -11,11 +11,19 @@
   flex-direction: column;
   align-items: start;
 }
+
+.headerContainer {
+  padding: var(--spacing);
+  width: 100%;
+}
+
 .header {
   display: flex;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  padding: 30px;
-  padding-bottom: var(--spacing);
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .toolbar {
@@ -26,24 +34,20 @@
   justify-content: end;
 }
 
-.toolbar > Button {
-  height: 40px;
-}
-
-.contentContainer,
-.contentContainerScrollable {
+.contentContainer {
   border-top: 1px solid var(--line);
-  display: flex;
   width: 100%;
   height: 100%;
 
   padding: var(--spacing);
 }
 
-.contentContainer {
+.content {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
   gap: var(--spacing);
-}
-
-.contentContainerScrollable {
   overflow: scroll;
 }

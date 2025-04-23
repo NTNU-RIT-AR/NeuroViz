@@ -3,7 +3,7 @@
   height: 180px;
 
   border-radius: 10px;
-  transition-duration: .5s;
+  transition-duration: 0.5s;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,6 +24,10 @@
   border: 1px solid var(--red-hl);
   background: var(--red-bg);
   height: 220px;
+}
+
+.disconnected > p {
+  margin-top: -10px;
 }
 
 img {
