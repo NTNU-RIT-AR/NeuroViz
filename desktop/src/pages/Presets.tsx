@@ -72,7 +72,7 @@ export default function PresetsPage() {
       >
 
         <div className={styles.headerRow}>
-          <h2 className="title">Presets</h2>
+          <h2>Presets</h2>
           <div className={styles.searchBoxWrapper}>
             <Input
               placeholder="Search presets"
