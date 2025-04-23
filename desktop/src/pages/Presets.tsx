@@ -70,16 +70,18 @@ export default function PresetsPage() {
         className={classNames(styles.contentBox, styles.presetsContainer)}
         role="listbox"
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+
+        <div className={styles.headerRow}>
           <h2 className="title">Presets</h2>
-          <div style={{ maxWidth: '300px', width: '100%' }}>
+          <div className={styles.searchBoxWrapper}>
             <Input
               placeholder="Search presets"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
             />
           </div>
         </div>
+
 
         {filteredPresets.map((preset) => (
           <div
