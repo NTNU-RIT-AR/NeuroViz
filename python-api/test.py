@@ -3,8 +3,6 @@ from itertools import combinations
 
 neuro = NeuroViz(port=9001, use_secret=False)
 
-# neuro.set_live_
-
 def preset(transparency: float) -> ParameterDict:
     return {
         "transparency": transparency,
@@ -12,8 +10,6 @@ def preset(transparency: float) -> ParameterDict:
         "outline": 0.5,
         "smoothness": 1
     }
-
-# print(preset(0.2)["transparency"])
 
 transparencies = [x / 10 for x in range(0, 11)]
 presets = [preset(t) for t in transparencies]
