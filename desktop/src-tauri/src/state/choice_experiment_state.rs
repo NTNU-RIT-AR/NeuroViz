@@ -113,6 +113,8 @@ mod tests {
                 transparency: 0.5,
                 outline: 0.7,
                 smoothness: 0.2,
+                light_intensity: 0.5,
+                light_temperature: 0.,
             },
         };
 
@@ -123,6 +125,8 @@ mod tests {
                 transparency: 0.2,
                 outline: 0.4,
                 smoothness: 0.6,
+                light_intensity: 0.8,
+                light_temperature: 0.,
             },
         };
 

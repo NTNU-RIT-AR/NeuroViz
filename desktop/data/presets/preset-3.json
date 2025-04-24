@@ -2,8 +2,9 @@
   "name": "Preset 3",
   "parameters": {
     "transparency": 0.1,
-    "see_through": 0.5,
     "outline": 0.7,
-    "smoothness": 0.6
+    "smoothness": 0.6,
+    "light_intensity": 1,
+    "light_temperature": 6570
   }
 }

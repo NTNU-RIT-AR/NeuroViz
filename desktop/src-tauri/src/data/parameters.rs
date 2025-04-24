@@ -1,55 +1,85 @@
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use strum::{EnumIter, IntoEnumIterator};
 
-#[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq, Hash, Eq)]
+#[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq, Hash, Eq, EnumIter)]
+#[serde(rename_all = "snake_case")]
 pub enum ParameterKey {
-    #[serde(rename = "transparency")]
     Transparency,
-    #[serde(rename = "outline")]
     Outline,
-    #[serde(rename = "smoothness")]
     Smoothness,
+    LightIntensity,
+    LightTemperature,
 }
 
 #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
 pub struct Parameter {
     key: ParameterKey,
-    name: String,
+    name: &'static str,
     min: f32,
     max: f32,
+    default: f32,
 }
 
-impl Parameter {
-    pub fn all() -> Vec<Parameter> {
-        [
-            Parameter {
-                key: ParameterKey::Transparency,
-                name: "Transparency".to_owned(),
+impl ParameterKey {
+    /// Get the parameter data for this parameter key
+    pub fn parameter_for(self) -> Parameter {
+        let key = self;
+
+        use ParameterKey::*;
+        match self {
+            Transparency => Parameter {
+                key,
+                name: "Transparency",
                 min: 0.0,
                 max: 1.0,
+                default: 0.,
             },
-            Parameter {
-                key: ParameterKey::Outline,
-                name: "Outline".to_owned(),
+            Outline => Parameter {
+                key,
+                name: "Outline",
                 min: 0.0,
                 max: 1.0,
+                default: 0.,
             },
-            Parameter {
-                key: ParameterKey::Smoothness,
-                name: "Smoothness".to_owned(),
+            Smoothness => Parameter {
+                key,
+                name: "Smoothness",
                 min: 0.0,
                 max: 1.0,
+                default: 0.,
             },
-        ]
-        .to_vec()
+            LightIntensity => Parameter {
+                key,
+                name: "Light Intensity",
+                min: 0.0,
+                max: 2.0,
+                default: 1.,
+            },
+            LightTemperature => Parameter {
+                key,
+                name: "Light Temperature",
+                min: 1500.,
+                max: 20000.,
+                default: 6500.,
+            },
+        }
     }
 }
 
-#[derive(Deserialize, Serialize, Type, Default, Clone, Debug, PartialEq)]
+impl Parameter {
+    pub fn all() -> impl Iterator<Item = Parameter> {
+        ParameterKey::iter().map(|key| key.parameter_for())
+    }
+}
+
+#[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
 pub struct ParameterValues {
     pub transparency: f32,
     pub outline: f32,
     pub smoothness: f32,
+    pub light_intensity: f32,
+    pub light_temperature: f32,
 }
 
 impl ParameterValues {
@@ -58,6 +88,8 @@ impl ParameterValues {
             ParameterKey::Transparency => self.transparency,
             ParameterKey::Outline => self.outline,
             ParameterKey::Smoothness => self.smoothness,
+            ParameterKey::LightIntensity => self.light_intensity,
+            ParameterKey::LightTemperature => self.light_temperature,
         }
     }
 
@@ -66,6 +98,24 @@ impl ParameterValues {
             ParameterKey::Transparency => self.transparency = value,
             ParameterKey::Outline => self.outline = value,
             ParameterKey::Smoothness => self.smoothness = value,
+            ParameterKey::LightIntensity => self.light_intensity = value,
+            ParameterKey::LightTemperature => self.light_temperature = value,
+        }
+    }
+}
+
+impl Default for ParameterValues {
+    fn default() -> Self {
+        fn default_for(key: ParameterKey) -> f32 {
+            key.parameter_for().default
+        }
+
+        Self {
+            transparency: default_for(ParameterKey::Transparency),
+            outline: default_for(ParameterKey::Outline),
+            smoothness: default_for(ParameterKey::Smoothness),
+            light_intensity: default_for(ParameterKey::LightIntensity),
+            light_temperature: default_for(ParameterKey::LightTemperature),
         }
     }
 }
@@ -85,7 +135,7 @@ mod tests {
             let json_key = serde_json::to_string(&param.key).unwrap();
             let unquoted_key = json_key.trim_matches('"');
 
-            all_parameter_values.insert(unquoted_key.to_owned(), f32::default());
+            all_parameter_values.insert(unquoted_key.to_owned(), param.default);
         }
 
         // Serialize HashMap to json and serialize back as ParameterValues

@@ -9,7 +9,6 @@ namespace NeuroViz
     public class ReCenter : MonoBehaviour
     {
         [SerializeField] private InputActionReference recenterAction;
-        [SerializeField] private Transform offsetTransform;
         [SerializeField] private float offset = 1.5f;
 
         void OnEnable()
@@ -33,7 +32,8 @@ namespace NeuroViz
 
         private void DoReCenter()
         {
-            transform.position = offsetTransform.position + offsetTransform.forward * offset;
+            var camera = XREALUtility.MainCamera.transform;
+            transform.position = camera.position + camera.forward * offset;
         }
     }
 }
