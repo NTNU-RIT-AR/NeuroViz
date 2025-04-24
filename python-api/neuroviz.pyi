@@ -38,7 +38,6 @@ class NeuroViz:
 
         Args:
             parameters: Dictionary containing parameter keys and values.
-                Expected keys: 'transparency', 'see_through', 'outline', 'smoothness'
         """
         ...
 
@@ -49,8 +48,20 @@ class NeuroViz:
         Args:
             a: First parameter set for comparison
             b: Second parameter set for comparison
-            
+
         Returns:
             The parameter set that was chosen (either a or b)
+        """
+        ...
+
+    def prompt_rating(self, parameters: ParameterDict) -> int:
+        """
+        Prompt the user to rate the given parameter set.
+
+        Args:
+            parameters: The parameter set to be rated
+
+        Returns:
+            An integer rating value between 1 and 5
         """
         ...

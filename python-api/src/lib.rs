@@ -4,7 +4,7 @@ use anyhow::{Context, anyhow, bail};
 use local_ip_address::linux::local_ip;
 use neuroviz_lib::{
     api::http_server::{ExperimentPrompt, HttpServer, UnityEvent, UnityExperimentType, UnityState},
-    data::parameters::ParameterValues,
+    data::{experiment::ExperimentAnswer, parameters::ParameterValues},
     generate_secret,
 };
 use pyo3::{prelude::*, types::PyDict};
@@ -23,7 +23,7 @@ pub async fn http_server_task(
     unity_state_receiver: watch::Receiver<UnityState>,
     unity_event_sender: mpsc::Sender<UnityEvent>,
     secret: Option<String>,
-) {
+) -> PyResult<()> {
     let http_server = HttpServer {
         state: unity_state_receiver,
         event_sender: unity_event_sender,
@@ -31,7 +31,8 @@ pub async fn http_server_task(
     };
 
     let app = http_server.app();
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await?;
+    Ok(())
 }
 
 #[pyclass]
@@ -78,7 +79,7 @@ fn dict_to_parameters<'py>(dict: Bound<'py, PyDict>) -> PyResult<ParameterValues
 #[pymethods]
 impl NeuroViz {
     #[new]
-    fn new(port: u16, use_secret: bool) -> Self {
+    fn new(port: u16, use_secret: bool) -> PyResult<Self> {
         let (unity_state_sender, unity_state_receiver) = watch::channel(UnityState::Idle);
         let (unity_event_sender, unity_event_receiver) = mpsc::channel(100);
 
@@ -91,10 +92,20 @@ impl NeuroViz {
 
         println!("Starting server on port {port}");
         println!("Connect glasses using QR code:");
-        qr2term::print_qr(qr_payload).unwrap();
+        qr2term::print_qr(qr_payload).context("Print QR code")?;
 
-        let runtime = Arc::new(Runtime::new().unwrap());
+        let runtime = Arc::new(Runtime::new().context("Create runtime")?);
         let cancellation_token = CancellationToken::new();
+
+        let listener = runtime.block_on(async {
+            let addr = format!("0.0.0.0:{port}");
+            let listener = TcpListener::bind(&addr)
+                .await
+                .context("Bind TCP listener")?;
+
+            PyResult::Ok(listener)
+        })?;
+
         runtime.spawn({
             let secret = secret.clone();
             let cancellation_token = cancellation_token.clone();
@@ -102,9 +113,6 @@ impl NeuroViz {
             async move {
                 // runtime.block_on(async {
                 let task = async {
-                    let addr = format!("0.0.0.0:{port}");
-                    let listener = TcpListener::bind(&addr).await.unwrap();
-
                     let http_server = http_server_task(
                         listener,
                         unity_state_receiver,
@@ -112,7 +120,9 @@ impl NeuroViz {
                         secret,
                     );
 
-                    http_server.await;
+                    http_server.await?;
+
+                    PyResult::Ok(())
                 };
 
                 select! {
@@ -122,7 +132,7 @@ impl NeuroViz {
             }
         });
 
-        NeuroViz {
+        Ok(NeuroViz {
             runtime,
             cancellation_token,
             unity_state_sender,
@@ -130,7 +140,7 @@ impl NeuroViz {
             ip,
             port,
             secret,
-        }
+        })
     }
 
     fn set_live_parameters<'py>(&mut self, parameters: Bound<'py, PyDict>) -> PyResult<()> {
@@ -183,13 +193,13 @@ impl NeuroViz {
         let task = async move {
             while let Some(event) = self.unity_event_receiver.recv().await {
                 match event {
-                    UnityEvent::Connection { .. } => {}
                     UnityEvent::SwapPreset => {
                         is_preset_a = !is_preset_a;
 
                         show_presets(&unity_state_sender, current_preset(is_preset_a))?;
                     }
-                    UnityEvent::Answer { .. } => {
+
+                    UnityEvent::Answer(ExperimentAnswer::Choice) => {
                         unity_state_sender.send(UnityState::Idle)?;
 
                         return Ok(match is_preset_a {
@@ -197,6 +207,8 @@ impl NeuroViz {
                             false => b,
                         });
                     }
+
+                    _ => {}
                 }
             }
 
@@ -223,6 +235,66 @@ impl NeuroViz {
 
         Ok(chosen)
     }
+
+    fn prompt_rating<'py>(
+        &mut self,
+        py: Python<'py>,
+        parameters: Bound<'py, PyDict>,
+    ) -> PyResult<u8> {
+        let runtime = self.runtime.clone();
+        let cancellation_token = self.cancellation_token.clone();
+
+        let parsed_parameters = dict_to_parameters(parameters)?;
+
+        let unity_state_sender = self.unity_state_sender.clone();
+
+        unity_state_sender
+            .send(UnityState::Experiment {
+                prompt: ExperimentPrompt {
+                    experiment_type: UnityExperimentType::Rating,
+                    parameters: parsed_parameters,
+                },
+            })
+            .context("Broadcast prompt choice")?;
+
+        let task = async move {
+            while let Some(event) = self.unity_event_receiver.recv().await {
+                match event {
+                    UnityEvent::Answer(ExperimentAnswer::Rating { value }) => {
+                        unity_state_sender.send(UnityState::Idle)?;
+
+                        return Ok(value);
+                    }
+
+                    _ => {}
+                }
+            }
+
+            bail!("Unity event receiver closed unexpectedly");
+        };
+
+        let signal = async {
+            loop {
+                if let Err(error) = py.check_signals() {
+                    return error;
+                }
+
+                sleep(Duration::from_millis(100)).await;
+            }
+        };
+
+        let chosen = runtime.block_on(async {
+            select! {
+                result = task => result.map_err(|e| e.into()),
+                err = signal => Err(err),
+                _ = cancellation_token.cancelled() => Err(anyhow!("Cancelled").into()),
+            }
+        })?;
+
+        Ok(chosen)
+    }
+
+    // TODO set_idle
 }
 
 impl Drop for NeuroViz {
