@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Fuse from "fuse.js";
+import { useMemo } from "react";
 import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
 import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
@@ -10,10 +12,6 @@ import { Input, Label, Select, TextArea } from "../components/Input";
 import Popup from "../components/Popup";
 import { useCommand } from "../hooks";
 import styles from "./Experiments.module.css";
-import { useMemo } from "react";
-import Fuse, { FuseResult } from "fuse.js";
-
-
 
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
@@ -261,14 +259,17 @@ export default function ExperimentsPage() {
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
   const [search, setSearch] = useState("");
-  const fuse = useMemo(() => new Fuse(experiments.data, {
-    keys: ["value.name"],
-    threshold: 0.3,
-  }), [experiments.data]);
+  const fuse = useMemo(
+    () =>
+      new Fuse(experiments.data, {
+        keys: ["value.name"],
+        threshold: 0.3,
+      }),
+    [experiments.data]
+  );
   const filteredExperiments = useMemo(() => {
     if (!search.trim()) return experiments.data;
-    return fuse.search(search).map((res: FuseResult<WithKey<Experiment>>) => res.item)
-
+    return fuse.search(search).map((res) => res.item);
   }, [search, fuse]);
 
   return (
@@ -276,14 +277,15 @@ export default function ExperimentsPage() {
       <Layout
         title="Experiments"
         folder="Experiments"
-
         toolbar={
           <div className={styles.headerRow}>
             <div className={styles.searchBoxWrapper}>
               <Input
                 placeholder="Search experiments"
                 value={search}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearch(e.target.value)
+                }
               />
             </div>
             <Button onClick={() => setShowCreatePopup(true)}>
