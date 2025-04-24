@@ -2,6 +2,8 @@ import { useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
+import Fuse from "fuse.js";
+import { useMemo } from "react";
 import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
 import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
@@ -63,7 +65,7 @@ function ExperimentCard(props: ExperimentCardProps) {
           >
             <TrashIcon className="icon" />
           </Button>
-          {/* Start button */}
+
           <Button
             variant="primary"
             square={true}
@@ -256,19 +258,44 @@ export default function ExperimentsPage() {
   const presets = useCommand(commands.getPresets).data;
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
+  const [search, setSearch] = useState("");
+  const fuse = useMemo(
+    () =>
+      new Fuse(experiments.data, {
+        keys: ["value.name"],
+        threshold: 0.3,
+      }),
+    [experiments.data]
+  );
+  const filteredExperiments = useMemo(() => {
+    if (!search.trim()) return experiments.data;
+    return fuse.search(search).map((res) => res.item);
+  }, [search, fuse]);
+
   return (
     <>
       <Layout
         title="Experiments"
         folder="Experiments"
         toolbar={
-          <Button onClick={() => setShowCreatePopup(true)}>
-            Create Experiment
-          </Button>
+          <div className={styles.headerRow}>
+            <div className={styles.searchBoxWrapper}>
+              <Input
+                placeholder="Search experiments"
+                value={search}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearch(e.target.value)
+                }
+              />
+            </div>
+            <Button onClick={() => setShowCreatePopup(true)}>
+              Create Experiment
+            </Button>
+          </div>
         }
       >
         <div className={styles.experimentsContainer}>
-          {experiments.data.map((experiment) => (
+          {filteredExperiments.map((experiment) => (
             <ExperimentCard
               key={experiment.key}
               experiment={experiment}

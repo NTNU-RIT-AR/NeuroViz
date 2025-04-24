@@ -7,8 +7,11 @@
   font-weight: bold;
   color: var(--primary-hl);
   background-color: var(--primary-bg);
-  transition: border-color 0.25s, transform 0.1s;
+  transition:
+    border-color 0.25s,
+    transform 0.1s;
 
+  white-space: nowrap;
   cursor: pointer;
 }
 

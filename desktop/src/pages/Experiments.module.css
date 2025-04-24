@@ -71,3 +71,17 @@
   font-weight: bold;
   color: rgba(255, 255, 255, 0.8);
 }
+
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: var(--spacing);
+}
+
+.searchBoxWrapper {
+  max-width: 300px;
+  width: 100%;
+}
