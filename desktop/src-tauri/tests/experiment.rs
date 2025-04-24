@@ -110,14 +110,12 @@ async fn experiment_integration_test() {
 
     let parameters_1 = ParameterValues {
         transparency: 0.5,
-        see_through: 0.5,
         outline: 0.5,
         smoothness: 0.5,
     };
 
     let parameters_2 = ParameterValues {
         transparency: 0.7,
-        see_through: 0.7,
         outline: 0.7,
         smoothness: 0.7,
     };

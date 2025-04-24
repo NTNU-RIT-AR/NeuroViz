@@ -5,8 +5,6 @@ use specta::Type;
 pub enum ParameterKey {
     #[serde(rename = "transparency")]
     Transparency,
-    #[serde(rename = "see_through")]
-    SeeThrough,
     #[serde(rename = "outline")]
     Outline,
     #[serde(rename = "smoothness")]
@@ -31,12 +29,6 @@ impl Parameter {
                 max: 1.0,
             },
             Parameter {
-                key: ParameterKey::SeeThrough,
-                name: "See through".to_owned(),
-                min: 0.0,
-                max: 1.0,
-            },
-            Parameter {
                 key: ParameterKey::Outline,
                 name: "Outline".to_owned(),
                 min: 0.0,
@@ -56,7 +48,6 @@ impl Parameter {
 #[derive(Deserialize, Serialize, Type, Default, Clone, Debug, PartialEq)]
 pub struct ParameterValues {
     pub transparency: f32,
-    pub see_through: f32,
     pub outline: f32,
     pub smoothness: f32,
 }
@@ -65,7 +56,6 @@ impl ParameterValues {
     pub fn get(&self, param: ParameterKey) -> f32 {
         match param {
             ParameterKey::Transparency => self.transparency,
-            ParameterKey::SeeThrough => self.see_through,
             ParameterKey::Outline => self.outline,
             ParameterKey::Smoothness => self.smoothness,
         }
@@ -74,7 +64,6 @@ impl ParameterValues {
     pub fn set(&mut self, param: ParameterKey, value: f32) {
         match param {
             ParameterKey::Transparency => self.transparency = value,
-            ParameterKey::SeeThrough => self.see_through = value,
             ParameterKey::Outline => self.outline = value,
             ParameterKey::Smoothness => self.smoothness = value,
         }

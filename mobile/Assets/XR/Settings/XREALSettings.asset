@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d6c6fbaebc0a41448bdb2a644012ac7, type: 3}
   m_Name: XREALSettings
   m_EditorClassIdentifier: 
-  StereoRendering: 0
+  StereoRendering: 2
   InitialTrackingType: 0
   InitialInputSource: 1
   VirtualController: {fileID: 726417748021139642, guid: 5091916cfe7175f459f08724f1a54618, type: 3}
-  SupportMultiResume: 0
+  SupportMultiResume: 1
   AddtionalPermissions: []
   SupportDevices: 0100000002000000
   LicenseAsset: {fileID: 0}

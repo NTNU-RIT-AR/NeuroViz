@@ -31,7 +31,6 @@ namespace NeuroViz
         public void SetParameters(RenderParameters parameters)
         {
             transparency = parameters.Transparency;
-            seeThrough = parameters.SeeThrough;
             outline = parameters.Outline;
             smoothness = parameters.Smoothness;
 

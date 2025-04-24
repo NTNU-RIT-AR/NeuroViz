@@ -77,7 +77,6 @@ mod tests {
         // Create sample parameter values
         let parameters = crate::data::parameters::ParameterValues {
             transparency: 0.5,
-            see_through: 0.3,
             outline: 0.7,
             smoothness: 0.8,
         };

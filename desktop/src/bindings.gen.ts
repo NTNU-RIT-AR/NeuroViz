@@ -168,14 +168,9 @@ export type Parameter = {
   min: number;
   max: number;
 };
-export type ParameterKey =
-  | "transparency"
-  | "see_through"
-  | "outline"
-  | "smoothness";
+export type ParameterKey = "transparency" | "outline" | "smoothness";
 export type ParameterValues = {
   transparency: number;
-  see_through: number;
   outline: number;
   smoothness: number;
 };

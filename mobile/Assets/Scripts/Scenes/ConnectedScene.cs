@@ -17,15 +17,8 @@ using UnityEngine.Networking;
 public class RenderParameters
 {
     public float Transparency { get; set; }
-    public float SeeThrough { get; set; }
     public float Outline { get; set; }
     public float Smoothness { get; set; }
-}
-
-public struct Preset
-{
-    public string Name { get; set; }
-    public RenderParameters Parameters { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
@@ -128,6 +121,7 @@ namespace NeuroViz.Scenes
 
         private void OnEnable()
         {
+            // Subscribe to updates from the controller application
             var url = $"http://{ip}:{port}/state/subscribe?secret={secret}";
             Debug.Log($"Starting event source at: {url}");
             eventSource = new EventSourceReader(new Uri(url));

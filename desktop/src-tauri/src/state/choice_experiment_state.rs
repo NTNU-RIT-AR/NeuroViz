@@ -111,7 +111,6 @@ mod tests {
             name: "Preset A".to_string(),
             parameters: ParameterValues {
                 transparency: 0.5,
-                see_through: 0.3,
                 outline: 0.7,
                 smoothness: 0.2,
             },
@@ -122,7 +121,6 @@ mod tests {
             name: "Preset B".to_string(),
             parameters: ParameterValues {
                 transparency: 0.2,
-                see_through: 0.8,
                 outline: 0.4,
                 smoothness: 0.6,
             },
