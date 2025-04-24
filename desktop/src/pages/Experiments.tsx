@@ -10,6 +10,10 @@ import { Input, Label, Select, TextArea } from "../components/Input";
 import Popup from "../components/Popup";
 import { useCommand } from "../hooks";
 import styles from "./Experiments.module.css";
+import { useMemo } from "react";
+import Fuse, { FuseResult } from "fuse.js";
+
+
 
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
@@ -63,7 +67,7 @@ function ExperimentCard(props: ExperimentCardProps) {
           >
             <TrashIcon className="icon" />
           </Button>
-          {/* Start button */}
+
           <Button
             variant="primary"
             square={true}
@@ -256,19 +260,40 @@ export default function ExperimentsPage() {
   const presets = useCommand(commands.getPresets).data;
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
+  const [search, setSearch] = useState("");
+  const fuse = useMemo(() => new Fuse(experiments.data, {
+    keys: ["value.name"],
+    threshold: 0.3,
+  }), [experiments.data]);
+  const filteredExperiments = useMemo(() => {
+    if (!search.trim()) return experiments.data;
+    return fuse.search(search).map((res: FuseResult<WithKey<Experiment>>) => res.item)
+
+  }, [search, fuse]);
+
   return (
     <>
       <Layout
         title="Experiments"
         folder="Experiments"
+
         toolbar={
-          <Button onClick={() => setShowCreatePopup(true)}>
-            Create Experiment
-          </Button>
+          <div className={styles.headerRow}>
+            <div className={styles.searchBoxWrapper}>
+              <Input
+                placeholder="Search experiments"
+                value={search}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button onClick={() => setShowCreatePopup(true)}>
+              Create Experiment
+            </Button>
+          </div>
         }
       >
         <div className={styles.experimentsContainer}>
-          {experiments.data.map((experiment) => (
+          {filteredExperiments.map((experiment) => (
             <ExperimentCard
               key={experiment.key}
               experiment={experiment}
