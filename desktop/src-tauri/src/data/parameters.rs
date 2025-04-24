@@ -43,7 +43,7 @@ impl Parameter {
     }
 }
 
-#[derive(Deserialize, Serialize, Type, Default, Clone, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Type, Default, Clone, Copy, Debug, PartialEq)]
 pub struct ParameterValues {
     pub transparency: f32,
     pub see_through: f32,

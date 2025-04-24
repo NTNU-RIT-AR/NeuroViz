@@ -75,7 +75,8 @@ pub enum UnityEvent {
 pub struct HttpServer {
     pub state: watch::Receiver<UnityState>,
     pub event_sender: mpsc::Sender<UnityEvent>,
-    pub secret: Arc<String>,
+    /// Secret key for authentication, use None to disable authentication
+    pub secret: Option<Arc<String>>,
 }
 
 impl HttpServer {
@@ -106,6 +107,10 @@ async fn auth(
     req: Request,
     next: Next,
 ) -> Result<Response, StatusCode> {
+    let Some(secret) = http_server.secret else {
+        return Ok(next.run(req).await);
+    };
+
     let auth_header = req
         .headers()
         .get(AUTHORIZATION)
@@ -116,8 +121,8 @@ async fn auth(
     // };
 
     let is_valid_token = match (auth_header, auth_query.secret) {
-        (Some(header_secret), _) => header_secret == *http_server.secret,
-        (None, Some(query_secret)) => query_secret == *http_server.secret,
+        (Some(header_secret), _) => header_secret == *secret,
+        (None, Some(query_secret)) => query_secret == *secret,
         (None, None) => false,
     };
 
@@ -132,8 +137,6 @@ async fn answer_choice_experiment(
     State(http_server): State<HttpServer>,
     Json(payload): Json<ExperimentAnswer>,
 ) {
-    println!("Got a request to answer");
-
     http_server
         .event_sender
         .send(UnityEvent::Answer(payload))
@@ -143,8 +146,6 @@ async fn answer_choice_experiment(
 
 // Swap preset
 async fn swap_preset(State(http_server): State<HttpServer>) {
-    println!("Got request to swap preset");
-
     http_server
         .event_sender
         .send(UnityEvent::SwapPreset)
@@ -165,11 +166,9 @@ async fn current_state(State(http_server): State<HttpServer>) -> Json<UnityState
 async fn subscribe_state(
     State(http_server): State<HttpServer>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    http_server
+    let _ = http_server
         .event_sender
-        .send(UnityEvent::Connection { is_connected: true })
-        .await
-        .unwrap();
+        .try_send(UnityEvent::Connection { is_connected: true });
 
     // Guard to ensure we notify when the stream is closed
     struct Guard {
@@ -250,7 +249,7 @@ mod tests {
         let http_server = HttpServer {
             state: unity_state_receiver,
             event_sender: unity_event_sender,
-            secret: secret.clone(),
+            secret: Some(secret.clone()),
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;
@@ -279,7 +278,7 @@ mod tests {
         let http_server = HttpServer {
             state: unity_state_receiver,
             event_sender: unity_event_sender,
-            secret: secret.clone(),
+            secret: Some(secret.clone()),
         };
 
         let listening_url = spawn_app("127.0.0.1", http_server.app()).await;

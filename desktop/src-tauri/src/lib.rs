@@ -33,7 +33,7 @@ pub async fn http_server_task(
     listener: TcpListener,
     app_state_receiver: watch::Receiver<AppState>,
     unity_event_sender: mpsc::Sender<UnityEvent>,
-    secret: Arc<String>,
+    secret: Option<String>,
 ) {
     // Channel for unity state
     let (unity_state_sender, unity_state_receiver) =
@@ -42,7 +42,7 @@ pub async fn http_server_task(
     let http_server = HttpServer {
         state: unity_state_receiver,
         event_sender: unity_event_sender,
-        secret: secret,
+        secret: secret.map(Arc::new),
     };
 
     // Task to update the unity state based on app state changes
@@ -116,7 +116,7 @@ pub async fn handle_unity_events_task(
 }
 
 /// Generate random secret with 32 characters
-fn generate_secret() -> String {
+pub fn generate_secret() -> String {
     let secret = rand::rng()
         .sample_iter(&Alphanumeric)
         .take(32)
@@ -128,12 +128,12 @@ fn generate_secret() -> String {
 
 async fn setup(app: AppHandle) {
     // Initialize app state
-    let secret = Arc::new(generate_secret());
+    let secret = generate_secret();
     println!("Secret: {}", secret);
 
     let app_data = AppData::new(
         AppState::LiveView(ParameterValues::default()),
-        secret.clone(),
+        Arc::new(secret.clone()),
     );
     app.manage(app_data.clone());
 
@@ -150,7 +150,7 @@ async fn setup(app: AppHandle) {
         listener,
         app_data.state.subscribe(),
         unity_event_sender.clone(),
-        secret,
+        Some(secret),
     );
 
     // Task to update the app state based on Unity events
