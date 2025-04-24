@@ -162,7 +162,12 @@ export type OutcomeRating = {
   time: string;
   duration: number;
 };
-export type Parameter = { key: ParameterKey; name: string };
+export type Parameter = {
+  key: ParameterKey;
+  name: string;
+  min: number;
+  max: number;
+};
 export type ParameterKey =
   | "transparency"
   | "see_through"

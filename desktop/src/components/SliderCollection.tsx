@@ -1,4 +1,4 @@
-import { Parameter } from "../interfaces";
+import { Parameter } from "../bindings.gen";
 import Slider from "./Slider";
 
 import styles from "./SliderCollection.module.css";
@@ -21,8 +21,8 @@ export default function SliderCollection({
         <Slider
           key={parameter.key}
           name={parameter.name}
-          min={0}
-          max={1}
+          min={parameter.min}
+          max={parameter.max}
           value={parameter.value}
           onChange={parameter.onChange}
         ></Slider>

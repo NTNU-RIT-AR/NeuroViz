@@ -17,6 +17,8 @@ pub enum ParameterKey {
 pub struct Parameter {
     key: ParameterKey,
     name: String,
+    min: f32,
+    max: f32,
 }
 
 impl Parameter {
@@ -25,18 +27,26 @@ impl Parameter {
             Parameter {
                 key: ParameterKey::Transparency,
                 name: "Transparency".to_owned(),
+                min: 0.0,
+                max: 1.0,
             },
             Parameter {
                 key: ParameterKey::SeeThrough,
                 name: "See through".to_owned(),
+                min: 0.0,
+                max: 1.0,
             },
             Parameter {
                 key: ParameterKey::Outline,
                 name: "Outline".to_owned(),
+                min: 0.0,
+                max: 1.0,
             },
             Parameter {
                 key: ParameterKey::Smoothness,
                 name: "Smoothness".to_owned(),
+                min: 0.0,
+                max: 1.0,
             },
         ]
         .to_vec()
