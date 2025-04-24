@@ -16,7 +16,7 @@ MonoBehaviour:
   InitialTrackingType: 0
   InitialInputSource: 1
   VirtualController: {fileID: 726417748021139642, guid: 5091916cfe7175f459f08724f1a54618, type: 3}
-  SupportMultiResume: 1
+  SupportMultiResume: 0
   AddtionalPermissions: []
   SupportDevices: 0100000002000000
   LicenseAsset: {fileID: 0}

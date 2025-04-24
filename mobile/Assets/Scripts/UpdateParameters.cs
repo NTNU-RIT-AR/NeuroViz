@@ -9,16 +9,9 @@ namespace NeuroViz
         private static readonly int SmoothnessID = Shader.PropertyToID("_Smoothness");
 
         [Header("Properties")]
-        // [OnValueChanged(nameof(HandlePropertiesEdited))]
-        // [PropertyRange(0, 1)]
         [SerializeField] public float transparency;
 
-        // [OnValueChanged(nameof(HandlePropertiesEdited))]
-        // [PropertyRange(0, 1)]
         [SerializeField] public float outline;
-
-        // [OnValueChanged(nameof(HandlePropertiesEdited))]
-        // [PropertyRange(0, 1)]
         [SerializeField] public float seeThrough;
         [SerializeField] public float smoothness;
 
