@@ -15,7 +15,6 @@ namespace NeuroViz
 
         private void OnEnable()
         {
-            DoReCenter();
             recenterAction.action.performed += OnRecenterActionPerformed;
         }
 

@@ -22,7 +22,7 @@ define_parameters! {
       name: "Smoothness",
       min: 0.0,
       max: 1.0,
-      default: 0.0
+      default: 0.5
   },
   Emission => {
       key: emission,
