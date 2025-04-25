@@ -26,7 +26,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Ints: []
-    m_Floats: []
+    m_Floats:
+    - _Transparency: 0
     m_Colors:
     - _Dark: {r: 0.7372549, g: 0.5764706, b: 0.5764706, a: 0}
     - _Light: {r: 0.8862745, g: 0.78431374, b: 0.78431374, a: 0}

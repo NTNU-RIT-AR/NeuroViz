@@ -2,8 +2,9 @@
   "name": "Preset 1",
   "parameters": {
     "transparency": 0.5,
-    "outline": 0.8,
+    "glow": 0.8,
     "smoothness": 0.6,
+    "emission": 0,
     "light_intensity": 1,
     "light_temperature": 6570
   }

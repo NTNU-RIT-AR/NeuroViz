@@ -6,8 +6,9 @@
       "name": "Preset A",
       "parameters": {
         "transparency": 0.1,
-        "outline": 0.3,
+        "glow": 0.3,
         "smoothness": 0.6,
+        "emission": 0,
         "light_intensity": 1,
         "light_temperature": 6570
       }
@@ -16,8 +17,9 @@
       "name": "Preset B",
       "parameters": {
         "transparency": 0.4,
-        "outline": 0.6,
+        "glow": 0.6,
         "smoothness": 0.6,
+        "emission": 0,
         "light_intensity": 1,
         "light_temperature": 6570
       }
@@ -26,8 +28,9 @@
       "name": "Preset C",
       "parameters": {
         "transparency": 0.7,
-        "outline": 0.9,
+        "glow": 0.9,
         "smoothness": 0.6,
+        "emission": 0,
         "light_intensity": 1,
         "light_temperature": 6570
       }
@@ -36,8 +39,9 @@
       "name": "Preset D",
       "parameters": {
         "transparency": 0.9,
-        "outline": 0.5,
+        "glow": 0.5,
         "smoothness": 0.6,
+        "emission": 0,
         "light_intensity": 1,
         "light_temperature": 6570
       }

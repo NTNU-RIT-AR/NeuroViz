@@ -49,7 +49,7 @@ Material:
     - _BUILTIN_ZTest: 4
     - _BUILTIN_ZWrite: 0
     - _BUILTIN_ZWriteControl: 0
-    - _Emission: 1
+    - _Emission: 0
     - _Opacity: 1
     - _QueueControl: 0
     - _QueueOffset: 0

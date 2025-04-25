@@ -111,8 +111,9 @@ mod tests {
             name: "Preset A".to_string(),
             parameters: ParameterValues {
                 transparency: 0.5,
-                outline: 0.7,
+                glow: 0.7,
                 smoothness: 0.2,
+                emission: 0.3,
                 light_intensity: 0.5,
                 light_temperature: 0.,
             },
@@ -123,8 +124,9 @@ mod tests {
             name: "Preset B".to_string(),
             parameters: ParameterValues {
                 transparency: 0.2,
-                outline: 0.4,
+                glow: 0.4,
                 smoothness: 0.6,
+                emission: 0.9,
                 light_intensity: 0.8,
                 light_temperature: 0.,
             },

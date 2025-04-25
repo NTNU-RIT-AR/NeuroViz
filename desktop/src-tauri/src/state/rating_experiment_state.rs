@@ -79,8 +79,9 @@ mod tests {
         // Create sample parameter values
         let parameters = ParameterValues {
             transparency: 0.5,
-            outline: 0.7,
+            glow: 0.7,
             smoothness: 0.8,
+            emission: 0.9,
             light_intensity: 0.6,
             light_temperature: 0.,
         };

@@ -110,16 +110,18 @@ async fn experiment_integration_test() {
 
     let parameters_1 = ParameterValues {
         transparency: 0.5,
-        outline: 0.5,
+        glow: 0.5,
         smoothness: 0.5,
+        emission: 0.3,
         light_intensity: 0.5,
         light_temperature: 0.5,
     };
 
     let parameters_2 = ParameterValues {
         transparency: 0.7,
-        outline: 0.7,
+        glow: 0.7,
         smoothness: 0.7,
+        emission: 0.7,
         light_intensity: 0.,
         light_temperature: 0.,
     };
