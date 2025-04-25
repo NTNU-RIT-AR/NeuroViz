@@ -26,9 +26,21 @@ namespace NeuroViz.Scenes
 
         void OnGUI()
         {
+            var before = GUI.matrix;
             GUIUtility.RotateAroundPivot(camTexture.videoRotationAngle,
                 new Vector2(screenRect.width / 2, screenRect.height / 2));
             GUI.DrawTexture(screenRect, camTexture, ScaleMode.ScaleToFit);
+            GUI.matrix = before;
+
+            var textRect = new Rect(0, 0, Screen.width, Screen.height * 0.80f);
+
+            GUI.Label(textRect,
+                "Scan QR code to connect", new GUIStyle
+                {
+                    fontSize = 60,
+                    alignment = TextAnchor.LowerCenter,
+                    normal = new GUIStyleState { textColor = Color.white }
+                });
         }
 
         void OnEnable()

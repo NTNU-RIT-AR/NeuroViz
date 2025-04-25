@@ -10,23 +10,21 @@ namespace NeuroViz
     public class ReCenter : MonoBehaviour
     {
         [SerializeField] private InputActionReference recenterAction;
-
         [SerializeField] private float distance = 1.5f;
-
         [SerializeField] private Vector3 offset;
 
-        void OnEnable()
+        private void OnEnable()
         {
             DoReCenter();
             recenterAction.action.performed += OnRecenterActionPerformed;
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             recenterAction.action.performed -= OnRecenterActionPerformed;
         }
 
-        void OnRecenterActionPerformed(InputAction.CallbackContext context)
+        private void OnRecenterActionPerformed(InputAction.CallbackContext context)
         {
             if (context.interaction is HoldInteraction)
             {
