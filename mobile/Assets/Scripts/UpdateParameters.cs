@@ -14,6 +14,8 @@ namespace NeuroViz
         [SerializeField] public float outline;
         [SerializeField] public float seeThrough;
         [SerializeField] public float smoothness;
+        [SerializeField] public float lightIntensity;
+        [SerializeField] public float lightTemperature;
 
 
         [Header("Objects")]
@@ -21,11 +23,16 @@ namespace NeuroViz
 
         [SerializeField] private List<Material> transparencyMaterials;
 
+        [SerializeField] private new Light light;
+
+
         public void SetParameters(RenderParameters parameters)
         {
             transparency = parameters.Transparency;
             outline = parameters.Outline;
             smoothness = parameters.Smoothness;
+            lightIntensity = parameters.LightIntensity;
+            lightTemperature = parameters.LightTemperature;
 
             HandlePropertiesEdited();
         }
@@ -57,8 +64,9 @@ namespace NeuroViz
             {
                 transparencyMaterial.SetFloat("_Transparency", transparency);
             }
-        }
 
-        //TODO fix iris material   
+            light.intensity = lightIntensity;
+            light.colorTemperature = lightTemperature;
+        }
     }
 }

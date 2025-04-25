@@ -19,6 +19,8 @@ public class RenderParameters
     public float Transparency { get; set; }
     public float Outline { get; set; }
     public float Smoothness { get; set; }
+    public float LightIntensity { get; set; }
+    public float LightTemperature { get; set; }
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -167,12 +167,20 @@ export type Parameter = {
   name: string;
   min: number;
   max: number;
+  default: number;
 };
-export type ParameterKey = "transparency" | "outline" | "smoothness";
+export type ParameterKey =
+  | "transparency"
+  | "outline"
+  | "smoothness"
+  | "light_intensity"
+  | "light_temperature";
 export type ParameterValues = {
   transparency: number;
   outline: number;
   smoothness: number;
+  light_intensity: number;
+  light_temperature: number;
 };
 export type Preset = { name: string; parameters: ParameterValues };
 export type RatingExperiment = {
