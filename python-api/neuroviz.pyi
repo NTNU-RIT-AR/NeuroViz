@@ -3,9 +3,11 @@ from typing import Optional, TypedDict
 class ParameterDict(TypedDict):
     """Dictionary containing visualization parameters"""
     transparency: float
-    see_through: float
-    outline: float
+    glow: float
     smoothness: float
+    emission: float
+    light_intensity: float
+    light_temperature: float
 
 class NeuroViz:
     """
@@ -65,3 +67,12 @@ class NeuroViz:
             An integer rating value between 1 and 5
         """
         ...
+
+def default_parameters() -> ParameterDict:
+    """
+    Returns the default parameter values.
+    
+    Returns:
+        A ParameterDict with default visualization parameters.
+    """
+    ...

@@ -9,6 +9,7 @@ macro_rules! define_parameters {
             default: $default:expr
         }
     ),* $(,)?) => {
+        use std::fmt::Display;
         use serde::{Deserialize, Serialize};
         use specta::Type;
         use strum::{EnumIter, IntoEnumIterator};
@@ -17,6 +18,16 @@ macro_rules! define_parameters {
         #[serde(rename_all = "snake_case")]
         pub enum ParameterKey {
             $($variant),*
+        }
+
+        impl Display for ParameterKey {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match self {
+                    $(
+                        ParameterKey::$variant => write!(f, "{}", stringify!($key)),
+                    )*
+                }
+            }
         }
 
         #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
@@ -50,7 +61,7 @@ macro_rules! define_parameters {
             }
         }
 
-        #[derive(Deserialize, Serialize, Type, Clone, Debug, PartialEq)]
+        #[derive(Deserialize, Serialize, Type, Clone, Copy, Debug, PartialEq)]
         pub struct ParameterValues {
             $(pub $key: f32),*
         }

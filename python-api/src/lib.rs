@@ -4,10 +4,14 @@ use anyhow::{Context, anyhow, bail};
 use local_ip_address::linux::local_ip;
 use neuroviz_lib::{
     api::http_server::{ExperimentPrompt, HttpServer, UnityEvent, UnityExperimentType, UnityState},
-    data::{experiment::ExperimentAnswer, parameters::ParameterValues},
+    data::{
+        experiment::ExperimentAnswer,
+        parameters::{ParameterKey, ParameterKeyIter, ParameterValues},
+    },
     generate_secret,
 };
 use pyo3::{prelude::*, types::PyDict};
+use strum::IntoEnumIterator;
 use tokio::{
     net::TcpListener,
     runtime::Runtime,
@@ -35,6 +39,40 @@ pub async fn http_server_task(
     Ok(())
 }
 
+fn dict_to_parameters<'py>(dict: Bound<'py, PyDict>) -> PyResult<ParameterValues> {
+    let extract =
+        |key: &str| -> PyResult<f32> { dict.get_item(key)?.context("required")?.extract() };
+
+    let transparency = extract("transparency")?;
+    let glow = extract("glow")?;
+    let smoothness = extract("smoothness")?;
+    let emission = extract("emission")?;
+    let light_intensity = extract("light_intensity")?;
+    let light_temperature = extract("light_temperature")?;
+
+    Ok(ParameterValues {
+        transparency,
+        glow,
+        smoothness,
+        emission,
+        light_intensity,
+        light_temperature,
+    })
+}
+
+fn parameters_to_dict<'py>(
+    parameters: ParameterValues,
+    py: Python<'py>,
+) -> PyResult<Bound<'py, PyDict>> {
+    let dict = PyDict::new(py);
+
+    for parameter_key in ParameterKey::iter() {
+        dict.set_item(parameter_key.to_string(), parameters.get(parameter_key))?;
+    }
+
+    Ok(dict)
+}
+
 #[pyclass]
 struct NeuroViz {
     runtime: Arc<Runtime>,
@@ -48,32 +86,6 @@ struct NeuroViz {
     port: u16,
     #[pyo3(get)]
     secret: Option<String>,
-}
-
-fn dict_to_parameters<'py>(dict: Bound<'py, PyDict>) -> PyResult<ParameterValues> {
-    let transparency: f32 = dict
-        .get_item("transparency")?
-        .context("required")?
-        .extract()?;
-
-    let see_through: f32 = dict
-        .get_item("see_through")?
-        .context("required")?
-        .extract()?;
-
-    let outline: f32 = dict.get_item("outline")?.context("required")?.extract()?;
-
-    let smoothness: f32 = dict
-        .get_item("smoothness")?
-        .context("required")?
-        .extract()?;
-
-    Ok(ParameterValues {
-        transparency,
-        see_through,
-        outline,
-        smoothness,
-    })
 }
 
 #[pymethods]
@@ -303,37 +315,37 @@ impl Drop for NeuroViz {
     }
 }
 
-// #[pyclass]
 #[derive(FromPyObject)]
 pub struct ParsedParameterDict {
     pub transparency: f32,
-    pub see_through: f32,
-    pub outline: f32,
+    pub glow: f32,
     pub smoothness: f32,
+    pub emission: f32,
+    pub light_intensity: f32,
+    pub light_temperature: f32,
 }
 
 #[pyclass]
 pub struct ParameterDict {
     pub transparency: f32,
-    pub see_through: f32,
-    pub outline: f32,
+    pub glow: f32,
     pub smoothness: f32,
+    pub emission: f32,
+    pub light_intensity: f32,
+    pub light_temperature: f32,
 }
 
-impl From<ParsedParameterDict> for ParameterValues {
-    fn from(value: ParsedParameterDict) -> Self {
-        ParameterValues {
-            transparency: value.transparency,
-            see_through: value.see_through,
-            outline: value.outline,
-            smoothness: value.smoothness,
-        }
-    }
+#[pyfunction]
+fn default_parameters<'py>(py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+    let parameters = ParameterValues::default();
+
+    parameters_to_dict(parameters, py)
 }
 
 #[pymodule]
 fn neuroviz(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NeuroViz>()?;
     m.add_class::<ParameterDict>()?;
+    m.add_function(wrap_pyfunction!(default_parameters, m)?)?;
     Ok(())
 }
