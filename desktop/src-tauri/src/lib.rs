@@ -133,7 +133,7 @@ async fn setup(app: AppHandle) {
 
     let app_data = AppData::new(
         AppState::LiveView(ParameterValues::default()),
-        Arc::new(secret.clone()),
+        secret.clone(),
     );
     app.manage(app_data.clone());
 

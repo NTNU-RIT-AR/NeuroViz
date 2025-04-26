@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use chrono::Local;
 use eventsource_stream::Eventsource;
@@ -67,7 +67,7 @@ pub async fn handle_unity_events_task(
 /// Integration test for the experiment functionality, tests the AppData and HTTP server integrated
 #[tokio::test]
 async fn experiment_integration_test() {
-    let secret = Arc::new("secret".to_owned());
+    let secret = "secret".to_owned();
 
     let app_data = AppData::new(AppState::LiveView(Default::default()), secret.clone());
     let (unity_event_sender, unity_event_receiver) = mpsc::channel(100);
@@ -78,7 +78,7 @@ async fn experiment_integration_test() {
         listener,
         app_data.state.subscribe(),
         unity_event_sender.clone(),
-        secret.clone(),
+        Some(secret.clone()),
     );
     let handle_unity_events =
         handle_unity_events_task(app_data.state.clone(), unity_event_receiver);
@@ -88,7 +88,7 @@ async fn experiment_integration_test() {
 
     let mut event_stream = reqwest::Client::new()
         .get(format!("{listening_url}/state/subscribe"))
-        .header(AUTHORIZATION, (*secret).clone())
+        .header(AUTHORIZATION, &secret)
         .send()
         .await
         .unwrap()

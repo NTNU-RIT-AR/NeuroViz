@@ -56,10 +56,10 @@ pub struct AppData {
 }
 
 impl AppData {
-    pub fn new(state: AppState, secret: Arc<String>) -> Self {
+    pub fn new(state: AppState, secret: String) -> Self {
         Self {
             state: watch::Sender::new(state),
-            secret,
+            secret: Arc::new(secret),
         }
     }
 }
