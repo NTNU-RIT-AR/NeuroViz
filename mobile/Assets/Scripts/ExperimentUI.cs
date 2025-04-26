@@ -64,6 +64,7 @@ namespace NeuroViz
 
             canvasGroup.interactable = isEnabled;
             canvasGroup.alpha = isEnabled ? 1 : 0;
+            canvasGroup.blocksRaycasts = isEnabled;
 
             if (this.state == null) return;
             var prompt = this.state.Prompt;
