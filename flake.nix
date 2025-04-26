@@ -31,7 +31,6 @@
             librsvg
 
             python312Packages.pyzmq
-            zlib.dev
           ];
 
           shellHook = ''
