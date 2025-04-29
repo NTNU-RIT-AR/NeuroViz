@@ -206,7 +206,7 @@ namespace NeuroViz.Scenes
 
         public IEnumerator Swap()
         {
-            var url = $"http://{ip}:{port}/experiment/swap";
+            var url = $"http://{ip}:{port}/experiment/swap?secret={secret}";
 
             using var www = UnityWebRequest.PostWwwForm(url, "");
             yield return www.SendWebRequest();
@@ -223,7 +223,7 @@ namespace NeuroViz.Scenes
 
         public IEnumerator Answer(ExperimentAnswer answer)
         {
-            var url = $"http://{ip}:{port}/experiment/answer";
+            var url = $"http://{ip}:{port}/experiment/answer?secret={secret}";
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, };
             var json = JsonSerializer.Serialize(answer, options);
 
