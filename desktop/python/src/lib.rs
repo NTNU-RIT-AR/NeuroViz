@@ -99,7 +99,7 @@ impl NeuroViz {
         let ip = local_ip().expect("Get IPv4 address").to_string();
 
         let secret_str = secret.as_ref().map(|s| s.as_str()).unwrap_or("None");
-        let qr_payload = format!(r#"{{ "ip": "{ip}", port: {port}, secret: "{secret_str}" }}"#);
+        let qr_payload = format!(r#"{{ "ip": "{ip}", "port": {port}, "secret": "{secret_str}" }}"#);
 
         println!("Starting server on port {port}");
         println!("Connect glasses using QR code:");
