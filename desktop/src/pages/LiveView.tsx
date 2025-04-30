@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { cache, use, useEffect, useRef, useState } from "react";
 import { useImmer } from "use-immer";
 import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
 import Button from "../components/Button";
@@ -9,9 +9,10 @@ import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
 import { useCommand } from "../hooks";
 import styles from "./LiveView.module.css";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 /// Fetches the initial live parameters and lets the user update them
-function useLiveParameters() {
+export function useLiveParameters() {
   const parameters = useCommand(commands.getParameters).data;
   const initialLiveParameters = useCommand(commands.getLiveParameters).data;
 
@@ -20,13 +21,15 @@ function useLiveParameters() {
     parameters.map((parameter) => ({
       ...parameter,
       value: initialLiveParameters[parameter.key],
-    }))
+    })),
   );
 
   useEffect(() => {
     const parameters = Object.fromEntries(
-      parameterStates.map((parameter) => [parameter.key, parameter.value])
+      parameterStates.map((parameter) => [parameter.key, parameter.value]),
     ) as Record<ParameterKey, number>;
+
+    console.log(parameters);
 
     commands.setLiveParameters(parameters);
   }, [parameterStates]);
@@ -63,7 +66,7 @@ function useSelectPreset() {
   >(undefined);
 
   const selectedPreset = presets.data.find(
-    (preset) => preset.key === selectedPresetKey
+    (preset) => preset.key === selectedPresetKey,
   );
 
   const options = presets.data.map((preset) => ({
@@ -82,8 +85,13 @@ function useSelectPreset() {
   };
 }
 
-export default function LiveViewPage() {
-  const liveParameters = useLiveParameters();
+interface LiveViewPageProps {
+  liveParameters: ReturnType<typeof useLiveParameters>;
+}
+
+export default function LiveViewPage(props: LiveViewPageProps) {
+  const { liveParameters } = props;
+
   const selectPreset = useSelectPreset();
 
   const [showPresetCreationPopup, setShowPresetCreationPopup] = useState(false);
