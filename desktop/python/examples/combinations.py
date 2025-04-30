@@ -5,8 +5,12 @@ neuro = NeuroViz(port=9001, use_secret=False)
 
 def preset(smoothness: float) -> ParameterDict:
     return {
-        **default_parameters(),
         "smoothness": smoothness,
+        "transparency": 0.0,
+        "glow": 0.0,
+        "emission": 0.0,
+        "light_intensity": 1.0,
+        "light_temperature": 6500,
     }
 
 smoothnesses = [x / 10 for x in range(0, 11)]
