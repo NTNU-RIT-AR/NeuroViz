@@ -70,16 +70,20 @@ impl RatingExperimentState {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::data::parameters::ParameterValues;
+
     use std::collections::HashMap;
 
     // Helper function to create test data
     fn create_test_state() -> RatingExperimentState {
         // Create sample parameter values
-        let parameters = crate::data::parameters::ParameterValues {
+        let parameters = ParameterValues {
             transparency: 0.5,
-            see_through: 0.3,
-            outline: 0.7,
+            glow: 0.7,
             smoothness: 0.8,
+            emission: 0.9,
+            light_intensity: 0.6,
+            light_temperature: 0.,
         };
 
         // Create preset map

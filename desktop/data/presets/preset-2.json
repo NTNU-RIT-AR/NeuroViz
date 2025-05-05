@@ -2,8 +2,10 @@
   "name": "Preset 2",
   "parameters": {
     "transparency": 0.3,
-    "see_through": 0.4,
-    "outline": 0.6,
-    "smoothness": 0.6
+    "glow": 0.6,
+    "smoothness": 0.6,
+    "emission": 0,
+    "light_intensity": 1,
+    "light_temperature": 6570
   }
 }

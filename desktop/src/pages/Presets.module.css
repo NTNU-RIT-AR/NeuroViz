@@ -1,7 +1,12 @@
+.layout {
+  flex: unset;
+}
+
 .container {
+  flex: 1;
   display: flex;
-  height: unset;
-  align-items: stretch;
+  justify-content: stretch;
+  gap: var(--spacing);
 }
 
 .presetElement {
@@ -34,7 +39,7 @@
   height: 100%;
 }
 
-.buttonsContainer>button {
+.buttonsContainer > button {
   height: 100%;
   aspect-ratio: 1;
   padding: 5px;

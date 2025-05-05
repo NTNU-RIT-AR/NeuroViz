@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace NeuroViz
 {
@@ -7,20 +8,19 @@ namespace NeuroViz
     {
         private static readonly int SeeThroughID = Shader.PropertyToID("_SeeThrough");
         private static readonly int SmoothnessID = Shader.PropertyToID("_Smoothness");
+        private static readonly int EmissionID = Shader.PropertyToID("_Emission");
 
         [Header("Properties")]
-        // [OnValueChanged(nameof(HandlePropertiesEdited))]
-        // [PropertyRange(0, 1)]
         [SerializeField] public float transparency;
 
-        // [OnValueChanged(nameof(HandlePropertiesEdited))]
-        // [PropertyRange(0, 1)]
-        [SerializeField] public float outline;
+        [FormerlySerializedAs("outline")] [SerializeField]
+        public float glow;
 
-        // [OnValueChanged(nameof(HandlePropertiesEdited))]
-        // [PropertyRange(0, 1)]
         [SerializeField] public float seeThrough;
         [SerializeField] public float smoothness;
+        [SerializeField] private float emission;
+        [SerializeField] public float lightIntensity;
+        [SerializeField] public float lightTemperature;
 
 
         [Header("Objects")]
@@ -28,12 +28,17 @@ namespace NeuroViz
 
         [SerializeField] private List<Material> transparencyMaterials;
 
+        [SerializeField] private new Light light;
+
+
         public void SetParameters(RenderParameters parameters)
         {
             transparency = parameters.Transparency;
-            seeThrough = parameters.SeeThrough;
-            outline = parameters.Outline;
+            glow = parameters.Glow;
             smoothness = parameters.Smoothness;
+            emission = parameters.Emission;
+            lightIntensity = parameters.LightIntensity;
+            lightTemperature = parameters.LightTemperature;
 
             HandlePropertiesEdited();
         }
@@ -53,20 +58,22 @@ namespace NeuroViz
         {
             Shader.SetGlobalFloat(SeeThroughID, seeThrough);
             Shader.SetGlobalFloat(SmoothnessID, smoothness);
+            Shader.SetGlobalFloat(EmissionID, emission);
 
             foreach (var outlineObject in outlineObjects)
             {
                 var color = outlineObject.OutlineColor;
-                outlineObject.OutlineColor = new Color(color.r, color.g, color.b, EaseInQuad(0f, 1f, outline));
-                outlineObject.OutlineWidth = outline * 10f;
+                outlineObject.OutlineColor = new Color(color.r, color.g, color.b, EaseInQuad(0f, 1f, glow));
+                // outlineObject.OutlineWidth = outline * 10f;
             }
 
             foreach (var transparencyMaterial in transparencyMaterials)
             {
                 transparencyMaterial.SetFloat("_Transparency", transparency);
             }
-        }
 
-        //TODO fix iris material   
+            light.intensity = lightIntensity;
+            light.colorTemperature = lightTemperature;
+        }
     }
 }

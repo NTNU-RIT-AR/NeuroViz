@@ -1,5 +1,5 @@
 .experimentsContainer {
-  width: 100%;
+  flex: 1;
   display: grid;
   margin-bottom: auto;
 
@@ -71,7 +71,6 @@
   font-weight: bold;
   color: rgba(255, 255, 255, 0.8);
 }
-
 
 .headerRow {
   display: flex;

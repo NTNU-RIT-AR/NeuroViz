@@ -20,7 +20,7 @@
 
   border: 2px solid var(--line);
   border-radius: 20px;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .top {

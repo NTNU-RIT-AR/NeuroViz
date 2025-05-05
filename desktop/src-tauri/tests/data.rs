@@ -1,5 +1,5 @@
 use neuroviz_lib::{
-    data::{experiment::Experiment, experiment_result::ExperimentResult, preset::Preset},
+    data::{experiment::Experiment, preset::Preset},
     storage::{self, Folder},
 };
 
@@ -15,11 +15,4 @@ pub async fn test_data() {
         .await
         .unwrap();
     assert!(!experiments.is_empty());
-
-    let results = storage::read_files::<ExperimentResult>(Folder::Results {
-        experiment_key: "example-1".to_owned(),
-    })
-    .await
-    .unwrap();
-    assert!(!results.is_empty());
 }

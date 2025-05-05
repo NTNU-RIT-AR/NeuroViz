@@ -1,8 +1,7 @@
 .contentBox {
   justify-content: space-between;
   gap: 10px;
-  max-height: 550px;
-  overflow: hidden;
+  max-height: 650px;
 }
 
 .contentBox > button:hover {

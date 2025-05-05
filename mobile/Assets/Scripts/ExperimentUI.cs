@@ -1,5 +1,6 @@
 ﻿using System;
 using NeuroViz.Scenes;
+using Unity.XR.XREAL;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -64,6 +65,7 @@ namespace NeuroViz
 
             canvasGroup.interactable = isEnabled;
             canvasGroup.alpha = isEnabled ? 1 : 0;
+            canvasGroup.blocksRaycasts = isEnabled;
 
             if (this.state == null) return;
             var prompt = this.state.Prompt;
@@ -85,6 +87,9 @@ namespace NeuroViz
 
         private void HandleSwapButtonClick()
         {
+            if (XREALVirtualController.Singleton != null)
+                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.25f, 0.15f);
+
             StartCoroutine(connectedScene.Swap());
         }
 
@@ -108,11 +113,21 @@ namespace NeuroViz
                     throw new ArgumentOutOfRangeException();
             }
 
+            if (XREALVirtualController.Singleton != null)
+                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.25f, 0.15f);
+
+            Handheld.Vibrate();
+
             StartCoroutine(connectedScene.Answer(answer));
         }
 
         private void HandleRatingSliderValueChanged(float value)
         {
+            if (XREALVirtualController.Singleton != null)
+                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.05f, 0.15f);
+
+            Handheld.Vibrate();
+
             ratingValue = (int)Math.Round(value);
             Debug.Log($"Rating value changed: {ratingValue}");
         }

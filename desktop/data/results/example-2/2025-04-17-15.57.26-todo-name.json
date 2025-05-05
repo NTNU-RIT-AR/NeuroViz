@@ -9,8 +9,9 @@
       "parameters": {
         "transparency": 0.9,
         "see_through": 0.1,
-        "outline": 0.5,
-        "smoothness": 0.6
+        "glow": 0.5,
+        "smoothness": 0.6,
+        "emission": 0
       }
     },
     "preset_a": {
@@ -18,8 +19,9 @@
       "parameters": {
         "transparency": 0.1,
         "see_through": 0.2,
-        "outline": 0.3,
-        "smoothness": 0.6
+        "glow": 0.3,
+        "smoothness": 0.6,
+        "emission": 0
       }
     },
     "preset_c": {
@@ -27,8 +29,9 @@
       "parameters": {
         "transparency": 0.7,
         "see_through": 0.8,
-        "outline": 0.9,
-        "smoothness": 0.6
+        "glow": 0.9,
+        "smoothness": 0.6,
+        "emission": 0
       }
     },
     "preset_b": {
@@ -36,8 +39,9 @@
       "parameters": {
         "transparency": 0.4,
         "see_through": 0.5,
-        "outline": 0.6,
-        "smoothness": 0.6
+        "glow": 0.6,
+        "smoothness": 0.6,
+        "emission": 0
       }
     }
   },

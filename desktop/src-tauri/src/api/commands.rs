@@ -81,7 +81,7 @@ pub fn get_secret(app: tauri::AppHandle) -> String {
 #[tauri::command]
 #[specta::specta]
 pub fn get_parameters() -> Vec<Parameter> {
-    Parameter::all()
+    Parameter::all().collect()
 }
 
 #[tauri::command]

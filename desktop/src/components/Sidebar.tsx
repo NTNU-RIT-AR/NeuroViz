@@ -9,9 +9,14 @@ import {
   UNITY_API_PORT,
 } from "../const.ts";
 import { useCommand } from "../hooks.ts";
-import { QrPayload } from "../interfaces.ts";
 import ConnectionBox from "./ConnectionBox.tsx";
 import styles from "./Sidebar.module.css";
+
+export interface QrPayload {
+  ip: string;
+  port: number;
+  secret: string;
+}
 
 interface SidebarLinkProps {
   to: string;
