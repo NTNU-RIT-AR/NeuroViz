@@ -5,6 +5,7 @@ use neuroviz::{
     http_server::ExperimentAnswer,
     parameters::{Parameter, ParameterValues},
 };
+use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use slug::slugify;
 use specta::Type;
@@ -235,15 +236,21 @@ pub async fn start_experiment(
     result_name: String,
     obeserver_id: u32,
     note: String,
+    randomize: bool,
 ) -> Result<(), AppError> {
     let result_key = slugify(&result_name);
 
     let experiment = storage::read_file::<Experiment>(&experiment_key, Folder::Experiments).await?;
 
     let time = Local::now();
+    let mut rng = rand::rng();
 
     let experiment_state = match experiment {
-        Experiment::Rating(rating_experiment) => {
+        Experiment::Rating(mut rating_experiment) => {
+            if randomize {
+                rating_experiment.order.shuffle(&mut rng);
+            }
+
             let experiment_result = RatingExperimentResult::new(
                 result_name,
                 time,
@@ -260,7 +267,11 @@ pub async fn start_experiment(
             )
         }
 
-        Experiment::Choice(choice_experiment) => {
+        Experiment::Choice(mut choice_experiment) => {
+            if randomize {
+                choice_experiment.choices.shuffle(&mut rng);
+            }
+
             let experiment_result = ChoiceExperimentResult::new(
                 result_name,
                 time,

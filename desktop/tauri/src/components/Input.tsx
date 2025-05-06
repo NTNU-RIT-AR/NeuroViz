@@ -6,17 +6,34 @@ import styles from "./Input.module.css";
 
 interface LabelProps {
   children: React.ReactNode;
+  horizontal?: boolean;
 }
 
 export function Label(props: LabelProps) {
-  const { children } = props;
+  const { children, horizontal } = props;
 
-  return <label className={styles.label}>{children}</label>;
+  return (
+    <label
+      className={classNames(styles.label, horizontal && styles.horizontal)}
+    >
+      {children}
+    </label>
+  );
 }
 
 export function Input(props: ComponentProps<"input">) {
   return (
     <input {...props} className={classNames(styles.input, props.className)} />
+  );
+}
+
+export function Checkbox(props: ComponentProps<"input">) {
+  return (
+    <input
+      {...props}
+      className={classNames(styles.input, styles.checkbox, props.className)}
+      type="checkbox"
+    />
   );
 }
 

@@ -8,6 +8,16 @@
   font-size: 16px;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.9);
+
+  &.horizontal {
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+
+    & > .input {
+      width: unset;
+    }
+  }
 }
 
 .input {
@@ -18,4 +28,10 @@
   border: solid var(--line) 2px;
   background-color: var(--primary-bg);
   cursor: pointer;
+}
+
+.checkbox {
+  width: 18px !important;
+  height: 18px;
+  margin-right: 4px;
 }

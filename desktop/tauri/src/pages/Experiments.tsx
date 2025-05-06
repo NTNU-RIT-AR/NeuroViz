@@ -8,7 +8,7 @@ import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
 import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
-import { Input, Label, Select, TextArea } from "../components/Input";
+import { Checkbox, Input, Label, Select, TextArea } from "../components/Input";
 import Popup from "../components/Popup";
 import { useCommand } from "../hooks";
 import styles from "./Experiments.module.css";
@@ -16,7 +16,12 @@ import styles from "./Experiments.module.css";
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
   onDelete: () => void;
-  onStart: (resultName: string, observerId: number, note: string) => void;
+  onStart: (
+    resultName: string,
+    observerId: number,
+    note: string,
+    randomzie: boolean
+  ) => void;
 }
 
 function ExperimentCard(props: ExperimentCardProps) {
@@ -27,6 +32,7 @@ function ExperimentCard(props: ExperimentCardProps) {
   const resultNameRef = useRef<HTMLInputElement>(null);
   const observerIdRef = useRef<HTMLInputElement>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
+  const randomizeRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     commands.setIdleMode();
@@ -100,6 +106,11 @@ function ExperimentCard(props: ExperimentCardProps) {
               Note
               <TextArea ref={noteRef} />
             </Label>
+
+            <Label horizontal>
+              <Checkbox ref={randomizeRef} defaultChecked={false} />
+              Randomize the order
+            </Label>
           </div>
 
           <Button
@@ -108,9 +119,18 @@ function ExperimentCard(props: ExperimentCardProps) {
               const resultName = resultNameRef.current?.value;
               const observerId = observerIdRef.current?.value;
               const note = noteRef.current?.value;
+              const randomize = randomizeRef.current?.checked ?? false;
+
+              console.log("randomize", randomize);
 
               if (resultName && observerId) {
-                onStart(resultName, parseInt(observerId), note || "");
+                onStart(
+                  resultName,
+                  parseInt(observerId),
+                  note || "",
+                  randomize
+                );
+
                 setShowCreatePopup(false);
               }
             }}
@@ -303,12 +323,13 @@ export default function ExperimentsPage() {
             <ExperimentCard
               key={experiment.key}
               experiment={experiment}
-              onStart={(resultName, observerId, note) =>
+              onStart={(resultName, observerId, note, randomize) =>
                 commands.startExperiment(
                   experiment.key,
                   resultName,
                   observerId,
-                  note
+                  note,
+                  randomize
                 )
               }
               onDelete={async () => {

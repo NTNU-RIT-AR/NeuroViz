@@ -62,8 +62,8 @@ async setIdleMode() : Promise<null> {
 async setLiveMode(parameters: ParameterValues) : Promise<null> {
     return await TAURI_INVOKE("set_live_mode", { parameters });
 },
-async startExperiment(experimentKey: string, resultName: string, obeserverId: number, note: string) : Promise<null> {
-    return await TAURI_INVOKE("start_experiment", { experimentKey, resultName, obeserverId, note });
+async startExperiment(experimentKey: string, resultName: string, obeserverId: number, note: string, randomize: boolean) : Promise<null> {
+    return await TAURI_INVOKE("start_experiment", { experimentKey, resultName, obeserverId, note, randomize });
 },
 /**
  * Exit the current experiment early
