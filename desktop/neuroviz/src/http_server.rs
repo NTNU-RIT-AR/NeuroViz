@@ -56,7 +56,8 @@ pub enum ExperimentAnswer {
 
 #[derive(Debug)]
 pub enum UnityEvent {
-    Connection { is_connected: bool },
+    Connected,
+    Disconnected,
     SwapPreset,
     Answer(ExperimentAnswer),
 }
@@ -156,9 +157,7 @@ async fn current_state(State(http_server): State<HttpServer>) -> Json<UnityState
 async fn subscribe_state(
     State(http_server): State<HttpServer>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
-    let _ = http_server
-        .event_sender
-        .try_send(UnityEvent::Connection { is_connected: true });
+    let _ = http_server.event_sender.try_send(UnityEvent::Connected);
 
     // Guard to ensure we notify when the stream is closed
     struct Guard {
@@ -170,12 +169,7 @@ async fn subscribe_state(
             let event_sender = self.event_sender.clone();
 
             tokio::spawn(async move {
-                event_sender
-                    .send(UnityEvent::Connection {
-                        is_connected: false,
-                    })
-                    .await
-                    .unwrap();
+                event_sender.send(UnityEvent::Disconnected).await.unwrap();
             });
         }
     }

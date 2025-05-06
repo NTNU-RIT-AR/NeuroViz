@@ -106,7 +106,15 @@ export default function PresetsPage() {
                 selectedPreset?.key === preset.key &&
                   styles.presetElementSelected
               )}
-              onClick={() => setSelectedPreset(preset)}
+              onClick={() => {
+                // If the preset is already selected, deselect it
+                if (selectedPreset?.key === preset.key) {
+                  setSelectedPreset(undefined);
+                  commands.setIdleMode();
+                } else {
+                  setSelectedPreset(preset);
+                }
+              }}
               role="option"
               aria-selected={selectedPreset?.key === preset.key}
             >

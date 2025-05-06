@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { commands, events } from "../bindings.gen.ts";
+import { commands } from "../bindings.gen.ts";
 import {
   ROUTE_EXPERIMENTS,
   ROUTE_LIVE_VIEW,
@@ -36,25 +36,15 @@ function SidebarLink(props: SidebarLinkProps) {
   );
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  isConnected: boolean;
+}
+
+export default function Sidebar(props: SidebarProps) {
+  const { isConnected } = props;
+
   const secret = useCommand(commands.getSecret).data;
-  const [deviceConnected, setDeviceConnected] = useState<boolean>(false);
   const [ipAddress, setIpAddress] = useState<string>("");
-
-  console.log(deviceConnected);
-
-  useEffect(() => {
-    const connectionEventListener = events.connectionEvent.listen((event) => {
-      setDeviceConnected(event.payload.is_connected);
-    });
-
-    commands.getIpAddress().then(setIpAddress);
-
-    return () => {
-      //Remove event listeners
-      connectionEventListener.then((unlisten) => unlisten());
-    };
-  }, []);
 
   const qrPayload: QrPayload = {
     ip: ipAddress,
@@ -68,7 +58,7 @@ export default function Sidebar() {
         <ConnectionBox
           // url={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
           qrText={JSON.stringify(qrPayload)}
-          isConnected={deviceConnected}
+          isConnected={isConnected}
         />
       }
       <nav>

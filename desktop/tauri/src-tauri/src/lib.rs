@@ -67,6 +67,7 @@ pub async fn http_server_task(
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
 pub async fn handle_unity_events_task(
     app_handle: AppHandle,
+    conected_clients_sender: watch::Sender<usize>,
     app_state_sender: watch::Sender<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
@@ -129,10 +130,12 @@ pub async fn handle_unity_events_task(
                 }
             }
 
-            UnityEvent::Connection { is_connected } => {
-                dbg!("Received connection event: {}", is_connected);
-                ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
-            }
+            UnityEvent::Connected => conected_clients_sender.send_modify(|count| *count += 1),
+            UnityEvent::Disconnected => conected_clients_sender.send_modify(|count| {
+                if *count > 0 {
+                    *count -= 1;
+                }
+            }),
         };
     }
 }
@@ -176,17 +179,37 @@ async fn setup(app: AppHandle) {
     );
 
     // Task to update the app state based on Unity events
-    let handle_unity_events =
-        handle_unity_events_task(app.clone(), app_data.state.clone(), unity_event_receiver);
+    let handle_unity_events = handle_unity_events_task(
+        app.clone(),
+        app_data.connected_clents.clone(),
+        app_data.state.clone(),
+        unity_event_receiver,
+    );
 
     // Tawsk to emit app state changes to the tauri frontend
-    let emit_app_state = async move {
-        let mut app_state_stream = app_data.state.subscribe().into_stream();
+    let emit_app_state = {
+        let app = app.clone();
 
-        while let Some(new_state) = app_state_stream.next().await {
-            println!("Emitting new state: {:?}", new_state);
-            StateEvent {
-                state: new_state.clone(),
+        async move {
+            let mut app_state_stream = app_data.state.subscribe().into_stream();
+
+            while let Some(new_state) = app_state_stream.next().await {
+                println!("Emitting new state: {:?}", new_state);
+                StateEvent {
+                    state: new_state.clone(),
+                }
+                .emit(&app)
+                .unwrap();
+            }
+        }
+    };
+
+    let emit_is_connected = async move {
+        let mut connected_clents = app_data.connected_clents.subscribe().into_stream();
+
+        while let Some(connected_clents) = connected_clents.next().await {
+            ConnectionEvent {
+                is_connected: connected_clents > 0,
             }
             .emit(&app)
             .unwrap();
@@ -194,7 +217,12 @@ async fn setup(app: AppHandle) {
     };
 
     // Run all tasks concurrently
-    join!(http_server, handle_unity_events, emit_app_state);
+    join!(
+        http_server,
+        handle_unity_events,
+        emit_app_state,
+        emit_is_connected
+    );
 }
 
 pub fn tauri_commands() -> tauri_specta::Builder {
@@ -203,6 +231,7 @@ pub fn tauri_commands() -> tauri_specta::Builder {
         .commands(collect_commands![
             // App data
             commands::current_state,
+            commands::is_connected,
             commands::show_folder,
             commands::get_ip_address,
             commands::get_secret,

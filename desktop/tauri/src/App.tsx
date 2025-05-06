@@ -11,6 +11,7 @@ import {
   ROUTE_PRESETS,
   ROUTE_RESULTS,
 } from "./const";
+import { useIsConnected } from "./hooks";
 import ActiveExperiment from "./pages/ActiveExperiment/ActiveExperiment";
 import ExperimentsPage from "./pages/Experiments";
 import LiveViewPage from "./pages/LiveView";
@@ -50,6 +51,7 @@ function useExperimentState(): ExperimentState | undefined {
 }
 
 export default function App() {
+  const isConnected = useIsConnected();
   const experimentState = useExperimentState();
 
   useEffect(() => {
@@ -72,7 +74,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className={styles.mainLayout}>
-        <Sidebar />
+        <Sidebar isConnected={isConnected} />
         <Routes>
           <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
           <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />

@@ -47,6 +47,16 @@ pub fn current_state(app: tauri::AppHandle) -> AppState {
 
 #[specta::specta]
 #[tauri::command]
+pub fn is_connected(app: tauri::AppHandle) -> bool {
+    let app_data = app.state::<AppData>();
+
+    let connected_clients = *app_data.connected_clents.borrow();
+
+    connected_clients > 0
+}
+
+#[specta::specta]
+#[tauri::command]
 pub fn show_folder(app: tauri::AppHandle, folder: TopLevelFolder) -> Result<(), AppError> {
     let path = storage::data_folder()?.join(folder.path());
 

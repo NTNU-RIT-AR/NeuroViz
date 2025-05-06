@@ -8,6 +8,9 @@ export const commands = {
 async currentState() : Promise<AppState> {
     return await TAURI_INVOKE("current_state");
 },
+async isConnected() : Promise<boolean> {
+    return await TAURI_INVOKE("is_connected");
+},
 async showFolder(folder: TopLevelFolder) : Promise<null> {
     return await TAURI_INVOKE("show_folder", { folder });
 },
