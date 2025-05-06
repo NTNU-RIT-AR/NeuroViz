@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
@@ -27,6 +27,10 @@ function ExperimentCard(props: ExperimentCardProps) {
   const resultNameRef = useRef<HTMLInputElement>(null);
   const observerIdRef = useRef<HTMLInputElement>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    commands.setIdleMode();
+  }, []);
 
   const experimentType = match(experiment.value.experiment_type)
     .with("rating", () => "Rating")

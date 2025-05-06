@@ -13,7 +13,7 @@ import {
 } from "./const";
 import ActiveExperiment from "./pages/ActiveExperiment/ActiveExperiment";
 import ExperimentsPage from "./pages/Experiments";
-import LiveViewPage, { useLiveParameters } from "./pages/LiveView";
+import LiveViewPage from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
 import ResultsPage from "./pages/Results";
 
@@ -51,7 +51,6 @@ function useExperimentState(): ExperimentState | undefined {
 
 export default function App() {
   const experimentState = useExperimentState();
-  const liveParameters = useLiveParameters();
 
   useEffect(() => {
     const unlisten = events.resultSavedEvent.listen((event) => {
@@ -76,10 +75,7 @@ export default function App() {
         <Sidebar />
         <Routes>
           <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
-          <Route
-            path={ROUTE_LIVE_VIEW}
-            element={<LiveViewPage liveParameters={liveParameters} />}
-          />
+          <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
           <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
           <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
           <Route path={ROUTE_RESULTS} element={<ResultsPage />} />

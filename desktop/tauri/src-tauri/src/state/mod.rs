@@ -27,8 +27,12 @@ pub fn get_duration_since(then: DateTime<Local>) -> f64 {
 #[derive(Debug, Clone, EnumTryAs, Serialize, Deserialize, Type)]
 #[serde(tag = "kind")]
 pub enum AppState {
+    #[serde(rename = "idle")]
+    Idle,
+
     #[serde(rename = "live_view")]
     LiveView(ParameterValues),
+
     #[serde(rename = "experiment")]
     Experiment(ExperimentState),
 }
@@ -53,7 +57,10 @@ impl AppState {
 impl From<AppState> for UnityState {
     fn from(app_state: AppState) -> Self {
         match app_state {
+            AppState::Idle => UnityState::Idle,
+
             AppState::LiveView(parameters) => UnityState::Live { parameters },
+
             AppState::Experiment(experiment_state) => UnityState::Experiment {
                 prompt: ExperimentPrompt {
                     experiment_type: match experiment_state {

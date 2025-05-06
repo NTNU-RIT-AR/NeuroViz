@@ -1,7 +1,7 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
 import Fuse from "fuse.js";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { commands, WithKey, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
@@ -42,6 +42,10 @@ function PresetPreview(props: PresetPreviewProps) {
 
 export default function PresetsPage() {
   const presets = useCommand(commands.getPresets);
+
+  useEffect(() => {
+    commands.setIdleMode();
+  }, []);
 
   const [selectedPreset, setSelectedPreset] = useState<
     WithKey<Preset> | undefined

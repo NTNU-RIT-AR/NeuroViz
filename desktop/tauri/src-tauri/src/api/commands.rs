@@ -88,6 +88,12 @@ pub fn get_parameters() -> Vec<Parameter> {
 
 #[tauri::command]
 #[specta::specta]
+pub fn get_default_parameters() -> ParameterValues {
+    ParameterValues::default()
+}
+
+#[tauri::command]
+#[specta::specta]
 pub async fn get_presets() -> Result<Vec<WithKey<Preset>>, AppError> {
     let presets = storage::read_files(Folder::Presets).await?;
 
@@ -182,38 +188,32 @@ pub async fn delete_experiment(key: String) -> Result<(), AppError> {
     Ok(())
 }
 
-/// Get all parameters in live view
+/// Enter idle
 #[tauri::command]
 #[specta::specta]
-pub fn get_live_parameters(app: tauri::AppHandle) -> Result<ParameterValues, AppError> {
+pub fn set_idle_mode(app: tauri::AppHandle) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
-    let app_state = app_data.state.borrow();
 
-    let live_state = app_state
-        .try_as_live_view_ref()
-        .context("Must be in live mode")?;
+    app_data
+        .state
+        .send(AppState::Idle)
+        .context("Send new app state")?;
 
-    Ok(live_state.clone())
+    Ok(())
 }
 
-/// Set all parameters in live view
+/// Enter live mode with parameters
 #[tauri::command]
 #[specta::specta]
-pub fn set_live_parameters(
-    app: tauri::AppHandle,
-    parameters: ParameterValues,
-) -> Result<(), AppError> {
+pub fn set_live_mode(app: tauri::AppHandle, parameters: ParameterValues) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
 
-    app_data.state.send_modify_with(|app_state| {
-        let live_state = app_state
-            .try_as_live_view_mut()
-            .context("Must be in live mode")?;
+    app_data
+        .state
+        .send(AppState::LiveView(parameters))
+        .context("Send new app state")?;
 
-        *live_state = parameters;
-
-        Ok(())
-    })
+    Ok(())
 }
 
 #[tauri::command]

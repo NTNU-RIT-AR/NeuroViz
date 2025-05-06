@@ -157,16 +157,6 @@ async fn setup(app: AppHandle) {
     let handle_unity_events =
         handle_unity_events_task(app.clone(), app_data.state.clone(), unity_event_receiver);
 
-    // println!(
-    //     "{:?}",
-    //     commands::start_experiment(
-    //         app.clone(),
-    //         String::from("example-2"),
-    //         0,
-    //         String::from("my note hihi")
-    //     )
-    // );
-
     // Tawsk to emit app state changes to the tauri frontend
     let emit_app_state = async move {
         let mut app_state_stream = app_data.state.subscribe().into_stream();
@@ -195,6 +185,7 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::get_ip_address,
             commands::get_secret,
             commands::get_parameters,
+            commands::get_default_parameters,
             // CRUD presets
             commands::get_presets,
             commands::create_preset,
@@ -204,8 +195,8 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::create_experiment,
             commands::delete_experiment,
             // Live view
-            commands::set_live_parameters,
-            commands::get_live_parameters,
+            commands::set_idle_mode,
+            commands::set_live_mode,
             // Actvie experiment
             commands::start_experiment,
             commands::exit_experiment,

@@ -1,4 +1,4 @@
-import { cache, use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useImmer } from "use-immer";
 import { commands, ParameterKey, ParameterValues } from "../bindings.gen";
 import Button from "../components/Button";
@@ -9,31 +9,34 @@ import Popup from "../components/Popup";
 import SliderCollection from "../components/SliderCollection";
 import { useCommand } from "../hooks";
 import styles from "./LiveView.module.css";
-import { useSuspenseQuery } from "@tanstack/react-query";
+
+// Fetch static data, wont ever change so its ok to only fetch once
+const defaultParametersPromise = commands.getDefaultParameters();
+const parametersPromise = commands.getParameters();
 
 /// Fetches the initial live parameters and lets the user update them
-export function useLiveParameters() {
-  const parameters = useCommand(commands.getParameters).data;
-  const initialLiveParameters = useCommand(commands.getLiveParameters).data;
+function useLiveParameters() {
+  const defaultParameters = use(defaultParametersPromise);
+  const parameters = use(parametersPromise);
 
-  // Initialize the parameters state with zero values
+  // Initialize the parameters state with default values
   const [parameterStates, setParameterStates] = useImmer(() =>
     parameters.map((parameter) => ({
       ...parameter,
-      value: initialLiveParameters[parameter.key],
-    })),
+      value: defaultParameters[parameter.key],
+    }))
   );
 
+  // Set the live mode when the component mounts and when parameters change
   useEffect(() => {
     const parameters = Object.fromEntries(
-      parameterStates.map((parameter) => [parameter.key, parameter.value]),
+      parameterStates.map((parameter) => [parameter.key, parameter.value])
     ) as Record<ParameterKey, number>;
 
-    console.log(parameters);
-
-    commands.setLiveParameters(parameters);
+    commands.setLiveMode(parameters);
   }, [parameterStates]);
 
+  // Add a onChange function to each parameter state
   const changeableParameterStates = parameterStates.map((parameter) => ({
     ...parameter,
 
@@ -66,7 +69,7 @@ function useSelectPreset() {
   >(undefined);
 
   const selectedPreset = presets.data.find(
-    (preset) => preset.key === selectedPresetKey,
+    (preset) => preset.key === selectedPresetKey
   );
 
   const options = presets.data.map((preset) => ({
@@ -85,13 +88,8 @@ function useSelectPreset() {
   };
 }
 
-interface LiveViewPageProps {
-  liveParameters: ReturnType<typeof useLiveParameters>;
-}
-
-export default function LiveViewPage(props: LiveViewPageProps) {
-  const { liveParameters } = props;
-
+export default function LiveViewPage() {
+  const liveParameters = useLiveParameters();
   const selectPreset = useSelectPreset();
 
   const [showPresetCreationPopup, setShowPresetCreationPopup] = useState(false);
