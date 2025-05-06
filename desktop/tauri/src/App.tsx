@@ -1,21 +1,25 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
 import styles from "./App.module.css";
+
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppState, commands, events, ExperimentState } from "./bindings.gen";
-import Sidebar from "./components/Sidebar";
 import {
   ROUTE_EXPERIMENTS,
   ROUTE_LIVE_VIEW,
   ROUTE_PRESETS,
   ROUTE_RESULTS,
 } from "./const";
-import { ActiveExperiment } from "./pages/ActiveExperiment/ActiveExperiment";
-import ExperimentsPage from "./pages/Experiments";
-import LiveViewPage, { useLiveParameters } from "./pages/LiveView";
-import PresetsPage from "./pages/Presets";
-import ResultsPage from "./pages/Results";
+import { useLiveParameters } from "./pages/LiveView";
+
+const Sidebar = lazy(() => import("./components/Sidebar"));
+const ExperimentsPage = lazy(() => import("./pages/Experiments"));
+const ActiveExperiment = lazy(
+  () => import("./pages/ActiveExperiment/ActiveExperiment")
+);
+const LiveViewPage = lazy(() => import("./pages/LiveView"));
+const PresetsPage = lazy(() => import("./pages/Presets"));
+const ResultsPage = lazy(() => import("./pages/Results"));
 
 function useExperimentState(): ExperimentState | undefined {
   const [experimentState, setExperimentState] = useState<
@@ -30,14 +34,14 @@ function useExperimentState(): ExperimentState | undefined {
         setExperimentState(undefined);
       }
     },
-    [setExperimentState],
+    [setExperimentState]
   );
 
   useEffect(() => {
     commands.currentState().then(setState);
 
     const stateEventListener = events.stateEvent.listen((event) =>
-      setState(event.payload.state),
+      setState(event.payload.state)
     );
 
     // Cleanup the event listener when the component unmounts
@@ -57,7 +61,7 @@ export default function App() {
     const unlisten = events.resultSavedEvent.listen((event) => {
       const { result_file_path } = event.payload;
       alert(
-        `Result saved to ${result_file_path}. You can view it in the Results tab.`,
+        `Result saved to ${result_file_path}. You can view it in the Results tab.`
       );
     });
 
@@ -73,16 +77,43 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className={styles.mainLayout}>
-        <Sidebar />
+        <Suspense>
+          <Sidebar />
+        </Suspense>
         <Routes>
           <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
           <Route
             path={ROUTE_LIVE_VIEW}
-            element={<LiveViewPage liveParameters={liveParameters} />}
+            element={
+              <Suspense>
+                <LiveViewPage liveParameters={liveParameters} />
+              </Suspense>
+            }
           />
-          <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
-          <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
-          <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
+          <Route
+            path={ROUTE_PRESETS}
+            element={
+              <Suspense>
+                <PresetsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path={ROUTE_EXPERIMENTS}
+            element={
+              <Suspense>
+                <ExperimentsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path={ROUTE_RESULTS}
+            element={
+              <Suspense>
+                <ResultsPage />
+              </Suspense>
+            }
+          />
         </Routes>
       </div>
     </BrowserRouter>

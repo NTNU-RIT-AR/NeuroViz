@@ -19,7 +19,7 @@ function handleExit() {
   }
 }
 
-export function ActiveExperiment(props: ActiveExperimentProps) {
+export default function ActiveExperiment(props: ActiveExperimentProps) {
   const { experimentState } = props;
   const { presets } = experimentState.experiment;
   const prompt = experimentState.current_index;
