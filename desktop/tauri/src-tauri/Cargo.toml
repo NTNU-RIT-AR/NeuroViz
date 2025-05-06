@@ -1,7 +1,7 @@
 [package]
 name = "tauri-neuroviz"
 default-run = "tauri-neuroviz"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Tauri App"
 edition = "2021"
 
