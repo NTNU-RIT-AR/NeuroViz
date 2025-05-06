@@ -13,7 +13,7 @@ import {
 } from "./const";
 import { ActiveExperiment } from "./pages/ActiveExperiment/ActiveExperiment";
 import ExperimentsPage from "./pages/Experiments";
-import LiveViewPage from "./pages/LiveView";
+import LiveViewPage, { useLiveParameters } from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
 import ResultsPage from "./pages/Results";
 
@@ -30,14 +30,14 @@ function useExperimentState(): ExperimentState | undefined {
         setExperimentState(undefined);
       }
     },
-    [setExperimentState]
+    [setExperimentState],
   );
 
   useEffect(() => {
     commands.currentState().then(setState);
 
     const stateEventListener = events.stateEvent.listen((event) =>
-      setState(event.payload.state)
+      setState(event.payload.state),
     );
 
     // Cleanup the event listener when the component unmounts
@@ -49,16 +49,15 @@ function useExperimentState(): ExperimentState | undefined {
   return experimentState;
 }
 
-const queryClient = new QueryClient();
-
 export default function App() {
   const experimentState = useExperimentState();
+  const liveParameters = useLiveParameters();
 
   useEffect(() => {
     const unlisten = events.resultSavedEvent.listen((event) => {
       const { result_file_path } = event.payload;
       alert(
-        `Result saved to ${result_file_path}. You can view it in the Results tab.`
+        `Result saved to ${result_file_path}. You can view it in the Results tab.`,
       );
     });
 
@@ -68,27 +67,24 @@ export default function App() {
   }, []);
 
   if (experimentState) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        <ActiveExperiment experimentState={experimentState} />
-      </QueryClientProvider>
-    );
+    return <ActiveExperiment experimentState={experimentState} />;
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <div className={styles.mainLayout}>
-          <Sidebar />
-          <Routes>
-            <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
-            <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
-            <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
-            <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
-            <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <div className={styles.mainLayout}>
+        <Sidebar />
+        <Routes>
+          <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
+          <Route
+            path={ROUTE_LIVE_VIEW}
+            element={<LiveViewPage liveParameters={liveParameters} />}
+          />
+          <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
+          <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
+          <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
