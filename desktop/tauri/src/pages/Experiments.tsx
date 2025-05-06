@@ -250,6 +250,7 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
           <Select
             ref={presetsRef}
             isMulti
+            closeMenuOnSelect={false}
             name="presets"
             options={presets.map((preset) => ({
               value: preset.key,
