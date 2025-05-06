@@ -1,6 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { commands, events } from "./bindings.gen";
+import { QrPayload } from "./components/Sidebar";
+import { UNITY_API_PORT } from "./const";
 
 export function useCommand<T>(command: () => Promise<T>) {
   return useSuspenseQuery({
@@ -27,4 +29,22 @@ export function useIsConnected() {
   }, []);
 
   return isConnected;
+}
+
+const secretPromise = commands.getSecret();
+const ipAddressPromise = commands.getIpAddress();
+
+export function useConnectionQrCode() {
+  const secret = use(secretPromise);
+  const ipAddress = use(ipAddressPromise);
+
+  const qrPayload: QrPayload = {
+    ip: ipAddress,
+    port: UNITY_API_PORT,
+    secret,
+  };
+
+  const qrText = JSON.stringify(qrPayload);
+
+  return qrText;
 }

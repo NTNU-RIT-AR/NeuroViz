@@ -68,7 +68,12 @@ export default function App() {
   }, []);
 
   if (experimentState) {
-    return <ActiveExperiment experimentState={experimentState} />;
+    return (
+      <ActiveExperiment
+        experimentState={experimentState}
+        isConnected={isConnected}
+      />
+    );
   }
 
   return (
