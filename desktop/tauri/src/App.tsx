@@ -1,25 +1,21 @@
 import "./App.css";
 import styles from "./App.module.css";
 
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppState, commands, events, ExperimentState } from "./bindings.gen";
+import Sidebar from "./components/Sidebar";
 import {
   ROUTE_EXPERIMENTS,
   ROUTE_LIVE_VIEW,
   ROUTE_PRESETS,
   ROUTE_RESULTS,
 } from "./const";
-import { useLiveParameters } from "./pages/LiveView";
-
-const Sidebar = lazy(() => import("./components/Sidebar"));
-const ExperimentsPage = lazy(() => import("./pages/Experiments"));
-const ActiveExperiment = lazy(
-  () => import("./pages/ActiveExperiment/ActiveExperiment")
-);
-const LiveViewPage = lazy(() => import("./pages/LiveView"));
-const PresetsPage = lazy(() => import("./pages/Presets"));
-const ResultsPage = lazy(() => import("./pages/Results"));
+import ActiveExperiment from "./pages/ActiveExperiment/ActiveExperiment";
+import ExperimentsPage from "./pages/Experiments";
+import LiveViewPage, { useLiveParameters } from "./pages/LiveView";
+import PresetsPage from "./pages/Presets";
+import ResultsPage from "./pages/Results";
 
 function useExperimentState(): ExperimentState | undefined {
   const [experimentState, setExperimentState] = useState<
@@ -77,43 +73,16 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className={styles.mainLayout}>
-        <Suspense>
-          <Sidebar />
-        </Suspense>
+        <Sidebar />
         <Routes>
           <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
           <Route
             path={ROUTE_LIVE_VIEW}
-            element={
-              <Suspense>
-                <LiveViewPage liveParameters={liveParameters} />
-              </Suspense>
-            }
+            element={<LiveViewPage liveParameters={liveParameters} />}
           />
-          <Route
-            path={ROUTE_PRESETS}
-            element={
-              <Suspense>
-                <PresetsPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path={ROUTE_EXPERIMENTS}
-            element={
-              <Suspense>
-                <ExperimentsPage />
-              </Suspense>
-            }
-          />
-          <Route
-            path={ROUTE_RESULTS}
-            element={
-              <Suspense>
-                <ResultsPage />
-              </Suspense>
-            }
-          />
+          <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
+          <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
+          <Route path={ROUTE_RESULTS} element={<ResultsPage />} />
         </Routes>
       </div>
     </BrowserRouter>
