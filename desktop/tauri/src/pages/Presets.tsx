@@ -51,6 +51,12 @@ export default function PresetsPage() {
     WithKey<Preset> | undefined
   >(undefined);
 
+  useEffect(() => {
+    if (selectedPreset) {
+      commands.setLiveMode(selectedPreset.value.parameters);
+    }
+  }, [selectedPreset]);
+
   const [search, setSearch] = useState("");
 
   const fuse = useMemo(

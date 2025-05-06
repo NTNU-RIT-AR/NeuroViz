@@ -9,6 +9,7 @@ interface ButtonProps {
   onClick?: () => void;
   children?: React.ReactNode;
   square?: boolean;
+  disabled?: boolean;
 }
 
 const styleVariant: Record<Variant, string> = {
@@ -23,10 +24,12 @@ export default function Button({
   variant,
   onClick,
   square = false,
+  disabled = false,
 }: ButtonProps) {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={classNames(
         className,
         styles.button,

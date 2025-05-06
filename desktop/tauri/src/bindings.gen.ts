@@ -105,7 +105,7 @@ export type AppState = { kind: "idle" } | ({ kind: "live_view" } & ParameterValu
 export type Choice = { a: string; b: string }
 export type ChoiceExperiment = ({ name: string; presets: Partial<{ [key in string]: Preset }> }) & { choices: Choice[] }
 export type ChoiceExperimentResult = ({ name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }) & { choices: OutcomeChoice[] }
-export type ChoiceExperimentState = ({ experiment_key: string; result_key: string; current_index: number }) & { experiment: ChoiceExperiment; result: ChoiceExperimentResult; current_preset: CurrentPreset }
+export type ChoiceExperimentState = ({ experiment_key: string; result_key: string; current_index: number; is_idle: boolean }) & { experiment: ChoiceExperiment; result: ChoiceExperimentResult; current_preset: CurrentPreset }
 export type ConnectionEvent = { is_connected: boolean }
 export type CreateExperiment = (
 /**
@@ -128,7 +128,7 @@ export type ParameterValues = { transparency: number; glow: number; smoothness: 
 export type Preset = { name: string; parameters: ParameterValues }
 export type RatingExperiment = ({ name: string; presets: Partial<{ [key in string]: Preset }> }) & { order: string[] }
 export type RatingExperimentResult = ({ name: string; time: string; observer_id: number; note: string; presets: Partial<{ [key in string]: Preset }> }) & { ratings: OutcomeRating[] }
-export type RatingExperimentState = ({ experiment_key: string; result_key: string; current_index: number }) & { experiment: RatingExperiment; result: RatingExperimentResult }
+export type RatingExperimentState = ({ experiment_key: string; result_key: string; current_index: number; is_idle: boolean }) & { experiment: RatingExperiment; result: RatingExperimentResult }
 export type ResultSavedEvent = { result_file_path: string }
 export type StateEvent = { state: AppState }
 export type TopLevelFolder = "Presets" | "Experiments" | "Results"

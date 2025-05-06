@@ -5,19 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="091451e9-6284-40ea-b1db-fb98c943c51e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/IdleScene.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/IdleScene.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/api/commands.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/api/commands.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/state/experiment_state.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/state/experiment_state.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/state/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/tauri/src-tauri/src/state/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../desktop/tauri/src/bindings.gen.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../desktop/tauri/src/bindings.gen.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebellum.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebellum.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebrum Main.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebrum Main.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cornea.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cornea.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Eye.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Eye.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Parent.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Parent.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/ExperimentScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/ExperimentScene.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/LiveScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/LiveScene.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UpdateParameters.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UpdateParameters.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain  Seethrough.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Shaders/Brain  Seethrough.shadergraph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +57,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "RIT-49-unity",
+    "git-widget-placeholder": "unity-final-final",
     "ignore.virus.scanning.warn.message": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -132,6 +128,7 @@
       <workItem from="1743363179240" duration="9919000" />
       <workItem from="1743446162274" duration="10432000" />
       <workItem from="1744650077308" duration="7880000" />
+      <workItem from="1746566335487" duration="1031000" />
     </task>
     <servers />
   </component>

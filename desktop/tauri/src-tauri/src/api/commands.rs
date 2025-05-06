@@ -8,10 +8,11 @@ use neuroviz::{
 use serde::{Deserialize, Serialize};
 use slug::slugify;
 use specta::Type;
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf, time::Duration};
 use tauri::Manager;
 use tauri_plugin_opener::OpenerExt;
 use tauri_specta::Event;
+use tokio::time::sleep;
 
 use crate::{
     data::{
@@ -302,14 +303,32 @@ pub async fn answer_experiment(
 ) -> Result<(), AppError> {
     let app_data = app.state::<AppData>();
 
-    let experiment_is_done = app_data
-        .state
-        .send_modify_with(|state| state.answer_experiment(answer))?;
+    let experiment_is_done = app_data.state.send_modify_with(|state| {
+        let is_done = state.answer_experiment(answer);
 
+        if let Some(experiment_state) = state.try_as_experiment_mut() {
+            experiment_state.set_is_idle(true);
+        }
+
+        is_done
+    })?;
+
+    // Sleep for a second while idle
+    if !experiment_is_done {
+        sleep(Duration::from_secs(1)).await;
+
+        app_data.state.send_modify(|state| {
+            if let Some(experiment_state) = state.try_as_experiment_mut() {
+                experiment_state.set_is_idle(false);
+            }
+        });
+    }
+
+    // If the experiment is done, finish it and emit the result saved event
     if experiment_is_done {
         let experiment_state = app_data
             .state
-            .send_replace(AppState::LiveView(Default::default()))
+            .send_replace(AppState::Idle)
             .try_as_experiment()
             .context("Must be in experiment")?;
 

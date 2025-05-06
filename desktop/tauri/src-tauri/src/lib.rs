@@ -8,6 +8,7 @@ pub mod storage;
 
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 
 use api::events::{ConnectionEvent, ResultSavedEvent, StateEvent};
 use api::{commands, events};
@@ -27,6 +28,7 @@ use tauri_specta::{collect_commands, collect_events, ErrorHandlingMode, Event};
 use tokio::join;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
+use tokio::time::sleep;
 
 /// Runs the HTTP server, and also transforms the app state into a Unity state
 pub async fn http_server_task(
@@ -72,9 +74,10 @@ pub async fn handle_unity_events_task(
 
     while let Some(event) = stream.next().await {
         // let mut app_state = app_state.lock_mut();
-        let experiment_is_done = app_state_sender.send_modify_with(|state| {
-            match event {
-                UnityEvent::SwapPreset => {
+
+        match event {
+            UnityEvent::SwapPreset => {
+                app_state_sender.send_modify(|state| {
                     let choice_experiment = state
                         .try_as_experiment_mut()
                         .and_then(|experiment| experiment.try_as_choice_mut());
@@ -82,36 +85,55 @@ pub async fn handle_unity_events_task(
                     if let Some(choice) = choice_experiment {
                         choice.swap_current_preset();
                     }
-                }
+                });
+            }
 
-                UnityEvent::Answer(experiment_answer) => {
-                    match state.answer_experiment(experiment_answer) {
-                        Ok(is_done) => return is_done,
+            UnityEvent::Answer(experiment_answer) => {
+                let is_done = app_state_sender.send_modify_with(|state| {
+                    let is_done = match state.answer_experiment(experiment_answer) {
+                        Ok(is_done) => is_done,
                         Err(error) => {
                             eprintln!("Error answering experiment: {}", error);
-                            return false;
+                            false
                         }
                     };
+
+                    if let Some(experiment_state) = state.try_as_experiment_mut() {
+                        experiment_state.set_is_idle(true);
+                    }
+
+                    is_done
+                });
+
+                // Sleep for a second while idle
+                if !is_done {
+                    sleep(Duration::from_secs(1)).await;
+
+                    app_state_sender.send_modify(|state| {
+                        if let Some(experiment_state) = state.try_as_experiment_mut() {
+                            experiment_state.set_is_idle(false);
+                        }
+                    });
                 }
 
-                UnityEvent::Connection { is_connected } => {
-                    dbg!("Received connection event: {}", is_connected);
-                    ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
-                }
-            };
-            false
-        });
-
-        if experiment_is_done {
-            if let Some(experiment_state) = app_state_sender
-                .send_replace(AppState::LiveView(Default::default()))
-                .try_as_experiment()
-            {
-                if let Ok(result_file_path) = experiment_state.finish_experiment().await {
-                    let _ = ResultSavedEvent { result_file_path }.emit(&app_handle);
+                // If the experiment is done, finish it and emit the result saved event
+                if is_done {
+                    if let Some(experiment_state) = app_state_sender
+                        .send_replace(AppState::Idle)
+                        .try_as_experiment()
+                    {
+                        if let Ok(result_file_path) = experiment_state.finish_experiment().await {
+                            let _ = ResultSavedEvent { result_file_path }.emit(&app_handle);
+                        }
+                    }
                 }
             }
-        }
+
+            UnityEvent::Connection { is_connected } => {
+                dbg!("Received connection event: {}", is_connected);
+                ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
+            }
+        };
     }
 }
 

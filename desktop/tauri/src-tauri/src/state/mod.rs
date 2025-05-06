@@ -61,6 +61,10 @@ impl From<AppState> for UnityState {
 
             AppState::LiveView(parameters) => UnityState::Live { parameters },
 
+            AppState::Experiment(experiment_state) if experiment_state.is_idle() => {
+                UnityState::Idle
+            }
+
             AppState::Experiment(experiment_state) => UnityState::Experiment {
                 prompt: ExperimentPrompt {
                     experiment_type: match experiment_state {

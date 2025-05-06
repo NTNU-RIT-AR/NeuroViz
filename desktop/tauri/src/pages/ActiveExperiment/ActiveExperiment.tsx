@@ -21,85 +21,8 @@ function handleExit() {
 
 export default function ActiveExperiment(props: ActiveExperimentProps) {
   const { experimentState } = props;
-  const { presets } = experimentState.experiment;
-  const prompt = experimentState.current_index;
 
   const [sliderValue, setSldierValue] = useState(1);
-
-  const actions = match(experimentState)
-    .with({ experiment_type: "choice" }, (experiment_state) => {
-      let { experiment, current_preset } = experiment_state;
-      const choice = experiment.choices[experimentState.current_index];
-
-      const presetA = presets[choice.a]!;
-      const presetB = presets[choice.b]!;
-
-      const selectedPreset = match(current_preset)
-        .with("A", () => presetA)
-        .with("B", () => presetB)
-        .exhaustive();
-
-      return (
-        <div>
-          <p>Currently showing preset "{selectedPreset.name}"</p>
-
-          <div style={{ display: "flex", gap: 16 }}>
-            <Button onClick={() => commands.swapPreset()}>Swap</Button>
-            <Button
-              onClick={() =>
-                commands.answerExperiment({ experiment_type: "choice" })
-              }
-            >
-              Choose {selectedPreset.name}
-            </Button>
-          </div>
-        </div>
-      );
-    })
-    .with({ experiment_type: "rating" }, (experiment_state) => {
-      const { experiment } = experiment_state;
-      const presetKey = experiment.order[experimentState.current_index];
-
-      const preset = presets[presetKey]!;
-
-      // TODO star rating
-
-      return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <p>Currently showing preset "{preset.name}"</p>
-
-          <div style={{ display: "flex", gap: 16, paddingBottom: 8 }}>
-            <input
-              type="range"
-              min={1}
-              max={5}
-              step={1}
-              value={sliderValue}
-              onChange={(e) => setSldierValue(parseInt(e.currentTarget.value))}
-            />
-
-            <span>{sliderValue}</span>
-          </div>
-
-          <Button
-            onClick={() =>
-              commands.answerExperiment({
-                experiment_type: "rating",
-                value: sliderValue,
-              })
-            }
-          >
-            Submit rating
-          </Button>
-        </div>
-      );
-    })
-    .exhaustive();
-
-  const experimentType = match(experimentState.experiment_type)
-    .with("choice", () => "Choice")
-    .with("rating", () => "Rating")
-    .exhaustive();
 
   function onSubmit() {
     match(experimentState)
@@ -198,6 +121,8 @@ export default function ActiveExperiment(props: ActiveExperimentProps) {
     })
     .exhaustive();
 
+  const isDisabled = experimentState.is_idle;
+
   return (
     <div>
       <div
@@ -227,11 +152,11 @@ export default function ActiveExperiment(props: ActiveExperimentProps) {
         {content}
 
         <footer className={styles.footer}>
-          <Button variant="danger" onClick={handleExit}>
+          <Button variant="danger" onClick={handleExit} disabled={isDisabled}>
             Exit
           </Button>
           {/* <Button variant="primary">Choose B</Button> */}
-          <Button variant="primary" onClick={onSubmit}>
+          <Button variant="primary" onClick={onSubmit} disabled={isDisabled}>
             {confirmText}
           </Button>
         </footer>

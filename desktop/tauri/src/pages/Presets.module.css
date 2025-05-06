@@ -24,13 +24,13 @@
   border: 2px solid transparent;
 }
 
-.presetElementSelected {
-  background: var(--primary-bg) !important;
-  border: 2px solid var(--primary-hl);
-}
-
 .presetElement:hover {
   border: solid 2px #ffffff60;
+}
+
+.presetElementSelected {
+  background: var(--primary-bg) !important;
+  border: 2px solid var(--primary-hl) !important;
 }
 
 .buttonsContainer {
