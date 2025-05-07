@@ -8,7 +8,7 @@ use ::neuroviz::{
     parameters::{ParameterKey, ParameterValues},
 };
 use anyhow::{Context, anyhow, bail};
-use local_ip_address::linux::local_ip;
+use local_ip_address::local_ip;
 use pyo3::{prelude::*, types::PyDict};
 use strum::IntoEnumIterator;
 use tokio::{
