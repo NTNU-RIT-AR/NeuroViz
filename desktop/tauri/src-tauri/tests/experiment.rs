@@ -4,6 +4,7 @@ use chrono::Local;
 use eventsource_stream::Eventsource;
 use futures::StreamExt;
 use neuroviz::{
+    extensions::MpscReceiverExt,
     http_server::{UnityEvent, UnityState},
     parameters::ParameterValues,
 };
@@ -14,7 +15,6 @@ use tauri_neuroviz_lib::{
         experiment_result::ChoiceExperimentResult,
         preset::Preset,
     },
-    extensions::MpscReceiverExt,
     http_server_task,
     state::{experiment_state::ExperimentState, AppData, AppState},
 };
