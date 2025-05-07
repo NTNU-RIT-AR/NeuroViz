@@ -5,7 +5,6 @@ import {
   DocumentMagnifyingGlassIcon,
   TrashIcon,
 } from "@heroicons/react/24/outline";
-import Fuse from "fuse.js";
 import { useMemo } from "react";
 import {
   commands,
@@ -18,7 +17,7 @@ import {
 import Button from "../components/Button";
 import { Input, Label } from "../components/Input";
 import Popup from "../components/Popup";
-import { useCommand } from "../hooks";
+import { useCommand, useFuse } from "../hooks";
 import styles from "./Results.module.css";
 import { match } from "ts-pattern";
 
@@ -177,18 +176,7 @@ export default function ResultsPage() {
   }, []);
 
   const [search, setSearch] = useState("");
-  const fuse = useMemo(
-    () =>
-      new Fuse(results.data || [], {
-        keys: ["value.result.name"],
-        threshold: 0.3,
-      }),
-    [results.data],
-  );
-  const filteredResults = useMemo(() => {
-    if (!search.trim() || !results.data) return results.data || [];
-    return fuse.search(search).map((res) => res.item);
-  }, [search, fuse, results.data]);
+  const filteredResults = useFuse(search, results.data, ["value.result.name"]);
 
   return (
     <>

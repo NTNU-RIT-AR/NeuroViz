@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { commands, events } from "./bindings.gen";
 import { QrPayload } from "./components/Sidebar";
 import { UNITY_API_PORT } from "./const";
+import Fuse, { IFuseOptions } from "fuse.js";
 
 export function useCommand<T>(command: () => Promise<T>) {
   return useSuspenseQuery({
@@ -46,4 +47,22 @@ export function useConnectionQrCode() {
   const qrText = JSON.stringify(qrPayload);
 
   return qrText;
+}
+
+export function useFuse<T>(searchTerm: string, data: T[], keys: string[]) {
+  const fuse = useMemo(
+    () =>
+      new Fuse(data, {
+        keys,
+        threshold: 0.3,
+      }),
+    [data, keys],
+  );
+
+  const results = useMemo(() => {
+    if (searchTerm.trim().length === 0) return data;
+    return fuse.search(searchTerm).map((res) => res.item);
+  }, [searchTerm, fuse, data]);
+
+  return results;
 }

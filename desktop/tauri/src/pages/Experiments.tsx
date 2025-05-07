@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Fuse from "fuse.js";
 import { useMemo } from "react";
 import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
@@ -10,7 +9,7 @@ import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
 import { Checkbox, Input, Label, Select, TextArea } from "../components/Input";
 import Popup from "../components/Popup";
-import { useCommand } from "../hooks";
+import { useCommand, useFuse } from "../hooks";
 import styles from "./Experiments.module.css";
 
 interface ExperimentCardProps {
@@ -284,18 +283,7 @@ export default function ExperimentsPage() {
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
   const [search, setSearch] = useState("");
-  const fuse = useMemo(
-    () =>
-      new Fuse(experiments.data, {
-        keys: ["value.name"],
-        threshold: 0.3,
-      }),
-    [experiments.data]
-  );
-  const filteredExperiments = useMemo(() => {
-    if (!search.trim()) return experiments.data;
-    return fuse.search(search).map((res) => res.item);
-  }, [search, fuse]);
+  const filteredExperiments = useFuse(search, experiments.data, ["value.name"]);
 
   return (
     <>
