@@ -52,7 +52,7 @@ pub fn current_state(app: tauri::AppHandle) -> AppState {
 pub fn is_connected(app: tauri::AppHandle) -> bool {
     let app_data = app.state::<AppData>();
 
-    let connected_clients = *app_data.connected_clents.borrow();
+    let connected_clients = *app_data.connected_clients.borrow();
 
     connected_clients > 0
 }
@@ -438,25 +438,28 @@ pub async fn get_results() -> Result<Vec<WithKey<ResultWithExperiment>>, AppErro
             .to_str()
             .context("Could not convert folder name to string")?
             .to_owned();
-        
+
         println!("Processing experiment folder: {}", experiment_key);
-        
+
         // Read all JSON files in this experiment folder
         let experiment_dir_path = experiment_dir_entry.path();
         let Ok(mut result_files) = fs::read_dir(&experiment_dir_path).await else {
-            println!("Could not read files in experiment directory: {}", experiment_dir_path.display());
+            println!(
+                "Could not read files in experiment directory: {}",
+                experiment_dir_path.display()
+            );
             continue;
         };
-        
+
         // Process each file in the experiment folder
         while let Ok(Some(file_entry)) = result_files.next_entry().await {
             let file_path = file_entry.path();
-            
+
             // Skip non-JSON files
             if file_path.extension().and_then(|ext| ext.to_str()) != Some("json") {
                 continue;
             }
-            
+
             let file_stem = match file_path.file_stem().and_then(|s| s.to_str()) {
                 Some(stem) => stem.to_owned(),
                 None => {
@@ -464,9 +467,9 @@ pub async fn get_results() -> Result<Vec<WithKey<ResultWithExperiment>>, AppErro
                     continue;
                 }
             };
-            
+
             println!("Reading result file: {}", file_path.display());
-            
+
             // Read the file content
             let file_content = match fs::read_to_string(&file_path).await {
                 Ok(content) => content,
@@ -475,7 +478,7 @@ pub async fn get_results() -> Result<Vec<WithKey<ResultWithExperiment>>, AppErro
                     continue;
                 }
             };
-            
+
             // First parse as generic JSON Value to avoid deserialization issues
             let json_value: Value = match serde_json::from_str(&file_content) {
                 Ok(value) => value,
@@ -484,16 +487,20 @@ pub async fn get_results() -> Result<Vec<WithKey<ResultWithExperiment>>, AppErro
                     continue;
                 }
             };
-            
+
             // Now try to convert to our ExperimentResult type
             let result = match serde_json::from_value::<ExperimentResult>(json_value.clone()) {
                 Ok(result) => result,
                 Err(err) => {
-                    println!("Error deserializing experiment result from {}: {}", file_path.display(), err);
+                    println!(
+                        "Error deserializing experiment result from {}: {}",
+                        file_path.display(),
+                        err
+                    );
                     continue;
                 }
             };
-            
+
             all_results.push(WithKey {
                 key: file_stem,
                 value: ResultWithExperiment {

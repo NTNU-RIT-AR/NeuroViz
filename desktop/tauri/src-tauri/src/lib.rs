@@ -180,7 +180,7 @@ async fn setup(app: AppHandle) {
     // Task to update the app state based on Unity events
     let handle_unity_events = handle_unity_events_task(
         app.clone(),
-        app_data.connected_clents.clone(),
+        app_data.connected_clients.clone(),
         app_data.state.clone(),
         unity_event_receiver,
     );
@@ -204,11 +204,11 @@ async fn setup(app: AppHandle) {
     };
 
     let emit_is_connected = async move {
-        let mut connected_clents = app_data.connected_clents.subscribe().into_stream();
+        let mut connected_clients = app_data.connected_clients.subscribe().into_stream();
 
-        while let Some(connected_clents) = connected_clents.next().await {
+        while let Some(connected_clients) = connected_clients.next().await {
             ConnectionEvent {
-                is_connected: connected_clents > 0,
+                is_connected: connected_clients > 0,
             }
             .emit(&app)
             .unwrap();

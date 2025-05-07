@@ -82,7 +82,7 @@ impl From<AppState> for UnityState {
 #[derive(Clone)]
 pub struct AppData {
     pub state: watch::Sender<AppState>,
-    pub connected_clents: watch::Sender<usize>,
+    pub connected_clients: watch::Sender<usize>,
     pub secret: Arc<String>,
 }
 
@@ -90,7 +90,7 @@ impl AppData {
     pub fn new(state: AppState, secret: String) -> Self {
         Self {
             state: watch::Sender::new(state),
-            connected_clents: watch::Sender::new(0),
+            connected_clients: watch::Sender::new(0),
             secret: Arc::new(secret),
         }
     }
