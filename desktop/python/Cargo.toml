@@ -1,0 +1,28 @@
+[package]
+name = "neuroviz-python"
+version = "0.4.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+neuroviz = { path = "../neuroviz" }
+pyo3 = { version = "0.24", features = [
+    "extension-module",
+    "abi3",
+    "abi3-py37",
+    "anyhow",
+    "serde",
+    "generate-import-lib",
+] }
+tokio = { version = "1", features = ["full"] }
+qr2term = "0.3.3"
+local-ip-address = "=0.6.3"
+futures = "0.3.31"
+axum = "0.8.3"
+serde_json = "1.0.140"
+anyhow = "1.0.98"
+tokio-util = "0.7.15"
+strum = "0.27.1"

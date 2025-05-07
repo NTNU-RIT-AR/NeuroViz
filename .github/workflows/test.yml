@@ -23,7 +23,7 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: "./desktop/src-tauri -> target"
+          workspaces: "./desktop/tauri/src-tauri -> target"
 
       - uses: awalsh128/cache-apt-pkgs-action@v1.4.3
         with:
@@ -31,23 +31,23 @@ jobs:
           version: 1.0
 
       - name: Run desktop tests
-        working-directory: ./desktop/src-tauri
+        working-directory: ./desktop
         run: cargo test --verbose
 
       - name: Cargo audit
-        working-directory: ./desktop/src-tauri
+        working-directory: ./desktop
         run: |
           cargo install cargo-audit
           cargo audit
 
       - name: Install frontend dependencies
-        working-directory: ./desktop
+        working-directory: ./desktop/tauri
         run: npm install
 
       - name: Npm audit
-        working-directory: ./desktop
+        working-directory: ./desktop/tauri
         run: npm audit
 
       - name: Run frontend build
-        working-directory: ./desktop
+        working-directory: ./desktop/tauri
         run: npm run build

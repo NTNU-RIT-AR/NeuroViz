@@ -8,10 +8,12 @@ using TypeSpec.SSE;
 namespace NeuroVizService;
 
 model Parameters {
-  hue: float,
+  transparency: float,
+  glow: float,
   smoothness: float,
-  metallic: float,
   emission: float,
+  light_intensity: float,
+  light_temperature: float,
 }
 
 model ExperimentPrompt {
