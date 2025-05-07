@@ -15,6 +15,7 @@ pyo3 = { version = "0.24", features = [
     "abi3-py37",
     "anyhow",
     "serde",
+    "generate-import-lib",
 ] }
 tokio = { version = "1", features = ["full"] }
 qr2term = "0.3.3"
