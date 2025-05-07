@@ -245,6 +245,9 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::get_experiments,
             commands::create_experiment,
             commands::delete_experiment,
+            // CRUD results
+            commands::get_results,
+            commands::delete_result,
             // Live view
             commands::set_idle_mode,
             commands::set_live_mode,

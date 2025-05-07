@@ -7,20 +7,21 @@ use neuroviz::{
 };
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use slug::slugify;
 use specta::Type;
 use std::{collections::HashMap, path::PathBuf, time::Duration};
 use tauri::Manager;
 use tauri_plugin_opener::OpenerExt;
 use tauri_specta::Event;
-use tokio::time::sleep;
+use tokio::{fs, time::sleep};
 
 use crate::{
     data::{
         experiment::{
             ChoiceExperiment, CreateExperiment, CreateExperimentType, Experiment, RatingExperiment,
         },
-        experiment_result::{ChoiceExperimentResult, RatingExperimentResult},
+        experiment_result::{ChoiceExperimentResult, ExperimentResult, RatingExperimentResult},
         folder::TopLevelFolder,
         preset::Preset,
     },
@@ -382,6 +383,139 @@ pub fn swap_preset(app: tauri::AppHandle) -> Result<(), AppError> {
 
             Ok(())
         })?;
+
+    Ok(())
+}
+
+#[derive(Serialize, Type)]
+pub struct ResultWithExperiment {
+    pub experiment_key: String,
+    pub result: ExperimentResult,
+}
+
+/// Get all results
+#[tauri::command]
+#[specta::specta]
+pub async fn get_results() -> Result<Vec<WithKey<ResultWithExperiment>>, AppError> {
+    let mut all_results = Vec::new();
+
+    // Get the results directory
+    let results_dir = storage::data_folder()?.join("results");
+    println!("Reading results from: {}", results_dir.display());
+
+    // Create the directory if it doesn't exist
+    if !results_dir.exists() {
+        println!("Results directory does not exist, creating it");
+        fs::create_dir_all(&results_dir)
+            .await
+            .context("Could not create results directory")?;
+        return Ok(all_results); // Return empty results if directory was just created
+    }
+
+    // Read all experiment folders in the results directory
+    let mut experiment_dirs = fs::read_dir(&results_dir)
+        .await
+        .context("Could not read results directory")?;
+
+    // Iterate through each experiment folder
+    while let Some(experiment_dir_entry) = experiment_dirs
+        .next_entry()
+        .await
+        .context("Failed to read directory entry")?
+    {
+        if !experiment_dir_entry
+            .file_type()
+            .await
+            .context("Could not get file type")?
+            .is_dir()
+        {
+            continue; // Skip non-directory entries
+        }
+
+        // Get the experiment key from the folder name
+        let experiment_key = experiment_dir_entry
+            .file_name()
+            .to_str()
+            .context("Could not convert folder name to string")?
+            .to_owned();
+        
+        println!("Processing experiment folder: {}", experiment_key);
+        
+        // Read all JSON files in this experiment folder
+        let experiment_dir_path = experiment_dir_entry.path();
+        let Ok(mut result_files) = fs::read_dir(&experiment_dir_path).await else {
+            println!("Could not read files in experiment directory: {}", experiment_dir_path.display());
+            continue;
+        };
+        
+        // Process each file in the experiment folder
+        while let Ok(Some(file_entry)) = result_files.next_entry().await {
+            let file_path = file_entry.path();
+            
+            // Skip non-JSON files
+            if file_path.extension().and_then(|ext| ext.to_str()) != Some("json") {
+                continue;
+            }
+            
+            let file_stem = match file_path.file_stem().and_then(|s| s.to_str()) {
+                Some(stem) => stem.to_owned(),
+                None => {
+                    println!("Could not get file stem from path: {}", file_path.display());
+                    continue;
+                }
+            };
+            
+            println!("Reading result file: {}", file_path.display());
+            
+            // Read the file content
+            let file_content = match fs::read_to_string(&file_path).await {
+                Ok(content) => content,
+                Err(err) => {
+                    println!("Error reading file {}: {}", file_path.display(), err);
+                    continue;
+                }
+            };
+            
+            // First parse as generic JSON Value to avoid deserialization issues
+            let json_value: Value = match serde_json::from_str(&file_content) {
+                Ok(value) => value,
+                Err(err) => {
+                    println!("Error parsing JSON from {}: {}", file_path.display(), err);
+                    continue;
+                }
+            };
+            
+            // Now try to convert to our ExperimentResult type
+            let result = match serde_json::from_value::<ExperimentResult>(json_value.clone()) {
+                Ok(result) => result,
+                Err(err) => {
+                    println!("Error deserializing experiment result from {}: {}", file_path.display(), err);
+                    continue;
+                }
+            };
+            
+            all_results.push(WithKey {
+                key: file_stem,
+                value: ResultWithExperiment {
+                    experiment_key: experiment_key.clone(),
+                    result,
+                },
+            });
+        }
+    }
+
+    println!("Found {} result(s)", all_results.len());
+    Ok(all_results)
+}
+
+/// Delete a result file
+///
+/// * `key` - The unique identifier of the result to delete
+/// * `experiment_key` - The experiment key that the result belongs to
+#[tauri::command]
+#[specta::specta]
+pub async fn delete_result(key: String, experiment_key: String) -> Result<(), AppError> {
+    storage::delete_file(&key, Folder::Results { experiment_key }).await?;
 
     Ok(())
 }

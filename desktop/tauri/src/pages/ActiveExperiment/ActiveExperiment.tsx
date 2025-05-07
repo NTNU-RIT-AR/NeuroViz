@@ -50,18 +50,18 @@ export default function ActiveExperiment(props: ActiveExperimentProps) {
   const questionAmount = match(experimentState)
     .with(
       { experiment_type: "choice" },
-      (state) => state.experiment.choices.length
+      (state) => state.experiment.choices.length,
     )
     .with(
       { experiment_type: "rating" },
-      (state) => state.experiment.order.length
+      (state) => state.experiment.order.length,
     )
     .exhaustive();
 
   const confirmText = match(experimentState)
     .with(
       { experiment_type: "choice" },
-      (state) => `Choose ${state.current_preset}`
+      (state) => `Choose ${state.current_preset}`,
     )
     .with({ experiment_type: "rating" }, () => "Submit rating")
     .exhaustive();
