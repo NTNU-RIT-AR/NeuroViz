@@ -5,6 +5,10 @@ import { QrPayload } from "./components/Sidebar";
 import { UNITY_API_PORT } from "./const";
 import Fuse, { IFuseOptions } from "fuse.js";
 
+/**
+ * A hook that wraps a command function with React Query's useSuspenseQuery.
+ * This provides caching, automatic refetching, and suspense support.
+ */
 export function useCommand<T>(command: () => Promise<T>) {
   return useSuspenseQuery({
     queryKey: [command.name],
@@ -12,6 +16,12 @@ export function useCommand<T>(command: () => Promise<T>) {
   });
 }
 
+/**
+ * A hook that tracks the connection status.
+ * It listens to connection events and updates state accordingly.
+ *
+ * @returns A boolean indicating whether the application is currently connected
+ */
 export function useIsConnected() {
   const [isConnected, setIsConnected] = useState(false);
 
@@ -34,6 +44,12 @@ export function useIsConnected() {
 const secretPromise = commands.getSecret();
 const ipAddressPromise = commands.getIpAddress();
 
+/**
+ * A hook that generates a QR code payload for connection.
+ * It combines IP address, port, and secret into a JSON string.
+ *
+ * @returns A JSON string containing connection information for QR code generation
+ */
 export function useConnectionQrCode() {
   const secret = use(secretPromise);
   const ipAddress = use(ipAddressPromise);
@@ -49,6 +65,15 @@ export function useConnectionQrCode() {
   return qrText;
 }
 
+/**
+ * A hook that implements fuzzy search functionality using Fuse.js.
+ * If the search term is empty, returns the original data.
+ *
+ * @param searchTerm - The search query string
+ * @param data - The array of items to search through
+ * @param keys - The properties of the items to search on
+ * @returns Filtered items that match the search term
+ */
 export function useFuse<T>(searchTerm: string, data: T[], keys: string[]) {
   const fuse = useMemo(
     () =>
