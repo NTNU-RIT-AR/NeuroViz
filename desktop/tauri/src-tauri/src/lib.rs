@@ -2,7 +2,6 @@
 pub mod api;
 pub mod consts;
 pub mod data;
-pub mod extensions;
 pub mod state;
 pub mod storage;
 
@@ -13,8 +12,8 @@ use api::events::{ConnectionEvent, ResultSavedEvent, StateEvent};
 use api::{commands, events};
 use consts::HTTP_SERVER_PORT;
 
-use extensions::{MpscReceiverExt, WatchReceiverExt, WatchSenderExt};
 use futures::StreamExt;
+use neuroviz::extensions::{MpscReceiverExt, WatchReceiverExt, WatchSenderExt};
 use neuroviz::http_server::{HttpServer, UnityEvent};
 use neuroviz::parameters::ParameterValues;
 use rand::distr::Alphanumeric;

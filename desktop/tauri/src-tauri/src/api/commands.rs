@@ -2,6 +2,7 @@ use anyhow::Context;
 use chrono::Local;
 use local_ip_address::local_ip;
 use neuroviz::{
+    extensions::WatchSenderExt,
     http_server::ExperimentAnswer,
     parameters::{Parameter, ParameterValues},
 };
@@ -22,7 +23,6 @@ use crate::{
         folder::TopLevelFolder,
         preset::Preset,
     },
-    extensions::WatchSenderExt,
     state::{experiment_state::ExperimentState, AppData, AppState},
     storage::{self, Folder},
 };
