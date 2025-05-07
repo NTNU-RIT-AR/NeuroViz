@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
-import { useMemo } from "react";
 import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
 import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
@@ -120,7 +119,20 @@ function ExperimentCard(props: ExperimentCardProps) {
               const note = noteRef.current?.value;
               const randomize = randomizeRef.current?.checked ?? false;
 
-              console.log("randomize", randomize);
+              if (!resultName) {
+                alert("Experiment result name is required");
+                return;
+              }
+
+              if (!observerId) {
+                alert("Observer ID is required");
+                return;
+              }
+
+              if (isNaN(parseInt(observerId))) {
+                alert("Observer ID must be a number");
+                return;
+              }
 
               if (resultName && observerId) {
                 onStart(
@@ -188,7 +200,6 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
     }
 
     function onSuccess(path: string) {
-      alert(`Experiment created successfully! Saved to ${path}`);
       onClose();
     }
 

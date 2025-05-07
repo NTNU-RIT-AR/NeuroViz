@@ -54,19 +54,6 @@ export default function App() {
   const isConnected = useIsConnected();
   const experimentState = useExperimentState();
 
-  useEffect(() => {
-    const unlisten = events.resultSavedEvent.listen((event) => {
-      const { result_file_path } = event.payload;
-      alert(
-        `Result saved to ${result_file_path}. You can view it in the Results tab.`
-      );
-    });
-
-    return () => {
-      unlisten.then((unlisten) => unlisten());
-    };
-  }, []);
-
   if (experimentState) {
     return (
       <ActiveExperiment

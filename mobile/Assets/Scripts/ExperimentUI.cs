@@ -15,12 +15,13 @@ namespace NeuroViz
         [SerializeField] private Button swapButton;
         [SerializeField] private Slider ratingSlider;
         [SerializeField] private Button confirmButton;
+        [SerializeField] private TMPro.TMP_Text ratingText;
 
         private CanvasGroup canvasGroup;
         private ConnectedScene connectedScene;
 
         private UnityState.Experiment state;
-        private int ratingValue = 0;
+        private int ratingValue = 1;
 
         private void Start()
         {
@@ -40,6 +41,8 @@ namespace NeuroViz
 
         private void OnEnable()
         {
+            Handheld.Vibrate();
+
             swapButton.onClick.AddListener(HandleSwapButtonClick);
             confirmButton.onClick.AddListener(HandleConfirmButtonClick);
             ratingSlider.onValueChanged.AddListener(HandleRatingSliderValueChanged);
@@ -114,9 +117,7 @@ namespace NeuroViz
             }
 
             if (XREALVirtualController.Singleton != null)
-                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.25f, 0.15f);
-
-            Handheld.Vibrate();
+                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.4f, 0.25f);
 
             StartCoroutine(connectedScene.Answer(answer));
         }
@@ -124,11 +125,10 @@ namespace NeuroViz
         private void HandleRatingSliderValueChanged(float value)
         {
             if (XREALVirtualController.Singleton != null)
-                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.05f, 0.15f);
-
-            Handheld.Vibrate();
+                XREALVirtualController.Singleton.Controller.SendHapticImpulse(0, 0.02f, 0.05f);
 
             ratingValue = (int)Math.Round(value);
+            ratingText.text = ratingValue.ToString();
             Debug.Log($"Rating value changed: {ratingValue}");
         }
     }
