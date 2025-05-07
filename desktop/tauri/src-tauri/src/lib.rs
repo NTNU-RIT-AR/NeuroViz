@@ -66,7 +66,7 @@ pub async fn http_server_task(
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
 pub async fn handle_unity_events_task(
     app_handle: AppHandle,
-    conected_clients_sender: watch::Sender<usize>,
+    connected_clients_sender: watch::Sender<usize>,
     app_state_sender: watch::Sender<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
@@ -129,8 +129,8 @@ pub async fn handle_unity_events_task(
                 }
             }
 
-            UnityEvent::Connected => conected_clients_sender.send_modify(|count| *count += 1),
-            UnityEvent::Disconnected => conected_clients_sender.send_modify(|count| {
+            UnityEvent::Connected => connected_clients_sender.send_modify(|count| *count += 1),
+            UnityEvent::Disconnected => connected_clients_sender.send_modify(|count| {
                 if *count > 0 {
                     *count -= 1;
                 }
