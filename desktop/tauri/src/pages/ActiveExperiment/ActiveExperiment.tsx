@@ -171,7 +171,16 @@ export default function ActiveExperiment(props: ActiveExperimentProps) {
 
       {!isConnected && (
         <Popup title={"Reconnect"}>
-          <ConnectionBox qrText={connectionQrCode} isConnected={isConnected} />
+          <div className={styles.popupContent}>
+            <ConnectionBox
+              qrText={connectionQrCode}
+              isConnected={isConnected}
+            />
+
+            <Button variant="danger" onClick={handleExit}>
+              Exit Experiment
+            </Button>
+          </div>
         </Popup>
       )}
     </>
