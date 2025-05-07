@@ -305,7 +305,13 @@ impl NeuroViz {
         Ok(chosen)
     }
 
-    // TODO set_idle
+    fn set_idle(&mut self) -> PyResult<()> {
+        self.unity_state_sender
+            .send(UnityState::Idle)
+            .context("Send idle state")?;
+
+        Ok(())
+    }
 }
 
 impl Drop for NeuroViz {

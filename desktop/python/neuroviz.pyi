@@ -67,6 +67,12 @@ class NeuroViz:
             An integer rating value between 1 and 5
         """
         ...
+        
+    def set_idle(self) -> None:
+        """
+        Set the visualization state to idle.
+        """
+        ...
 
 def default_parameters() -> ParameterDict:
     """
