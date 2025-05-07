@@ -141,6 +141,7 @@ mod tests {
             experiment_key: "experiment1".to_string(),
             result_key: "result1".to_string(),
             current_index: 0,
+            is_idle: false,
         };
 
         RatingExperimentState {
