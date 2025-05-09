@@ -166,6 +166,7 @@ mod tests {
                 experiment_key: "test_experiment".to_string(),
                 result_key: "test_result".to_string(),
                 current_index,
+                is_idle: false,
             },
             experiment,
             result,

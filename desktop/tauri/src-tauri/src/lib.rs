@@ -7,6 +7,7 @@ pub mod storage;
 
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 
 use api::events::{ConnectionEvent, ResultSavedEvent, StateEvent};
 use api::{commands, events};
@@ -26,6 +27,7 @@ use tauri_specta::{collect_commands, collect_events, ErrorHandlingMode, Event};
 use tokio::join;
 use tokio::net::TcpListener;
 use tokio::sync::{mpsc, watch};
+use tokio::time::sleep;
 
 /// Runs the HTTP server, and also transforms the app state into a Unity state
 pub async fn http_server_task(
@@ -64,6 +66,7 @@ pub async fn http_server_task(
 /// Task to handle Unity events, will receive events from Unity and update the app state accordingly
 pub async fn handle_unity_events_task(
     app_handle: AppHandle,
+    connected_clients_sender: watch::Sender<usize>,
     app_state_sender: watch::Sender<AppState>,
     unity_event_receiver: mpsc::Receiver<UnityEvent>,
 ) {
@@ -71,9 +74,10 @@ pub async fn handle_unity_events_task(
 
     while let Some(event) = stream.next().await {
         // let mut app_state = app_state.lock_mut();
-        let experiment_is_done = app_state_sender.send_modify_with(|state| {
-            match event {
-                UnityEvent::SwapPreset => {
+
+        match event {
+            UnityEvent::SwapPreset => {
+                app_state_sender.send_modify(|state| {
                     let choice_experiment = state
                         .try_as_experiment_mut()
                         .and_then(|experiment| experiment.try_as_choice_mut());
@@ -81,36 +85,57 @@ pub async fn handle_unity_events_task(
                     if let Some(choice) = choice_experiment {
                         choice.swap_current_preset();
                     }
-                }
+                });
+            }
 
-                UnityEvent::Answer(experiment_answer) => {
-                    match state.answer_experiment(experiment_answer) {
-                        Ok(is_done) => return is_done,
+            UnityEvent::Answer(experiment_answer) => {
+                let is_done = app_state_sender.send_modify_with(|state| {
+                    let is_done = match state.answer_experiment(experiment_answer) {
+                        Ok(is_done) => is_done,
                         Err(error) => {
                             eprintln!("Error answering experiment: {}", error);
-                            return false;
+                            false
                         }
                     };
+
+                    if let Some(experiment_state) = state.try_as_experiment_mut() {
+                        experiment_state.set_is_idle(true);
+                    }
+
+                    is_done
+                });
+
+                // Sleep for a second while idle
+                if !is_done {
+                    sleep(Duration::from_secs(1)).await;
+
+                    app_state_sender.send_modify(|state| {
+                        if let Some(experiment_state) = state.try_as_experiment_mut() {
+                            experiment_state.set_is_idle(false);
+                        }
+                    });
                 }
 
-                UnityEvent::Connection { is_connected } => {
-                    dbg!("Received connection event: {}", is_connected);
-                    ConnectionEvent { is_connected }.emit(&app_handle).unwrap()
-                }
-            };
-            false
-        });
-
-        if experiment_is_done {
-            if let Some(experiment_state) = app_state_sender
-                .send_replace(AppState::LiveView(Default::default()))
-                .try_as_experiment()
-            {
-                if let Ok(result_file_path) = experiment_state.finish_experiment().await {
-                    let _ = ResultSavedEvent { result_file_path }.emit(&app_handle);
+                // If the experiment is done, finish it and emit the result saved event
+                if is_done {
+                    if let Some(experiment_state) = app_state_sender
+                        .send_replace(AppState::Idle)
+                        .try_as_experiment()
+                    {
+                        if let Ok(result_file_path) = experiment_state.finish_experiment().await {
+                            let _ = ResultSavedEvent { result_file_path }.emit(&app_handle);
+                        }
+                    }
                 }
             }
-        }
+
+            UnityEvent::Connected => connected_clients_sender.send_modify(|count| *count += 1),
+            UnityEvent::Disconnected => connected_clients_sender.send_modify(|count| {
+                if *count > 0 {
+                    *count -= 1;
+                }
+            }),
+        };
     }
 }
 
@@ -153,27 +178,37 @@ async fn setup(app: AppHandle) {
     );
 
     // Task to update the app state based on Unity events
-    let handle_unity_events =
-        handle_unity_events_task(app.clone(), app_data.state.clone(), unity_event_receiver);
-
-    // println!(
-    //     "{:?}",
-    //     commands::start_experiment(
-    //         app.clone(),
-    //         String::from("example-2"),
-    //         0,
-    //         String::from("my note hihi")
-    //     )
-    // );
+    let handle_unity_events = handle_unity_events_task(
+        app.clone(),
+        app_data.connected_clients.clone(),
+        app_data.state.clone(),
+        unity_event_receiver,
+    );
 
     // Tawsk to emit app state changes to the tauri frontend
-    let emit_app_state = async move {
-        let mut app_state_stream = app_data.state.subscribe().into_stream();
+    let emit_app_state = {
+        let app = app.clone();
 
-        while let Some(new_state) = app_state_stream.next().await {
-            println!("Emitting new state: {:?}", new_state);
-            StateEvent {
-                state: new_state.clone(),
+        async move {
+            let mut app_state_stream = app_data.state.subscribe().into_stream();
+
+            while let Some(new_state) = app_state_stream.next().await {
+                println!("Emitting new state: {:?}", new_state);
+                StateEvent {
+                    state: new_state.clone(),
+                }
+                .emit(&app)
+                .unwrap();
+            }
+        }
+    };
+
+    let emit_is_connected = async move {
+        let mut connected_clients = app_data.connected_clients.subscribe().into_stream();
+
+        while let Some(connected_clients) = connected_clients.next().await {
+            ConnectionEvent {
+                is_connected: connected_clients > 0,
             }
             .emit(&app)
             .unwrap();
@@ -181,7 +216,12 @@ async fn setup(app: AppHandle) {
     };
 
     // Run all tasks concurrently
-    join!(http_server, handle_unity_events, emit_app_state);
+    join!(
+        http_server,
+        handle_unity_events,
+        emit_app_state,
+        emit_is_connected
+    );
 }
 
 pub fn tauri_commands() -> tauri_specta::Builder {
@@ -190,10 +230,12 @@ pub fn tauri_commands() -> tauri_specta::Builder {
         .commands(collect_commands![
             // App data
             commands::current_state,
+            commands::is_connected,
             commands::show_folder,
             commands::get_ip_address,
             commands::get_secret,
             commands::get_parameters,
+            commands::get_default_parameters,
             // CRUD presets
             commands::get_presets,
             commands::create_preset,
@@ -202,9 +244,12 @@ pub fn tauri_commands() -> tauri_specta::Builder {
             commands::get_experiments,
             commands::create_experiment,
             commands::delete_experiment,
+            // CRUD results
+            commands::get_results,
+            commands::delete_result,
             // Live view
-            commands::set_live_parameters,
-            commands::get_live_parameters,
+            commands::set_idle_mode,
+            commands::set_live_mode,
             // Actvie experiment
             commands::start_experiment,
             commands::exit_experiment,

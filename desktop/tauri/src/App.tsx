@@ -11,9 +11,10 @@ import {
   ROUTE_PRESETS,
   ROUTE_RESULTS,
 } from "./const";
+import { useIsConnected } from "./hooks";
 import ActiveExperiment from "./pages/ActiveExperiment/ActiveExperiment";
 import ExperimentsPage from "./pages/Experiments";
-import LiveViewPage, { useLiveParameters } from "./pages/LiveView";
+import LiveViewPage from "./pages/LiveView";
 import PresetsPage from "./pages/Presets";
 import ResultsPage from "./pages/Results";
 
@@ -50,36 +51,25 @@ function useExperimentState(): ExperimentState | undefined {
 }
 
 export default function App() {
+  const isConnected = useIsConnected();
   const experimentState = useExperimentState();
-  const liveParameters = useLiveParameters();
-
-  useEffect(() => {
-    const unlisten = events.resultSavedEvent.listen((event) => {
-      const { result_file_path } = event.payload;
-      alert(
-        `Result saved to ${result_file_path}. You can view it in the Results tab.`
-      );
-    });
-
-    return () => {
-      unlisten.then((unlisten) => unlisten());
-    };
-  }, []);
 
   if (experimentState) {
-    return <ActiveExperiment experimentState={experimentState} />;
+    return (
+      <ActiveExperiment
+        experimentState={experimentState}
+        isConnected={isConnected}
+      />
+    );
   }
 
   return (
     <BrowserRouter>
       <div className={styles.mainLayout}>
-        <Sidebar />
+        <Sidebar isConnected={isConnected} />
         <Routes>
           <Route index element={<Navigate to={ROUTE_LIVE_VIEW} />} />
-          <Route
-            path={ROUTE_LIVE_VIEW}
-            element={<LiveViewPage liveParameters={liveParameters} />}
-          />
+          <Route path={ROUTE_LIVE_VIEW} element={<LiveViewPage />} />
           <Route path={ROUTE_PRESETS} element={<PresetsPage />} />
           <Route path={ROUTE_EXPERIMENTS} element={<ExperimentsPage />} />
           <Route path={ROUTE_RESULTS} element={<ResultsPage />} />

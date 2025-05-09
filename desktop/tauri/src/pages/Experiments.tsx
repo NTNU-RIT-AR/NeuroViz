@@ -1,22 +1,25 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 
 import { PlayIcon, TrashIcon } from "@heroicons/react/24/outline";
-import Fuse from "fuse.js";
-import { useMemo } from "react";
 import { SelectInstance } from "react-select";
 import { match } from "ts-pattern";
 import { commands, Experiment, Preset, WithKey } from "../bindings.gen";
 import Button from "../components/Button";
-import { Input, Label, Select, TextArea } from "../components/Input";
+import { Checkbox, Input, Label, Select, TextArea } from "../components/Input";
 import Popup from "../components/Popup";
-import { useCommand } from "../hooks";
+import { useCommand, useFuse } from "../hooks";
 import styles from "./Experiments.module.css";
 
 interface ExperimentCardProps {
   experiment: WithKey<Experiment>;
   onDelete: () => void;
-  onStart: (resultName: string, observerId: number, note: string) => void;
+  onStart: (
+    resultName: string,
+    observerId: number,
+    note: string,
+    randomzie: boolean
+  ) => void;
 }
 
 function ExperimentCard(props: ExperimentCardProps) {
@@ -27,6 +30,11 @@ function ExperimentCard(props: ExperimentCardProps) {
   const resultNameRef = useRef<HTMLInputElement>(null);
   const observerIdRef = useRef<HTMLInputElement>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
+  const randomizeRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    commands.setIdleMode();
+  }, []);
 
   const experimentType = match(experiment.value.experiment_type)
     .with("rating", () => "Rating")
@@ -96,6 +104,11 @@ function ExperimentCard(props: ExperimentCardProps) {
               Note
               <TextArea ref={noteRef} />
             </Label>
+
+            <Label horizontal>
+              <Checkbox ref={randomizeRef} defaultChecked={false} />
+              Randomize the order
+            </Label>
           </div>
 
           <Button
@@ -104,9 +117,31 @@ function ExperimentCard(props: ExperimentCardProps) {
               const resultName = resultNameRef.current?.value;
               const observerId = observerIdRef.current?.value;
               const note = noteRef.current?.value;
+              const randomize = randomizeRef.current?.checked ?? false;
+
+              if (!resultName) {
+                alert("Experiment result name is required");
+                return;
+              }
+
+              if (!observerId) {
+                alert("Observer ID is required");
+                return;
+              }
+
+              if (isNaN(parseInt(observerId))) {
+                alert("Observer ID must be a number");
+                return;
+              }
 
               if (resultName && observerId) {
-                onStart(resultName, parseInt(observerId), note || "");
+                onStart(
+                  resultName,
+                  parseInt(observerId),
+                  note || "",
+                  randomize
+                );
+
                 setShowCreatePopup(false);
               }
             }}
@@ -165,7 +200,6 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
     }
 
     function onSuccess(path: string) {
-      alert(`Experiment created successfully! Saved to ${path}`);
       onClose();
     }
 
@@ -226,6 +260,7 @@ function CreateExperimentPopup(props: CreateExperimentPopupProps) {
           <Select
             ref={presetsRef}
             isMulti
+            closeMenuOnSelect={false}
             name="presets"
             options={presets.map((preset) => ({
               value: preset.key,
@@ -259,18 +294,7 @@ export default function ExperimentsPage() {
   const [showCreatePopup, setShowCreatePopup] = useState(false);
 
   const [search, setSearch] = useState("");
-  const fuse = useMemo(
-    () =>
-      new Fuse(experiments.data, {
-        keys: ["value.name"],
-        threshold: 0.3,
-      }),
-    [experiments.data]
-  );
-  const filteredExperiments = useMemo(() => {
-    if (!search.trim()) return experiments.data;
-    return fuse.search(search).map((res) => res.item);
-  }, [search, fuse]);
+  const filteredExperiments = useFuse(search, experiments.data, ["value.name"]);
 
   return (
     <>
@@ -299,12 +323,13 @@ export default function ExperimentsPage() {
             <ExperimentCard
               key={experiment.key}
               experiment={experiment}
-              onStart={(resultName, observerId, note) =>
+              onStart={(resultName, observerId, note, randomize) =>
                 commands.startExperiment(
                   experiment.key,
                   resultName,
                   observerId,
-                  note
+                  note,
+                  randomize
                 )
               }
               onDelete={async () => {

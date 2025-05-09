@@ -24,6 +24,7 @@ pub struct SharedExperimentState {
     pub experiment_key: String,
     pub result_key: String,
     pub current_index: u32,
+    pub is_idle: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Type, EnumTryAs)]
@@ -36,6 +37,20 @@ pub enum ExperimentState {
 }
 
 impl ExperimentState {
+    pub fn is_idle(&self) -> bool {
+        match self {
+            ExperimentState::Rating(state) => state.shared.is_idle,
+            ExperimentState::Choice(state) => state.shared.is_idle,
+        }
+    }
+
+    pub fn set_is_idle(&mut self, is_idle: bool) {
+        match self {
+            ExperimentState::Rating(state) => state.shared.is_idle = is_idle,
+            ExperimentState::Choice(state) => state.shared.is_idle = is_idle,
+        }
+    }
+
     pub fn new_rating(
         experiment_key: String,
         result_key: String,
@@ -47,6 +62,7 @@ impl ExperimentState {
                 experiment_key,
                 result_key,
                 current_index: 0,
+                is_idle: false,
             },
             experiment,
             result,
@@ -64,6 +80,7 @@ impl ExperimentState {
                 experiment_key,
                 result_key,
                 current_index: 0,
+                is_idle: false,
             },
             current_preset: CurrentPreset::A,
             experiment,

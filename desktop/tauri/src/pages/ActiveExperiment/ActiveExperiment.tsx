@@ -2,12 +2,16 @@ import { useState } from "react";
 import { match } from "ts-pattern";
 import { commands, CurrentPreset, ExperimentState } from "../../bindings.gen";
 import Button from "../../components/Button";
+import ConnectionBox from "../../components/ConnectionBox";
+import Popup from "../../components/Popup";
 import Slider from "../../components/Slider";
+import { useConnectionQrCode } from "../../hooks";
 import styles from "./ActiveExperiment.module.css";
 import { PresetBox } from "./PresetBox";
 
 interface ActiveExperimentProps {
   experimentState: ExperimentState;
+  isConnected: boolean;
 }
 
 function handleExit() {
@@ -20,86 +24,10 @@ function handleExit() {
 }
 
 export default function ActiveExperiment(props: ActiveExperimentProps) {
-  const { experimentState } = props;
-  const { presets } = experimentState.experiment;
-  const prompt = experimentState.current_index;
+  const { experimentState, isConnected } = props;
 
+  const connectionQrCode = useConnectionQrCode();
   const [sliderValue, setSldierValue] = useState(1);
-
-  const actions = match(experimentState)
-    .with({ experiment_type: "choice" }, (experiment_state) => {
-      let { experiment, current_preset } = experiment_state;
-      const choice = experiment.choices[experimentState.current_index];
-
-      const presetA = presets[choice.a]!;
-      const presetB = presets[choice.b]!;
-
-      const selectedPreset = match(current_preset)
-        .with("A", () => presetA)
-        .with("B", () => presetB)
-        .exhaustive();
-
-      return (
-        <div>
-          <p>Currently showing preset "{selectedPreset.name}"</p>
-
-          <div style={{ display: "flex", gap: 16 }}>
-            <Button onClick={() => commands.swapPreset()}>Swap</Button>
-            <Button
-              onClick={() =>
-                commands.answerExperiment({ experiment_type: "choice" })
-              }
-            >
-              Choose {selectedPreset.name}
-            </Button>
-          </div>
-        </div>
-      );
-    })
-    .with({ experiment_type: "rating" }, (experiment_state) => {
-      const { experiment } = experiment_state;
-      const presetKey = experiment.order[experimentState.current_index];
-
-      const preset = presets[presetKey]!;
-
-      // TODO star rating
-
-      return (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <p>Currently showing preset "{preset.name}"</p>
-
-          <div style={{ display: "flex", gap: 16, paddingBottom: 8 }}>
-            <input
-              type="range"
-              min={1}
-              max={5}
-              step={1}
-              value={sliderValue}
-              onChange={(e) => setSldierValue(parseInt(e.currentTarget.value))}
-            />
-
-            <span>{sliderValue}</span>
-          </div>
-
-          <Button
-            onClick={() =>
-              commands.answerExperiment({
-                experiment_type: "rating",
-                value: sliderValue,
-              })
-            }
-          >
-            Submit rating
-          </Button>
-        </div>
-      );
-    })
-    .exhaustive();
-
-  const experimentType = match(experimentState.experiment_type)
-    .with("choice", () => "Choice")
-    .with("rating", () => "Rating")
-    .exhaustive();
 
   function onSubmit() {
     match(experimentState)
@@ -122,18 +50,18 @@ export default function ActiveExperiment(props: ActiveExperimentProps) {
   const questionAmount = match(experimentState)
     .with(
       { experiment_type: "choice" },
-      (state) => state.experiment.choices.length
+      (state) => state.experiment.choices.length,
     )
     .with(
       { experiment_type: "rating" },
-      (state) => state.experiment.order.length
+      (state) => state.experiment.order.length,
     )
     .exhaustive();
 
   const confirmText = match(experimentState)
     .with(
       { experiment_type: "choice" },
-      (state) => `Choose ${state.current_preset}`
+      (state) => `Choose ${state.current_preset}`,
     )
     .with({ experiment_type: "rating" }, () => "Submit rating")
     .exhaustive();
@@ -198,44 +126,63 @@ export default function ActiveExperiment(props: ActiveExperimentProps) {
     })
     .exhaustive();
 
+  const isDisabled = experimentState.is_idle;
+
   return (
-    <div>
-      <div
-        className={styles.progressBar}
-        style={{ width: progessBarWidth }}
-      ></div>
+    <>
+      <div>
+        <div
+          className={styles.progressBar}
+          style={{ width: progessBarWidth }}
+        ></div>
 
-      <div className={styles.layout}>
-        <header className={styles.header}>
-          <div>
-            <h1 className={styles.title}>Experiment</h1>
+        <div className={styles.layout}>
+          <header className={styles.header}>
+            <div>
+              <h1 className={styles.title}>Experiment</h1>
 
-            <h2 className={styles.subtitle}>
-              {experimentState.experiment.name}
-            </h2>
-          </div>
+              <h2 className={styles.subtitle}>
+                {experimentState.experiment.name}
+              </h2>
+            </div>
 
-          <div>
-            <h1 className={styles.title}>Question</h1>
+            <div>
+              <h1 className={styles.title}>Question</h1>
 
-            <h2 className={styles.subtitle}>
-              {questionIndex}/{questionAmount}
-            </h2>
-          </div>
-        </header>
+              <h2 className={styles.subtitle}>
+                {questionIndex}/{questionAmount}
+              </h2>
+            </div>
+          </header>
 
-        {content}
+          {content}
 
-        <footer className={styles.footer}>
-          <Button variant="danger" onClick={handleExit}>
-            Exit
-          </Button>
-          {/* <Button variant="primary">Choose B</Button> */}
-          <Button variant="primary" onClick={onSubmit}>
-            {confirmText}
-          </Button>
-        </footer>
+          <footer className={styles.footer}>
+            <Button variant="danger" onClick={handleExit} disabled={isDisabled}>
+              Exit
+            </Button>
+            {/* <Button variant="primary">Choose B</Button> */}
+            <Button variant="primary" onClick={onSubmit} disabled={isDisabled}>
+              {confirmText}
+            </Button>
+          </footer>
+        </div>
       </div>
-    </div>
+
+      {!isConnected && (
+        <Popup title={"Reconnect"}>
+          <div className={styles.popupContent}>
+            <ConnectionBox
+              qrText={connectionQrCode}
+              isConnected={isConnected}
+            />
+
+            <Button variant="danger" onClick={handleExit}>
+              Exit Experiment
+            </Button>
+          </div>
+        </Popup>
+      )}
+    </>
   );
 }

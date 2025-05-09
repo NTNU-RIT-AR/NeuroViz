@@ -13,6 +13,10 @@
 
   white-space: nowrap;
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
 .square {
@@ -38,6 +42,9 @@
   color: var(--green-hl);
   background-color: var(--green-bg);
   border-color: var(--green-hl);
+}
+
+.secondary {
 }
 
 .danger {

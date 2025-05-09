@@ -5,19 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="091451e9-6284-40ea-b1db-fb98c943c51e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.mobile/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebellum.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebellum.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebrum Main.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cerebrum Main.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Cornea.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Cornea.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Eye.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Eye.mat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Materials/Brain/Parent.mat" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Materials/Brain/Parent.mat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/ExperimentScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/ExperimentScene.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/LiveScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/Connected/LiveScene.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scenes/ConnectedScene.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UpdateParameters.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UpdateParameters.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain  Seethrough.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Shaders/Brain  Seethrough.shadergraph" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Shaders/Brain.shadergraph" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/packages.config" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/packages.config" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,23 +49,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "RIT-49-unity",
-    "ignore.virus.scanning.warn.message": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "rider.code.cleanup.on.save": "true",
-    "rider.code.cleanup.on.save.profile": "Built-in: Reformat Code",
-    "settings.editor.selected.configurable": "preferences.sourceCode.C#",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;unity-final-final&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;rider.code.cleanup.on.save&quot;: &quot;true&quot;,
+    &quot;rider.code.cleanup.on.save.profile&quot;: &quot;Built-in: Reformat Code&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.C#&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
     <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
       <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.43f1\Editor\Unity.exe" />
@@ -132,6 +124,9 @@
       <workItem from="1743363179240" duration="9919000" />
       <workItem from="1743446162274" duration="10432000" />
       <workItem from="1744650077308" duration="7880000" />
+      <workItem from="1746566335487" duration="1624000" />
+      <workItem from="1746651241183" duration="1259000" />
+      <workItem from="1746801805940" duration="581000" />
     </task>
     <servers />
   </component>

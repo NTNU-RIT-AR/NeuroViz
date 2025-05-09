@@ -6,6 +6,9 @@ export const commands = {
   async currentState(): Promise<AppState> {
     return await TAURI_INVOKE("current_state");
   },
+  async isConnected(): Promise<boolean> {
+    return await TAURI_INVOKE("is_connected");
+  },
   async showFolder(folder: TopLevelFolder): Promise<null> {
     return await TAURI_INVOKE("show_folder", { folder });
   },
@@ -17,6 +20,9 @@ export const commands = {
   },
   async getParameters(): Promise<Parameter[]> {
     return await TAURI_INVOKE("get_parameters");
+  },
+  async getDefaultParameters(): Promise<ParameterValues> {
+    return await TAURI_INVOKE("get_default_parameters");
   },
   async getPresets(): Promise<WithKey<Preset>[]> {
     return await TAURI_INVOKE("get_presets");
@@ -45,28 +51,45 @@ export const commands = {
     return await TAURI_INVOKE("delete_experiment", { key });
   },
   /**
-   * Set all parameters in live view
+   * Get all results
    */
-  async setLiveParameters(parameters: ParameterValues): Promise<null> {
-    return await TAURI_INVOKE("set_live_parameters", { parameters });
+  async getResults(): Promise<WithKey<ResultWithExperiment>[]> {
+    return await TAURI_INVOKE("get_results");
   },
   /**
-   * Get all parameters in live view
+   * Delete a result file
+   *
+   * * `key` - The unique identifier of the result to delete
+   * * `experiment_key` - The experiment key that the result belongs to
    */
-  async getLiveParameters(): Promise<ParameterValues> {
-    return await TAURI_INVOKE("get_live_parameters");
+  async deleteResult(key: string, experimentKey: string): Promise<null> {
+    return await TAURI_INVOKE("delete_result", { key, experimentKey });
+  },
+  /**
+   * Enter idle
+   */
+  async setIdleMode(): Promise<null> {
+    return await TAURI_INVOKE("set_idle_mode");
+  },
+  /**
+   * Enter live mode with parameters
+   */
+  async setLiveMode(parameters: ParameterValues): Promise<null> {
+    return await TAURI_INVOKE("set_live_mode", { parameters });
   },
   async startExperiment(
     experimentKey: string,
     resultName: string,
     obeserverId: number,
     note: string,
+    randomize: boolean,
   ): Promise<null> {
     return await TAURI_INVOKE("start_experiment", {
       experimentKey,
       resultName,
       obeserverId,
       note,
+      randomize,
     });
   },
   /**
@@ -106,6 +129,7 @@ export const events = __makeEvents__<{
 /** user-defined types **/
 
 export type AppState =
+  | { kind: "idle" }
   | ({ kind: "live_view" } & ParameterValues)
   | ({ kind: "experiment" } & ExperimentState);
 export type Choice = { a: string; b: string };
@@ -124,6 +148,7 @@ export type ChoiceExperimentState = {
   experiment_key: string;
   result_key: string;
   current_index: number;
+  is_idle: boolean;
 } & {
   experiment: ChoiceExperiment;
   result: ChoiceExperimentResult;
@@ -146,6 +171,9 @@ export type Experiment =
 export type ExperimentAnswer =
   | { experiment_type: "choice" }
   | { experiment_type: "rating"; value: number };
+export type ExperimentResult =
+  | ({ experiment_type: "rating" } & RatingExperimentResult)
+  | ({ experiment_type: "choice" } & ChoiceExperimentResult);
 export type ExperimentState =
   | ({ experiment_type: "rating" } & RatingExperimentState)
   | ({ experiment_type: "choice" } & ChoiceExperimentState);
@@ -200,8 +228,13 @@ export type RatingExperimentState = {
   experiment_key: string;
   result_key: string;
   current_index: number;
+  is_idle: boolean;
 } & { experiment: RatingExperiment; result: RatingExperimentResult };
 export type ResultSavedEvent = { result_file_path: string };
+export type ResultWithExperiment = {
+  experiment_key: string;
+  result: ExperimentResult;
+};
 export type StateEvent = { state: AppState };
 export type TopLevelFolder = "Presets" | "Experiments" | "Results";
 export type WithKey<T> = { key: string; value: T };

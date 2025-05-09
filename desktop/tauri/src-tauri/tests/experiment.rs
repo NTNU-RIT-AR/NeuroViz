@@ -61,7 +61,8 @@ pub async fn handle_unity_events_task(
                         .unwrap();
                 }
             }
-            UnityEvent::Connection { .. } => {}
+            UnityEvent::Connected => {}
+            UnityEvent::Disconnected => {}
         });
     }
 }

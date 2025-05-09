@@ -1,0 +1,118 @@
+.resultsContainer {
+  flex: 1;
+  display: grid;
+  margin-bottom: auto;
+
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-auto-columns: 1fr;
+  gap: 30px;
+}
+
+.resultCard {
+  min-width: 200px;
+  height: 240px;
+  color: white;
+
+  border: solid var(--primary-hl) 2px;
+  background-color: var(--primary-bg);
+  border-radius: 10px;
+
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition-duration: 0.4s;
+}
+
+.resultCardTitle,
+.resultCardContent,
+.resultCardBottom {
+  width: 100%;
+  padding-left: 20px;
+}
+
+.resultCardTitle {
+  border-bottom: solid var(--primary-hl) 2px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.resultCardContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--primary-hl);
+}
+
+.resultCardBottom {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 10px;
+  padding: 10px;
+}
+
+.inputFields {
+  margin-top: 16px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detailsButton {
+  margin-top: 24px;
+  align-self: flex-start;
+}
+
+.infoText {
+  font-size: 15px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: var(--spacing);
+}
+
+.searchBoxWrapper {
+  max-width: 300px;
+  width: 100%;
+}
+
+.resultDetails {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.resultDetailsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultDetailContent {
+  border: solid var(--primary-hl) 2px;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: var(--primary-bg);
+}
+
+.resultDetailTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.resultDetailTable th,
+.resultDetailTable td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--primary-hl);
+}

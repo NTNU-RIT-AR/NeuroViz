@@ -1,14 +1,13 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import classNames from "classnames";
-import Fuse from "fuse.js";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { commands, WithKey, type Preset } from "../bindings.gen.ts";
 import Button from "../components/Button.tsx";
 import { ContentBox } from "../components/ContentBox";
 import { Input } from "../components/Input.tsx";
 import { Layout } from "../components/Layout";
 import SliderCollection from "../components/SliderCollection.tsx";
-import { useCommand } from "../hooks.ts";
+import { useCommand, useFuse } from "../hooks.ts";
 import styles from "./Presets.module.css";
 
 type PresetProps = { name: string };
@@ -43,25 +42,22 @@ function PresetPreview(props: PresetPreviewProps) {
 export default function PresetsPage() {
   const presets = useCommand(commands.getPresets);
 
+  useEffect(() => {
+    commands.setIdleMode();
+  }, []);
+
   const [selectedPreset, setSelectedPreset] = useState<
     WithKey<Preset> | undefined
   >(undefined);
 
+  useEffect(() => {
+    if (selectedPreset) {
+      commands.setLiveMode(selectedPreset.value.parameters);
+    }
+  }, [selectedPreset]);
+
   const [search, setSearch] = useState("");
-
-  const fuse = useMemo(
-    () =>
-      new Fuse(presets.data, {
-        keys: ["value.name"],
-        threshold: 0.3,
-      }),
-    [presets.data]
-  );
-
-  const filteredPresets = useMemo(() => {
-    if (!search.trim()) return presets.data;
-    return fuse.search(search).map((res) => res.item);
-  }, [search, fuse]);
+  const filteredPresets = useFuse(search, presets.data, ["value.name"]);
 
   async function deletePreset(presetKey: string) {
     await commands.deletePreset(presetKey);
@@ -96,7 +92,15 @@ export default function PresetsPage() {
                 selectedPreset?.key === preset.key &&
                   styles.presetElementSelected
               )}
-              onClick={() => setSelectedPreset(preset)}
+              onClick={() => {
+                // If the preset is already selected, deselect it
+                if (selectedPreset?.key === preset.key) {
+                  setSelectedPreset(undefined);
+                  commands.setIdleMode();
+                } else {
+                  setSelectedPreset(preset);
+                }
+              }}
               role="option"
               aria-selected={selectedPreset?.key === preset.key}
             >
