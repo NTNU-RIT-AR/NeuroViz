@@ -130,23 +130,11 @@ namespace NeuroViz.Scenes
             eventSource = new EventSourceReader(new Uri(url));
             eventSource.Start();
 
-            var retryCount = 0;
-
             eventSource.MessageReceived += (sender, e) => HandleEvent(e);
             eventSource.Disconnected += async (sender, e) =>
             {
-                retryCount += 1;
-
-                if (retryCount >= 3)
-                {
-                    Debug.LogError("Failed to reconnect after 3 attempts.");
-                    isDisconnected = true;
-                    return;
-                }
-
-                Debug.Log($"Retry: {e.ReconnectDelay} - Error: {e.Exception}");
-                await Task.Delay(e.ReconnectDelay);
-                eventSource.Start(); // Reconnect to the same URL
+                Debug.LogError("Failed to connect.");
+                isDisconnected = true;
             };
         }
 
