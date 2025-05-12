@@ -8,7 +8,7 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-neuroviz = { path = "../neuroviz" }
+neuroviz = { path = "../core" }
 pyo3 = { version = "0.24", features = [
     "extension-module",
     "abi3",
