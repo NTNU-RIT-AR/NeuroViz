@@ -34,3 +34,15 @@ sleep(100) # Keep the server running for 100 seconds
 
 - Combinations: [examples/combinations.py](examples/combinations.py)
 - Usage in jupyter notebook: [examples/notebook.ipynb](examples/notebook.ipynb)
+
+## Development
+
+[Maturin](https://www.maturin.rs/) is used to build the rust extension for the Python API. After changing the Rust code, you need to rebuild the Python package:
+
+```bash
+# Install the maturin tool
+pip install maturin
+
+# Builds the crate and installs it as a python package in the current environment
+maturin develop
+```

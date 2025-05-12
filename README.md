@@ -8,6 +8,7 @@ Visit the [Releases](https://github.com/NTNU-RIT-AR/NeuroViz/releases/) page to 
 
 - For the XREAL Air2 Ultra glasses, the `.apk` can be downloaded and installed directly on the device.
 - For the controller application, download the correct installer for your operating system (`.dmg` for macOS, `.exe` for Windows, or `.AppImage` for Linux) and follow the installation instructions.
+- For the python interface, install it using pip: `pip install neuroviz`. See [desktop/python/README.md](desktop/python/README.md) for more details.
 
 ## Project Structure
 
