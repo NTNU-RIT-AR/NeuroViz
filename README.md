@@ -83,3 +83,7 @@ npm run tauri build
    - Select File > Build Settings
    - Choose your target platform (iOS or Android)
    - Click Build and Run
+
+### Swapping Model
+
+See our wiki for instructions on how to swap the model in the mobile application: https://github.com/NTNU-RIT-AR/NeuroViz/wiki/Swapping-Model
