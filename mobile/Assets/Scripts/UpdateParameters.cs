@@ -71,7 +71,7 @@ namespace NeuroViz
             foreach (var outlineObject in glowObjects)
             {
                 var color = outlineObject.OutlineColor;
-                outlineObject.OutlineColor = new Color(color.r, color.g, color.b, EaseInQuad(0f, 1f, glow));
+                outlineObject.OutlineColor = new Color(5.99215746f, 5.99215746f, 5.99215746f, EaseInQuad(0f, 1f, glow));
             }
 
             // Set the light properties
