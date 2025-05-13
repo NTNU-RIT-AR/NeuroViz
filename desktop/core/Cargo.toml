@@ -1,0 +1,25 @@
+[package]
+name = "neuroviz"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+tokio = { version = "1", features = ["full"] }
+futures-util = "0.3"
+axum = "0.8"
+tokio-stream = { version = "0.1", features = ["sync"] }
+futures = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+strum = { version = "0.27", features = ["derive"] }
+specta = { version = "=2.0.0-rc.22", features = ["derive", "chrono"] }
+async-stream = "0.3"
+rand = "0.9"
+
+[dev-dependencies]
+eventsource-stream = "0.2"
+reqwest = { version = "0.12", features = ["json", "stream"] }
