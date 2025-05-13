@@ -1,5 +1,6 @@
 import { QRCodeCanvas } from "qrcode.react";
 import styles from "./ConnectionBox.module.css";
+import xrealGlassesPng from "../assets/xreal-glasses.png";
 
 interface ConnectionBoxProps {
   qrText: string;
@@ -44,7 +45,7 @@ export default function ConnectionBox({
     >
       {isConnected ? (
         <>
-          <img src="src/assets/xreal-glasses.png" />
+          <img src={xrealGlassesPng} />
           <p>Connected</p>
         </>
       ) : (

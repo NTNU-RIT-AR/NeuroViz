@@ -64,6 +64,12 @@ body,
   -ms-user-drag: none;
 }
 
+input {
+  user-select: initial !important;
+  -webkit-user-select: initial !important;
+  cursor: initial !important;
+}
+
 html,
 body,
 div#root {

@@ -24,13 +24,13 @@ function useLiveParameters() {
     parameters.map((parameter) => ({
       ...parameter,
       value: defaultParameters[parameter.key],
-    }))
+    })),
   );
 
   // Set the live mode when the component mounts and when parameters change
   useEffect(() => {
     const parameters = Object.fromEntries(
-      parameterStates.map((parameter) => [parameter.key, parameter.value])
+      parameterStates.map((parameter) => [parameter.key, parameter.value]),
     ) as Record<ParameterKey, number>;
 
     commands.setLiveMode(parameters);
@@ -69,7 +69,7 @@ function useSelectPreset() {
   >(undefined);
 
   const selectedPreset = presets.data.find(
-    (preset) => preset.key === selectedPresetKey
+    (preset) => preset.key === selectedPresetKey,
   );
 
   const options = presets.data.map((preset) => ({
@@ -135,8 +135,15 @@ export default function LiveViewPage() {
               <Button
                 variant="primary"
                 onClick={async () => {
+                  const name = presetNameRef.current!.value;
+
+                  if (!name) {
+                    alert("Please enter a preset name");
+                    return;
+                  }
+
                   await commands
-                    .createPreset(presetNameRef.current!.value)
+                    .createPreset(name)
                     .then(() => {
                       selectPreset.refetch();
                       setShowPresetCreationPopup(false);
