@@ -6,9 +6,9 @@ NeuroViz is an neuroscience visualization platform for the XREAL Air2 Ultra. The
 
 Visit the [Releases](https://github.com/NTNU-RIT-AR/NeuroViz/releases/) page to download the latest version of NeuroViz.
 
-- For the XREAL Air2 Ultra glasses, the `.apk` can be downloaded and installed directly on the device.
+- For the XREAL Air2 Ultra glasses, the `.apk` can be downloaded and installed directly on the device. The app must be started from the Nebula launcher that starts when connecting the glasses to the XREAL Beam.
 - For the controller application, download the correct installer for your operating system (`.dmg` for macOS, `.exe` for Windows, or `.AppImage` for Linux) and follow the installation instructions.
-- For the python interface, install it using pip: `pip install neuroviz`. See [desktop/python/README.md](desktop/python/README.md) for more details.
+- For the python interface (optional), install it using pip: `pip install neuroviz`. See [desktop/python/README.md](desktop/python/README.md) for more details.
 
 ## Project Structure
 
