@@ -1,5 +1,7 @@
 # NeuroViz
 
+GitHub repository link: [https://github.com/NTNU-RIT-AR/NeuroViz](https://github.com/NTNU-RIT-AR/NeuroViz)
+
 NeuroViz is an neuroscience visualization platform for the XREAL Air2 Ultra. The system enables researchers, educators, and students to explore a brain model in an immersive environment.
 
 ## Installation
